@@ -32,8 +32,10 @@ async function bootstrap() {
     credentials: true,
   });
 
-  const port = config.get('BACKEND_PORT', { infer: true });
-  await app.listen(port);
+  // Railway/Render/Heroku inject PORT and expect the app to bind it; fall back
+  // to BACKEND_PORT (default 4000) for local dev.
+  const port = process.env.PORT ? Number(process.env.PORT) : config.get('BACKEND_PORT', { infer: true });
+  await app.listen(port, '0.0.0.0');
   Logger.log(`Sonora API listening on :${port}`, 'Bootstrap');
 }
 

@@ -27,4 +27,4 @@ COPY backend/package.json ./backend/
 WORKDIR /app/backend
 EXPOSE 4000
 # Run pending migrations then boot.
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main.js"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/src/main.js"]
