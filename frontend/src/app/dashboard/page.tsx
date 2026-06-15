@@ -18,9 +18,12 @@ import { WeeklyRecap } from '@/components/WeeklyRecap';
 import { AdnDual } from '@/components/AdnDual';
 import { EvolutionAdn } from '@/components/EvolutionAdn';
 import { SonoraBrain } from '@/components/SonoraBrain';
+import { HighlightCard } from '@/components/HighlightCard';
 import { gamerType } from '@/lib/steam-derive';
-import { Clock, Users, Disc3, Gamepad2 } from 'lucide-react';
+import { Clock, Users, Disc3, Gamepad2, Mic2, Flame, GitCompareArrows, ArrowRight } from 'lucide-react';
 import { I } from '@/lib/icons';
+
+const C = { music: '#1db954', violet: '#7c5cff', pink: '#ff5d8f', cyan: '#38bdf8', gaming: '#7c5cff' };
 
 export default function DashboardPage() {
   const { data: user, error } = useSWR('me', api.me);
@@ -98,6 +101,21 @@ export default function DashboardPage() {
       ? gamerType(steam.data, library.data, genres.data?.genres ?? [], momentum.data?.resumed.length ?? 0).top
       : null;
 
+  // Destacados con imagen — datos vivos para la fila superior.
+  const topArtist0 = topArtists.data?.[0] ?? null;
+  const topTrack0 = topTracks.data?.[0] ?? null;
+  const obsession = (() => {
+    const m = new Map<string, { name: string; artist: string; image: string | null; n: number }>();
+    for (const p of recent.data ?? []) {
+      const k = `${p.name}|${p.artist}`;
+      const e = m.get(k) ?? { name: p.name, artist: p.artist, image: p.imageUrl, n: 0 };
+      e.n += 1;
+      m.set(k, e);
+    }
+    const top = [...m.values()].sort((a, b) => b.n - a.n)[0];
+    return top && top.n >= 2 ? top : null;
+  })();
+
   return (
     <div className="mx-auto max-w-7xl pb-10">
       {/* Top bar */}
@@ -135,24 +153,57 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Sonora Brain — el narrador que une todo */}
-      <SonoraBrain />
+      {/* DESTACADOS — datos vivos con imágenes */}
+      <section className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {topArtist0 && (
+          <HighlightCard
+            icon={Mic2} kicker="Artista del momento" color={C.music}
+            image={topArtist0.imageUrl} name={topArtist0.name} rank={1}
+            href={`/dashboard/artist/${topArtist0.id}`}
+            stats={[{ value: topArtist0.plays, label: 'reproduc.' }, { value: `${topArtist0.minutes}m`, label: 'minutos' }]}
+          />
+        )}
+        {obsession ? (
+          <HighlightCard
+            icon={Flame} kicker="Tu obsesión" color={C.pink}
+            image={obsession.image} name={obsession.name} subtitle={obsession.artist}
+            stats={[{ value: `${obsession.n}×`, label: 'en tus recientes' }]} delay={0.05}
+          />
+        ) : topTrack0 && (
+          <HighlightCard
+            icon={Flame} kicker="Tu obsesión" color={C.pink}
+            image={topTrack0.imageUrl} name={topTrack0.name} subtitle={topTrack0.subtitle ?? null}
+            href={`/dashboard/song/${topTrack0.id}`}
+            stats={[{ value: topTrack0.plays, label: 'reproduc.' }]} delay={0.05}
+          />
+        )}
+        {recentGame && (
+          <HighlightCard
+            icon={Gamepad2} kicker="Tu juego" color={C.gaming}
+            image={recentGame.headerUrl} name={recentGame.name}
+            href={`/dashboard/steam/game/${recentGame.appId}`}
+            stats={[
+              { value: `${recentGame.hours2Weeks > 0 ? recentGame.hours2Weeks : recentGame.hoursForever}h`, label: recentGame.hours2Weeks > 0 ? '2 semanas' : 'histórico' },
+            ]} delay={0.1}
+          />
+        )}
+      </section>
 
       {/* ROW 2 — Smart stats */}
       <section className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
-        <SmartStat icon={I.minutes} label="Minutos hoy" numericValue={t?.minutes ?? 0} sub={avgDaily ? `vs tu promedio ${avgDaily}` : 'minutos'} delta={todayDelta} accent />
-        <SmartStat icon={I.music} label="Canciones hoy" numericValue={t?.plays ?? 0} sub={t?.uniqueTracks ? `${t.uniqueTracks} distintas` : 'reproducciones'} delay={0.05} />
-        <SmartStat icon={I.topArtist} label="Artista de hoy" value={t?.topArtist?.name ?? '—'} sub={t?.topArtist ? `${t.topArtist.plays} reproducciones hoy` : 'aún nada hoy'} delay={0.1} />
-        <SmartStat icon={I.mood} label="Estado de actividad" value={activity.data?.label ?? '—'} sub={activity.data?.reason ?? 'tus últimas 24h'} delay={0.15} />
-        <SmartStat icon={I.gaming} label="Gaming" value={recentGame ? `${recentGame.hours2Weeks || recentGame.hoursForever} h` : '—'} sub={recentGame?.name ?? 'conecta Steam'} delay={0.2} />
+        <SmartStat icon={I.minutes} label="Minutos hoy" numericValue={t?.minutes ?? 0} sub={avgDaily ? `vs tu promedio ${avgDaily}` : 'minutos'} delta={todayDelta} color={C.music} />
+        <SmartStat icon={I.music} label="Canciones hoy" numericValue={t?.plays ?? 0} sub={t?.uniqueTracks ? `${t.uniqueTracks} distintas` : 'reproducciones'} color={C.violet} delay={0.05} />
+        <SmartStat icon={I.topArtist} label="Artista de hoy" value={t?.topArtist?.name ?? '—'} sub={t?.topArtist ? `${t.topArtist.plays} reproducciones hoy` : 'aún nada hoy'} color={C.music} delay={0.1} />
+        <SmartStat icon={I.mood} label="Estado de actividad" value={activity.data?.label ?? '—'} sub={activity.data?.reason ?? 'tus últimas 24h'} color={C.cyan} delay={0.15} />
+        <SmartStat icon={I.gaming} label="Gaming" value={recentGame ? `${recentGame.hours2Weeks || recentGame.hoursForever} h` : '—'} sub={recentGame?.name ?? 'conecta Steam'} color={C.gaming} delay={0.2} />
       </section>
 
       {/* ROW 2.5 — Hoy en detalle */}
       <section className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
-        <SmartStat icon={Clock} label="Horas hoy" value={`${((t?.minutes ?? 0) / 60).toFixed(1)} h`} sub={`${(t?.minutes ?? 0).toLocaleString()} min`} />
-        <SmartStat icon={Users} label="Artistas hoy" numericValue={t?.uniqueArtists ?? 0} sub="distintos hoy" delay={0.05} />
-        <SmartStat icon={Disc3} label="Álbumes hoy" numericValue={t?.uniqueAlbums ?? 0} sub="distintos hoy" delay={0.1} />
-        <SmartStat icon={Gamepad2} label="Gaming hoy" value={`${activity.data?.signals.gamingHours ?? 0} h`} sub="en Steam (24h)" delay={0.15} />
+        <SmartStat icon={Clock} label="Horas hoy" value={`${((t?.minutes ?? 0) / 60).toFixed(1)} h`} sub={`${(t?.minutes ?? 0).toLocaleString()} min`} color={C.music} />
+        <SmartStat icon={Users} label="Artistas hoy" numericValue={t?.uniqueArtists ?? 0} sub="distintos hoy" color={C.cyan} delay={0.05} />
+        <SmartStat icon={Disc3} label="Álbumes hoy" numericValue={t?.uniqueAlbums ?? 0} sub="distintos hoy" color={C.violet} delay={0.1} />
+        <SmartStat icon={Gamepad2} label="Gaming hoy" value={`${activity.data?.signals.gamingHours ?? 0} h`} sub="en Steam (24h)" color={C.gaming} delay={0.15} />
       </section>
 
       {/* Resumen de la semana (#7) */}
@@ -161,18 +212,6 @@ export default function DashboardPage() {
           <WeeklyRecap data={weekly.data} rose={momentum.data?.rose?.[0] ?? null} resumed={momentum.data?.resumed?.[0] ?? null} />
         </section>
       )}
-
-      {/* Sonora ADN — musical + gamer balanceado (#5) */}
-      {(dna.data?.type || gType) && (
-        <section className="mb-6">
-          <AdnDual musical={dna.data?.type ?? null} gamer={gType} />
-        </section>
-      )}
-
-      {/* Evolución ADN — arquetipo musical mes a mes */}
-      <section className="mb-6">
-        <EvolutionAdn />
-      </section>
 
       {/* ROW 3 — Tu día | Energía | Recientes */}
       <section className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-4">
@@ -201,11 +240,25 @@ export default function DashboardPage() {
         />
       </section>
       {/* Semana actual: top canciones + top artistas + top juegos (música + gaming) */}
-      <section className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <section className="mb-10 grid grid-cols-1 gap-6 lg:grid-cols-3">
         <RankCard title="Top canciones · este mes" items={topTracks.data ?? []} loading={topTracks.isLoading} linkBase="/dashboard/song" />
         <RankCard title="Top artistas · este mes" items={topArtists.data ?? []} loading={topArtists.isLoading} linkBase="/dashboard/artist" />
         <TopGames games={steam.data?.topGames ?? []} />
       </section>
+
+      {/* ── Tu identidad · análisis profundo (secundario, no roba la zona principal) ── */}
+      <div className="mb-4 flex items-center gap-3">
+        <h2 className="text-sm font-semibold uppercase tracking-widest text-[var(--color-muted)]">Tu identidad · análisis profundo</h2>
+        <div className="h-px flex-1 bg-[var(--color-border)]" />
+        <Link href="/dashboard/versus" className="flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium text-[var(--color-accent)] transition hover:gap-2">
+          <GitCompareArrows className="h-3.5 w-3.5" /> Tú vs Tú <ArrowRight className="h-3 w-3" />
+        </Link>
+      </div>
+      <div className="space-y-6">
+        <SonoraBrain />
+        {(dna.data?.type || gType) && <AdnDual musical={dna.data?.type ?? null} gamer={gType} />}
+        <EvolutionAdn />
+      </div>
     </div>
   );
 }
