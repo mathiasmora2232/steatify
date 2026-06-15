@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { useImageColor } from '@/lib/useImageColor';
 import type { LucideIcon } from '@/lib/icons';
 
 /**
@@ -33,6 +34,9 @@ export function HighlightCard({
   color?: string;
   delay?: number;
 }) {
+  // Real derived color from the cover; falls back to the brand color.
+  const derived = useImageColor(image, color);
+  color = derived;
   const inner = (
     <motion.div
       initial={{ opacity: 0, y: 14 }}

@@ -9,11 +9,18 @@ export function UniverseCard({
   musicMinutes,
   gamingHours,
   label,
+  games,
+  played,
+  unplayed,
 }: {
   musicMinutes: number;
   gamingHours: number;
   label: string | null;
+  games?: number;
+  played?: number;
+  unplayed?: number;
 }) {
+  const explored = games && played != null ? Math.round((played / games) * 100) : null;
   return (
     <div
       className="relative overflow-hidden rounded-3xl border p-6"
@@ -46,6 +53,29 @@ export function UniverseCard({
           </p>
         </div>
       </div>
+
+      {/* Gaming en contexto: explorados vs por descubrir */}
+      {games != null && games > 0 && (
+        <div className="mt-5 rounded-2xl border border-white/5 bg-black/20 p-4">
+          <div className="mb-2 flex items-center justify-between text-xs">
+            <span className="flex items-center gap-1.5 text-[var(--color-muted)]">
+              <Gamepad2 className="h-3.5 w-3.5" /> <span className="font-bold text-white">{games}</span> juegos en tu biblioteca
+            </span>
+            {explored != null && <span className="font-semibold text-[var(--color-accent-2)]">{explored}% explorados</span>}
+          </div>
+          {explored != null && (
+            <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
+              <div className="h-full rounded-full bg-gradient-to-r from-[var(--color-accent-2)] to-[#38bdf8]" style={{ width: `${explored}%` }} />
+            </div>
+          )}
+          {unplayed != null && (
+            <p className="mt-2 text-xs text-[var(--color-muted)]">
+              <span className="font-semibold text-white">{unplayed}</span> esperando ser descubiertos
+            </p>
+          )}
+        </div>
+      )}
+
       {label && (
         <motion.p
           initial={{ opacity: 0 }}

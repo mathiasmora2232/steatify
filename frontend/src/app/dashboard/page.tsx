@@ -237,6 +237,9 @@ export default function DashboardPage() {
           musicMinutes={m?.minutes ?? 0}
           gamingHours={steamHours}
           label={dna.data?.hasData ? (dna.data.archetypes[0]?.label ?? null) : null}
+          games={steam.data?.gameCount}
+          played={steam.data?.playedCount}
+          unplayed={steam.data?.unplayedCount}
         />
       </section>
       {/* Semana actual: top canciones + top artistas + top juegos (música + gaming) */}
