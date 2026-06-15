@@ -43,13 +43,17 @@ import { BrainModule } from './brain/brain.module';
     }),
     ScheduleModule.forRoot(),
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 120 }]),
-    // Shared BullMQ connection for all queues.
+    // Shared BullMQ connection for all queues. Prefer REDIS_URL (includes auth,
+    // e.g. managed Redis on Railway/Upstash); fall back to host/port for local.
     BullModule.forRootAsync({
       useFactory: () => ({
-        connection: {
-          host: process.env.REDIS_HOST ?? 'localhost',
-          port: Number(process.env.REDIS_PORT ?? 6379),
-        },
+        connection: process.env.REDIS_URL
+          ? { url: process.env.REDIS_URL }
+          : {
+              host: process.env.REDIS_HOST ?? 'localhost',
+              port: Number(process.env.REDIS_PORT ?? 6379),
+              password: process.env.REDIS_PASSWORD || undefined,
+            },
       }),
     }),
     PrismaModule,
