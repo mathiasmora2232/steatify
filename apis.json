@@ -1,0 +1,62 @@
+STATS
+https://api.stats.fm/api/v1/users/316viqwv2555a6ihetj76peh3k3q/streams/stats?range=weeks
+TRACKS 
+https://api.stats.fm/api/v1/users/316viqwv2555a6ihetj76peh3k3q/top/tracks?range=weeks
+ARTISTS
+https://api.stats.fm/api/v1/users/316viqwv2555a6ihetj76peh3k3q/top/artists?range=weeks
+ALBUMS
+https://api.stats.fm/api/v1/users/316viqwv2555a6ihetj76peh3k3q/top/albums?range=weeks
+GENRES
+https://api.stats.fm/api/v1/users/316viqwv2555a6ihetj76peh3k3q/top/genres?range=weeks
+PLAYLISTS
+https://api.stats.fm/api/v1/users/316viqwv2555a6ihetj76peh3k3q/top/playlists?range=weeks
+LANGUAGES
+https://api.stats.fm/api/v1/users/316viqwv2555a6ihetj76peh3k3q/top/languages?range=weeks
+COUNTRIES
+https://api.stats.fm/api/v1/users/316viqwv2555a6ihetj76peh3k3q/top/countries?range=weeks
+CITIES
+https://api.stats.fm/api/v1/users/316viqwv2555a6ihetj76peh3k3q/top/cities?range=weeks
+TIMEZONES
+https://api.stats.fm/api/v1/users/316viqwv2555a6ihetj76peh3k3q/top/timezones?range=weeks
+IP ADDRESSES
+https://api.stats.fm/api/v1/users/316viqwv2555a6ihetj76peh3k3q/top/ip_addresses?range=weeks
+DEVICE TYPES
+https://api.stats.fm/api/v1/users/316viqwv2555a6ihetj76peh3k3q/top/device_types?range=weeks
+DEVICE BRANDS
+https://api.stats.fm/api/v1/users/316viqwv2555a6ihetj76peh3k3q/top/device_brands?range=weeks
+DEVICE MODELS
+https://api.stats.fm/api/v1/users/316viqwv2555a6ihetj76peh3k3q/top/device_models?range=weeks
+DEVICE OPERATING SYSTEMS
+https://api.stats.fm/api/v1/users/316viqwv2555a6ihetj76peh3k3q/top/device_operating_systems?range=weeks
+DEVICE VERSIONS
+https://api.stats.fm/api/v1/users/316viqwv2555a6ihetj76peh3k3q/top/device_versions?range=weeks
+DEVICE VERSIONS BY DEVICE TYPE
+https://api.stats.fm/api/v1/users/316viqwv2555a6ihetj76peh3k3q/top/device_versions_by_device_type?range=weeks
+DEVICE VERSIONS BY DEVICE BRAND
+https://api.stats.fm/api/v1/users/316viqwv2555a6ihetj76peh3k3q/top/device_versions_by_device_brand?range=weeks
+DEVICE VERSIONS BY DEVICE MODEL
+https://api.stats.fm/api/v1/users/316viqwv2555a6ihetj76peh3k3q/top/device_versions_by_device_model?range=weeks
+DEVICE VERSIONS BY DEVICE OPERATING SYSTEM
+https://api.stats.fm/api/v1/users/316viqwv2555a6ihetj76peh3k3q/top/device_versions_by_device_operating_system?range=weeks
+DEVICE VERSIONS BY DEVICE VERSION
+https://api.stats.fm/api/v1/users/316viqwv2555a6ihetj76peh3k3q/top/device_versions_by_device_version?range=weeks
+DEVICE VERSIONS BY DEVICE TYPE AND DEVICE BRAND
+https://api.stats.fm/api/v1/users/316viqwv2555a6ihetj76peh3k3q/top/device_versions_by_device_type_and_device_brand?range=weeks
+DEVICE VERSIONS BY DEVICE TYPE AND DEVICE MODEL
+https://api.stats.fm/api/v1/users/316viqwv2555a6ihetj76peh3k3q/top/device_versions_by_device_type_and_device_model?range=weeks
+DEVICE VERSIONS BY DEVICE TYPE AND DEVICE OPERATING SYSTEM
+https://api.stats.fm/api/v1/users/316viqwv2555a6ihetj76peh3k3q/top/device_versions_by_device_type_and_device_operating_system?range=weeks
+DEVICE VERSIONS BY DEVICE TYPE AND DEVICE VERSION
+https://api.stats.fm/api/v1/users/316viqwv2555a6ihetj76peh3k3q/top/device_versions_by_device_type_and_device_version?range=weeks
+DEVICE VERSIONS BY DEVICE BRAND AND DEVICE MODEL
+https://api.stats.fm/api/v1/users/316viqwv2555a6ihetj76peh3k3q/top/device_versions_by_device_brand_and_device_model?range=weeks  
+TOP TRACKS
+https://api.stats.fm/api/v1/users/316viqwv2555a6ihetj76peh3k3q/top/tracks?range=weeks
+TOP ARTISTS
+https://api.stats.fm/api/v1/users/316viqwv2555a6ihetj76peh3k3q/top/artists?range=weeks
+TOP ALBUMS
+https://api.stats.fm/api/v1/users/316viqwv2555a6ihetj76peh3k3q/top/albums?range=weeks
+TOP GENRES
+https://api.stats.fm/api/v1/users/316viqwv2555a6ihetj76peh3k3q/top/genres?range=weeks
+TOP PLAYLISTS
+https://api.stats.fm/api/v1/users/316viqwv2555a6ihetj76peh3k3q/top/playlists?range=weeks

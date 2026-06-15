@@ -1,0 +1,628 @@
+// ─────────────────────────────────────────────────────────────────────────
+// Sonora — Prisma schema
+//
+// Design principles
+//  - The catalog (Artist/Album/Track/Genre) is GLOBAL and shared across users.
+//    A track is stored once; every user's plays reference it. This keeps the
+//    high-volume `listening_history` table narrow (mostly foreign keys).
+//  - `listening_history` is the hot, append-only, millions-of-rows table.
+//    It is deduped by (userId, playedAt) and indexed for the access patterns
+//    the dashboard actually uses (recent feed, per-artist, per-track, ranges).
+//    In production this table is RANGE-partitioned by month — see the note at
+//    the bottom and the raw-SQL migration in prisma/migrations.
+//  - Pre-aggregated rollups (DailyStat / MonthlyStat / contribution graph) let
+//    the dashboard answer "top X this month" without scanning raw history.
+//  - Spotify genres live on the ARTIST (the API exposes them there, not on
+//    tracks), so genre stats are derived through artist relations.
+// ─────────────────────────────────────────────────────────────────────────
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ───────────────────────────── Users / Auth ─────────────────────────────
+
+model User {
+  id            String   @id @default(cuid())
+  // ── Sonora account (primary identity) ──
+  email         String?  @unique
+  username      String?  @unique // public handle → /u/:username
+  passwordHash  String? // scrypt; null for OAuth-only / guest accounts
+  displayName   String?
+  avatarUrl     String?
+  bannerUrl     String?
+  bio           String?  @db.Text
+  location      String?
+  website       String?
+  isPublic      Boolean  @default(true)
+  showSteam     Boolean  @default(true) // show gaming on the public profile
+  showMusic     Boolean  @default(true) // show music on the public profile
+  aiAuto        Boolean  @default(true) // auto-generate weekly insights
+  // ── Spotify connection details (kept here for convenience) ──
+  spotifyId     String?  @unique // a CONNECTION now, not the identity
+  country       String? // ISO 3166-1 alpha-2
+  product       String? // spotify tier: premium/free
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  lastSyncedAt  DateTime? // last successful recently-played sync
+  syncEnabled   Boolean  @default(true)
+  tzOffset      Int      @default(0) // minutes to add to UTC for the user's local time
+
+  spotifyAccount SpotifyAccount?
+  sessions       Session[]
+  history        ListeningHistory[]
+  dailyStats     DailyStat[]
+  monthlyStats   MonthlyStat[]
+  achievements   UserAchievement[]
+  eras           MusicEra[]
+  insights       AiInsight[]
+  predictions    ObsessionCandidate[]
+
+  // Steam (multi-system)
+  steamAccount SteamAccount?
+  games        UserGame[]
+  steamSnapshots SteamSnapshot[]
+  steamGameSnapshots SteamGameSnapshot[]
+  steamSyncLogs  SteamSyncLog[]
+
+  musicEvents  MusicEvent[]
+
+  @@map("users")
+}
+
+// Spotify OAuth credentials, kept separate from the user profile.
+// accessToken / refreshToken are stored ENCRYPTED at rest (AES-256-GCM via
+// TOKEN_ENC_KEY) — never as plaintext.
+model SpotifyAccount {
+  id                  String   @id @default(cuid())
+  userId              String   @unique
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessTokenEnc      String   @db.Text
+  refreshTokenEnc     String   @db.Text
+  scope               String
+  tokenType           String   @default("Bearer")
+  expiresAt           DateTime // when the access token expires
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@map("spotify_accounts")
+}
+
+// Refresh-token-backed app sessions (rotating). Stores only a hash of the
+// refresh token so a DB leak doesn't grant sessions.
+model Session {
+  id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refreshTokenHash String   @unique
+  userAgent        String?
+  ip               String?
+  expiresAt        DateTime
+  revokedAt        DateTime?
+  createdAt        DateTime @default(now())
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+// ───────────────────────────── Catalog ──────────────────────────────────
+
+model Artist {
+  id          String   @id @default(cuid())
+  spotifyId   String   @unique
+  name        String
+  imageUrl    String?
+  popularity  Int? // 0-100 from Spotify
+  followers   Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  genres   ArtistGenre[]
+  albums   AlbumArtist[]
+  tracks   TrackArtist[]
+  history  ListeningHistory[]
+
+  @@index([name])
+  @@map("artists")
+}
+
+model Genre {
+  id        String        @id @default(cuid())
+  name      String        @unique
+  artists   ArtistGenre[]
+  createdAt DateTime      @default(now())
+
+  @@map("genres")
+}
+
+model ArtistGenre {
+  artistId String
+  genreId  String
+  artist   Artist @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  genre    Genre  @relation(fields: [genreId], references: [id], onDelete: Cascade)
+
+  @@id([artistId, genreId])
+  @@index([genreId])
+  @@map("artist_genres")
+}
+
+model Album {
+  id            String   @id @default(cuid())
+  spotifyId     String   @unique
+  name          String
+  imageUrl      String?
+  albumType     String? // album/single/compilation
+  releaseDate   String? // Spotify returns variable precision (yyyy / yyyy-MM / yyyy-MM-dd)
+  totalTracks   Int?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  artists AlbumArtist[]
+  tracks  Track[]
+
+  @@index([name])
+  @@map("albums")
+}
+
+model AlbumArtist {
+  albumId  String
+  artistId String
+  album    Album  @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  artist   Artist @relation(fields: [artistId], references: [id], onDelete: Cascade)
+
+  @@id([albumId, artistId])
+  @@index([artistId])
+  @@map("album_artists")
+}
+
+model Track {
+  id           String   @id @default(cuid())
+  spotifyId    String   @unique
+  name         String
+  durationMs   Int
+  explicit     Boolean  @default(false)
+  popularity   Int?
+  isrc         String? // recording id; useful for cross-source dedup
+  previewUrl   String?
+  albumId      String?
+  album        Album?   @relation(fields: [albumId], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  artists  TrackArtist[]
+  features TrackFeatures?
+  history  ListeningHistory[]
+
+  @@index([name])
+  @@index([albumId])
+  @@map("tracks")
+}
+
+// Position preserved so we can tell the primary artist (position 0) from features.
+model TrackArtist {
+  trackId  String
+  artistId String
+  position Int    @default(0)
+  track    Track  @relation(fields: [trackId], references: [id], onDelete: Cascade)
+  artist   Artist @relation(fields: [artistId], references: [id], onDelete: Cascade)
+
+  @@id([trackId, artistId])
+  @@index([artistId])
+  @@map("track_artists")
+}
+
+// Spotify audio features — the backbone of "mood" detection, eras and ML.
+model TrackFeatures {
+  trackId          String  @id
+  track            Track   @relation(fields: [trackId], references: [id], onDelete: Cascade)
+  danceability     Float?
+  energy           Float?
+  valence          Float? // musical positivity → core of mood
+  tempo            Float? // BPM
+  acousticness     Float?
+  instrumentalness Float?
+  speechiness      Float?
+  liveness         Float?
+  loudness         Float?
+  musicalKey       Int? // 0-11 pitch class
+  mode             Int? // 0 minor / 1 major
+  timeSignature    Int?
+  fetchedAt        DateTime @default(now())
+
+  @@map("track_features")
+}
+
+// ─────────────────────────── Listening history ──────────────────────────
+// HOT TABLE. Append-only, deduped by (userId, playedAt). Designed to stay
+// narrow so it scales to millions of rows. Denormalized artistId (the primary
+// artist) is carried here to avoid a join on the most common rankings query.
+
+enum PlaySource {
+  SPOTIFY_RECENT // polled from /me/player/recently-played
+  IMPORT_EXTENDED // user-uploaded GDPR "Extended Streaming History"
+  BACKFILL
+}
+
+model ListeningHistory {
+  id        BigInt     @id @default(autoincrement())
+  userId    String
+  trackId   String
+  artistId  String? // primary artist, denormalized for fast group-by
+  playedAt  DateTime // when playback started (dedup key)
+  msPlayed  Int // how long was actually listened (import gives this; API approximates with track duration)
+  source    PlaySource @default(SPOTIFY_RECENT)
+  contextType String?  // album / playlist / artist / collection
+  contextUri  String?
+  skipped     Boolean? // only known from extended-history import
+  createdAt   DateTime @default(now())
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  track  Track   @relation(fields: [trackId], references: [id])
+  artist Artist? @relation(fields: [artistId], references: [id])
+
+  // Dedup: a user cannot start the same play twice at the same instant.
+  @@unique([userId, playedAt], name: "uniq_user_play")
+  // Recent feed + range scans (most dashboard queries).
+  @@index([userId, playedAt(sort: Desc)])
+  // "How many times did I play track X" / per-artist rollups.
+  @@index([userId, trackId])
+  @@index([userId, artistId])
+  @@map("listening_history")
+}
+
+// ─────────────────────────── Aggregations ───────────────────────────────
+// Pre-computed rollups so the dashboard never scans raw history for common
+// questions. Rebuilt incrementally by the stats jobs after each sync.
+
+model DailyStat {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  day             DateTime @db.Date // user-local calendar day
+  msPlayed        Int      @default(0)
+  playCount       Int      @default(0)
+  uniqueTracks    Int      @default(0)
+  uniqueArtists   Int      @default(0)
+  topTrackId      String?
+  topArtistId     String?
+  topGenre        String?
+  // Mood snapshot (averaged audio features for the day) → contribution graph.
+  avgValence      Float?
+  avgEnergy       Float?
+  dominantMood    Mood?
+  updatedAt       DateTime @updatedAt
+
+  @@unique([userId, day], name: "uniq_user_day")
+  @@index([userId, day(sort: Desc)])
+  @@map("daily_stats")
+}
+
+model MonthlyStat {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  year          Int
+  month         Int // 1-12
+  msPlayed      Int      @default(0)
+  playCount     Int      @default(0)
+  uniqueTracks  Int      @default(0)
+  uniqueArtists Int      @default(0)
+  // Denormalized JSON top-lists for instant "Wrapped"-style cards.
+  topTracks     Json? // [{ trackId, plays, msPlayed }]
+  topArtists    Json?
+  topAlbums     Json?
+  topGenres     Json?
+  avgValence    Float?
+  avgEnergy     Float?
+  updatedAt     DateTime @updatedAt
+
+  @@unique([userId, year, month], name: "uniq_user_month")
+  @@index([userId, year, month])
+  @@map("monthly_stats")
+}
+
+enum Mood {
+  EUPHORIC // high energy, high valence
+  HAPPY
+  CHILL // low energy, high valence
+  FOCUSED
+  MELANCHOLIC // low energy, low valence
+  INTENSE // high energy, low valence
+  NEUTRAL
+}
+
+// ──────────────────────────── Music Eras ────────────────────────────────
+// Algorithmically detected life-stages of a user's listening. Phase 3.
+
+model MusicEra {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  startDate     DateTime  @db.Date
+  endDate       DateTime? @db.Date // null = ongoing era
+  title         String // generated label, e.g. "Indie nocturno melancólico"
+  summary       String?   @db.Text
+  // Signals the detector used / produced.
+  dominantGenres   Json? // reused to carry the theme/vibe key (e.g. ["night"])
+  dominantArtists  Json? // top 5 artist names, ranked
+  eraType          String? // era archetype key (nocturna, dominada, obsesiva…)
+  topTracks        Json? // [{ name, artist, plays }] top 10 of the month
+  signals          Json? // { dominantArtistShare, top3Share, repeatScore, explorationScore, nostalgiaScore, nightScore }
+  badges           Json? // facet badge keys, e.g. ["nocturna","obsesiva"]
+  avgValence       Float?
+  avgEnergy        Float?
+  peakHour         Int? // hour-of-day where this era concentrated
+  dominantMood     Mood?
+  confidence       Float? // 0-1 detector confidence
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([userId, startDate])
+  @@map("music_eras")
+}
+
+// ──────────────────────────── Achievements ──────────────────────────────
+// Definition table (flexible/data-driven) + per-user progress join.
+
+enum AchievementCategory {
+  VOLUME
+  LOYALTY
+  EXPLORATION
+  TIME_OF_DAY
+  STREAK
+  OBSESSION
+  SEASONAL
+  GAMING
+  COLLECTION
+  RARITY
+}
+
+model AchievementDefinition {
+  id          String              @id @default(cuid())
+  code        String              @unique // stable key, e.g. "REPEAT_MODE_50"
+  name        String // "Repeat Mode"
+  description String
+  emoji       String?
+  category    AchievementCategory
+  tier        Int                 @default(1) // bronze/silver/gold tiers of the same family
+  // Rule expressed as data so new achievements need no code change.
+  // e.g. { "metric": "track_plays", "op": ">=", "threshold": 50 }
+  rule        Json
+  points      Int                 @default(10)
+  secret      Boolean             @default(false)
+  active      Boolean             @default(true)
+  createdAt   DateTime            @default(now())
+
+  users UserAchievement[]
+
+  @@map("achievement_definitions")
+}
+
+model UserAchievement {
+  id            String                @id @default(cuid())
+  userId        String
+  user          User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievementId String
+  achievement   AchievementDefinition @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  progress      Float                 @default(0) // 0-1 toward unlock
+  unlockedAt    DateTime?
+  // snapshot of the value that unlocked it, for display ("52 plays")
+  meta          Json?
+  updatedAt     DateTime              @updatedAt
+
+  @@unique([userId, achievementId], name: "uniq_user_achievement")
+  @@index([userId, unlockedAt])
+  @@map("user_achievements")
+}
+
+// ────────────────────────── AI Insights ─────────────────────────────────
+// Generated narrative insights ("Tu semana musical"). Phase 4 fills the body
+// via the ML service; the table + lifecycle exist from Phase 1.
+
+enum InsightKind {
+  WEEKLY_RECAP
+  MONTHLY_RECAP
+  TREND_SHIFT
+  REDISCOVERY
+  MOOD_REPORT
+}
+
+model AiInsight {
+  id          String      @id @default(cuid())
+  userId      String
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind        InsightKind
+  periodStart DateTime    @db.Date
+  periodEnd   DateTime    @db.Date
+  title       String
+  body        String      @db.Text
+  // Structured evidence the text was generated from (for charts / verifiability).
+  data        Json?
+  model       String? // which model produced it
+  createdAt   DateTime    @default(now())
+
+  @@unique([userId, kind, periodStart], name: "uniq_user_insight_period")
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("ai_insights")
+}
+
+// ────────────────────── Obsession predictor (Phase 4) ───────────────────
+// Candidate tracks predicted to break into a user's top. Written by the ML
+// service; surfaced in the dashboard as "rising".
+
+model ObsessionCandidate {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  trackId       String
+  score         Float // 0-1 probability of entering top
+  recentPlays   Int
+  growthRate    Float? // momentum signal
+  predictedFor  DateTime @db.Date // horizon
+  features      Json? // raw feature vector used, for explainability
+  createdAt     DateTime @default(now())
+
+  @@unique([userId, trackId, predictedFor], name: "uniq_user_candidate")
+  @@index([userId, score(sort: Desc)])
+  @@map("obsession_candidates")
+}
+
+// ─────────────────────────── Steam (gaming) ─────────────────────────────
+// Second data source. Same shape philosophy as the music side: a global game
+// catalog (SteamGame) shared across users, and a per-user playtime join
+// (UserGame). Linked via Steam OpenID / SteamID rather than OAuth.
+
+model SteamAccount {
+  id           String    @id @default(cuid())
+  userId       String    @unique
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  steamId      String    @unique // SteamID64 (17-digit)
+  personaName  String?
+  avatarUrl    String?
+  profileUrl   String?
+  country      String?
+  steamLevel   Int? // Steam community level (GetSteamLevel)
+  timeCreated  DateTime? // account creation date (account age)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  lastSyncedAt DateTime?
+
+  @@map("steam_accounts")
+}
+
+model SteamGame {
+  id          String   @id @default(cuid())
+  appId       Int      @unique
+  name        String
+  iconUrl     String?
+  genres          String[] @default([]) // from the Steam store API (Action, RPG, Strategy…)
+  genresAt        DateTime? // when store details were last fetched (null = not yet enriched)
+  metacritic      Int? // metacritic score 0-100 (quality signal for pendingScore)
+  recommendations Int? // total Steam recommendations (popularity signal)
+  priceCents      Int? // current store price in cents (library-value / $-per-hour)
+  isFree          Boolean? // free-to-play flag
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  users UserGame[]
+
+  @@index([name])
+  @@map("steam_games")
+}
+
+model UserGame {
+  id              String    @id @default(cuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  gameId          String
+  game            SteamGame @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  playtimeForever Int       @default(0) // total minutes
+  playtime2Weeks  Int       @default(0) // minutes in the last 2 weeks
+  lastPlayedAt    DateTime?
+  updatedAt       DateTime  @updatedAt
+
+  @@unique([userId, gameId], name: "uniq_user_game")
+  @@index([userId, playtimeForever(sort: Desc)])
+  @@map("user_games")
+}
+
+/// Periodic snapshot of a user's total Steam playtime. Steam only exposes the
+/// CURRENT total (no history), so we capture one row per sync (deduped to ~once
+/// a day) to build real monthly evolution / streak / session data over time.
+model SteamSnapshot {
+  id           String   @id @default(cuid())
+  userId       String
+  totalMinutes Int
+  gameCount    Int
+  playedCount  Int
+  capturedAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, capturedAt])
+  @@map("steam_snapshots")
+}
+
+/// Per-game playtime snapshot, one row per (user, game) per sync (deduped to
+/// ~once a day). Steam exposes no per-game history, so these accumulate into a
+/// real incremental timeline: hours gained today/this week, which games rose,
+/// and which were resumed after a dormancy.
+model SteamGameSnapshot {
+  id              String   @id @default(cuid())
+  userId          String
+  appId           Int
+  playtimeForever Int // total minutes at capture time
+  playtime2Weeks  Int      @default(0)
+  capturedAt      DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, appId, capturedAt])
+  @@index([userId, capturedAt])
+  @@map("steam_game_snapshots")
+}
+
+/// Diagnostics for each Steam sync — what came back, the hours delta vs the
+/// previous state, how long it took, and any error. Powers the Sync Debug panel
+/// so the user can see exactly why stored hours might lag Steam.
+model SteamSyncLog {
+  id            String   @id @default(cuid())
+  userId        String
+  gamesReceived Int      @default(0)
+  hoursBefore   Int      @default(0)
+  hoursAfter    Int      @default(0)
+  diffHours     Int      @default(0)
+  durationMs    Int      @default(0)
+  full          Boolean  @default(false)
+  error         String?
+  createdAt     DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("steam_sync_logs")
+}
+
+/// The "changelog of your musical life". Each row is a notable thing that
+/// happened — a comeback, a new obsession, a play-count record, an anniversary,
+/// a first discovery. Generated on sync/import from listening_history and
+/// deduped by `dedupeKey` so the same logical event is never stored twice.
+model MusicEvent {
+  id         String   @id @default(cuid())
+  userId     String
+  type       String // FIRST_TIME | COMEBACK | NEW_OBSESSION | NEW_RECORD | ANNIVERSARY
+  entityType String   @default("track") // track | artist
+  entityId   String? // trackId / artistId
+  title      String
+  body       String
+  imageUrl   String?
+  dedupeKey  String // unique logical-event key, e.g. "COMEBACK:trackId:2025-03-12"
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, dedupeKey], name: "uniq_user_event")
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("music_events")
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// PRODUCTION NOTE — partitioning `listening_history`
+//
+// Prisma does not manage native partitioning. For scale, convert the table to
+// PostgreSQL RANGE partitioning by month with a raw-SQL migration:
+//
+//   CREATE TABLE listening_history (...) PARTITION BY RANGE (playedAt);
+//   CREATE TABLE listening_history_2026_06 PARTITION OF listening_history
+//     FOR VALUES FROM ('2026-06-01') TO ('2026-07-01');
+//
+// A monthly maintenance job (BullMQ repeatable) pre-creates next month's
+// partition. Queries that filter on playedAt then hit partition pruning.
+// The Prisma model above maps 1:1 to the partitioned parent table.
+// ─────────────────────────────────────────────────────────────────────────

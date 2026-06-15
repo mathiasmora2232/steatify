@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "users" ADD COLUMN     "aiAuto" BOOLEAN NOT NULL DEFAULT true,
+ADD COLUMN     "showMusic" BOOLEAN NOT NULL DEFAULT true,
+ADD COLUMN     "showSteam" BOOLEAN NOT NULL DEFAULT true;
+

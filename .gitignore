@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+.pnp.*
+.venv/
+__pycache__/
+*.pyc
+
+# Builds
+dist/
+build/
+.next/
+out/
+*.tsbuildinfo
+
+# Env
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Prisma
+backend/prisma/*.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Docker volumes (local)
+.docker-data/
+
+# Backups / secrets safety net
+.env.bak*
+*.bak
+*.pem
+*.dump
+*.sql.gz
