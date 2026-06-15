@@ -49,6 +49,29 @@ export class RedisCacheService implements OnModuleDestroy {
     }
   }
 
+  /** Mark a user as "active right now" (sliding 2h window). Best-effort. */
+  async markSeen(userId: string, ttlSeconds = 7200): Promise<void> {
+    try {
+      await this.redis.set(`seen:${userId}`, '1', 'EX', ttlSeconds);
+    } catch {
+      /* ignore — activity tracking must never break a request */
+    }
+  }
+
+  /** Of the given user ids, return only those active within the seen window. */
+  async filterActive(userIds: string[]): Promise<string[]> {
+    if (userIds.length === 0) return [];
+    try {
+      const pipe = this.redis.pipeline();
+      userIds.forEach((id) => pipe.exists(`seen:${id}`));
+      const res = await pipe.exec();
+      return userIds.filter((_, i) => res?.[i]?.[1] === 1);
+    } catch (e) {
+      this.logger.warn(`filterActive failed: ${e instanceof Error ? e.message : e}`);
+      return userIds; // on Redis trouble, don't starve syncs — fall back to all
+    }
+  }
+
   onModuleDestroy() {
     this.redis.disconnect();
   }

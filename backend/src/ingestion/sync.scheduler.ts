@@ -3,6 +3,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { PrismaService } from '../prisma/prisma.service';
+import { RedisCacheService } from '../cache/redis-cache.service';
 import { SYNC_QUEUE, SyncJob, RecentPlaysJobData } from './ingestion.constants';
 
 /**
@@ -18,6 +19,7 @@ export class SyncScheduler {
 
   constructor(
     private readonly prisma: PrismaService,
+    private readonly cache: RedisCacheService,
     @InjectQueue(SYNC_QUEUE) private readonly queue: Queue<RecentPlaysJobData>,
   ) {}
 
@@ -29,12 +31,21 @@ export class SyncScheduler {
     });
     if (users.length === 0) return;
 
+    // Only sync users who actually used the app recently (active in the last 2h).
+    // When nobody's using it, the background sync does nothing — no Spotify calls,
+    // no DB writes. A returning user is re-synced immediately on login anyway.
+    const activeIds = await this.cache.filterActive(users.map((u) => u.id));
+    if (activeIds.length === 0) {
+      this.logger.debug('No active users — skipping sync tick');
+      return;
+    }
+
     await this.queue.addBulk(
-      users.map((u) => ({
+      activeIds.map((id) => ({
         name: SyncJob.RECENT_PLAYS,
-        data: { userId: u.id, reason: 'cron' as const },
+        data: { userId: id, reason: 'cron' as const },
         opts: {
-          jobId: `recent:${u.id}:${this.bucket()}`, // collapse duplicates within the window
+          jobId: `recent:${id}:${this.bucket()}`, // collapse duplicates within the window
           attempts: 3,
           backoff: { type: 'exponential', delay: 30_000 },
           removeOnComplete: 100,
@@ -42,7 +53,7 @@ export class SyncScheduler {
         },
       })),
     );
-    this.logger.log(`Enqueued ${users.length} sync jobs`);
+    this.logger.log(`Enqueued ${activeIds.length} sync jobs (${users.length} eligible)`);
   }
 
   /** Enqueue a single user's sync immediately (manual / post-login). */

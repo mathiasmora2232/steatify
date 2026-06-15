@@ -27,7 +27,7 @@ export function HomeHero({
   topArtist: TopItem | null;
   recentGame?: HeroGame | null;
 }) {
-  const { data: np } = useSWR('now-playing', api.nowPlaying, { refreshInterval: 10_000 });
+  const { data: np } = useSWR('now-playing', api.nowPlaying, { refreshInterval: 30_000 });
   const playing = np?.playing && np.name;
   const cover = playing ? np.imageUrl : topArtist?.imageUrl;
 

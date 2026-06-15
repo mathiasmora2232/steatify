@@ -6,7 +6,7 @@ import { api } from '@/lib/api';
 
 /** Live "Now Playing" strip. Polls every 15s; hides itself when nothing plays. */
 export function NowPlaying() {
-  const { data } = useSWR('now-playing', api.nowPlaying, { refreshInterval: 15_000 });
+  const { data } = useSWR('now-playing', api.nowPlaying, { refreshInterval: 30_000 });
 
   if (!data?.playing || !data.name) return null;
   const pct =

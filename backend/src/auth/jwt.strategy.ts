@@ -4,6 +4,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 import type { Request } from 'express';
 import { PrismaService } from '../prisma/prisma.service';
+import { RedisCacheService } from '../cache/redis-cache.service';
 import type { Env } from '../config/env';
 
 export interface JwtPayload {
@@ -27,6 +28,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
     config: ConfigService<Env, true>,
     private readonly prisma: PrismaService,
+    private readonly cache: RedisCacheService,
   ) {
     super({
       jwtFromRequest: cookieOrBearerExtractor,
@@ -41,6 +43,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       select: { id: true, spotifyId: true },
     });
     if (!user) throw new UnauthorizedException();
+    // Mark the user active (sliding window) so the background sync only runs for
+    // people actually using the app. Fire-and-forget — never blocks the request.
+    void this.cache.markSeen(user.id);
     return user;
   }
 }

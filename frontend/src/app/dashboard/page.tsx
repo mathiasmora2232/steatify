@@ -25,14 +25,14 @@ import { I } from '@/lib/icons';
 export default function DashboardPage() {
   const { data: user, error } = useSWR('me', api.me);
   // Live-ish: refresh "hoy", el feed reciente y el estado cada 45s.
-  const today = useSWR('summary:today', () => api.summary('today'), { refreshInterval: 45_000 });
+  const today = useSWR('summary:today', () => api.summary('today'), { refreshInterval: 90_000 });
   const month = useSWR('summary:30d', () => api.summary('30d'));
   const topTracks = useSWR('top:tracks:30d', () => api.top('tracks', '30d', 10));
   const topArtists = useSWR('top:artists:30d', () => api.top('artists', '30d', 10));
   const dna = useSWR('dna', api.musicDna);
   const steam = useSWR('steam:stats', api.steamStats);
   const eras = useSWR('eras', api.eras);
-  const recent = useSWR('recent:feed', () => api.recentFeed(40), { refreshInterval: 45_000 });
+  const recent = useSWR('recent:feed', () => api.recentFeed(40), { refreshInterval: 90_000 });
   const activity = useSWR('activity-state', api.activityState, { refreshInterval: 60_000 });
   const weekly = useSWR('weekly-recap', api.weeklyRecap);
   const momentum = useSWR('steam:momentum', api.steamMomentum);
