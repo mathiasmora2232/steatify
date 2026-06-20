@@ -46,6 +46,8 @@ export const api = {
     request<UserProfile>('/users/me', { method: 'PATCH', body: JSON.stringify(dto) }),
   uploadAvatar: (file: File) => uploadImage('avatar', file),
   uploadBanner: (file: File) => uploadImage('banner', file),
+  setCredentials: (body: { email?: string; password: string }) =>
+    request<{ ok: boolean }>('/users/me/credentials', { method: 'PATCH', body: JSON.stringify(body) }),
   deleteAccount: () => request<{ deleted: boolean }>('/users/me', { method: 'DELETE' }),
   exportData: () => request<unknown>('/users/me/export'),
   deleteInsights: () => request<{ deleted: number }>('/insights', { method: 'DELETE' }),

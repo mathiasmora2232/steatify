@@ -35,6 +35,7 @@ export default function SettingsPage() {
         <div className="space-y-5">
           <ProfileSection user={user} onSaved={me.mutate} />
           <ConnectionsSection data={conns.data} onChange={() => { conns.mutate(); me.mutate(); }} lastSync={user.lastSyncedAt} />
+          <SecuritySection user={user} onSaved={me.mutate} />
           <PrivacySection user={user} onSaved={me.mutate} />
           <PreferencesSection user={user} />
           <AiSection user={user} onSaved={me.mutate} />
@@ -42,6 +43,65 @@ export default function SettingsPage() {
         </div>
       )}
     </div>
+  );
+}
+
+/* ── seguridad: email + contraseña (para entrar sin Spotify) ── */
+function SecuritySection({ user, onSaved }: { user: UserProfile; onSaved: () => void }) {
+  const [email, setEmail] = useState(user.email ?? '');
+  const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+
+  async function save() {
+    setErr(null); setMsg(null);
+    if (password.length < 8) return setErr('La contraseña debe tener al menos 8 caracteres.');
+    if (password !== confirm) return setErr('Las contraseñas no coinciden.');
+    setBusy(true);
+    try {
+      await api.setCredentials({ email: email.trim() || undefined, password });
+      setMsg('Listo — ya puedes entrar con tu correo y contraseña.');
+      setPassword(''); setConfirm('');
+      onSaved();
+    } catch (e) {
+      setErr(parseErr(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Section icon={Shield} title="Seguridad · entrar con correo" desc="Pon una contraseña para iniciar sesión sin depender de Spotify.">
+      <div className="space-y-3">
+        <div>
+          <label className="mb-1 block text-xs text-[var(--color-muted)]">Correo</label>
+          <input
+            type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="tu@correo.com"
+            className="w-full rounded-xl border bg-[var(--color-surface-2)]/40 px-3 py-2 text-sm text-white outline-none focus:border-[var(--color-accent)]/50"
+          />
+        </div>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div>
+            <label className="mb-1 block text-xs text-[var(--color-muted)]">Contraseña nueva</label>
+            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="mín. 8 caracteres"
+              className="w-full rounded-xl border bg-[var(--color-surface-2)]/40 px-3 py-2 text-sm text-white outline-none focus:border-[var(--color-accent)]/50" />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs text-[var(--color-muted)]">Repetir</label>
+            <input type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} placeholder="repite la contraseña"
+              className="w-full rounded-xl border bg-[var(--color-surface-2)]/40 px-3 py-2 text-sm text-white outline-none focus:border-[var(--color-accent)]/50" />
+          </div>
+        </div>
+        {err && <p className="text-xs text-[var(--color-rose)]">{err}</p>}
+        {msg && <p className="flex items-center gap-1 text-xs text-[var(--color-accent)]"><Check className="h-3.5 w-3.5" /> {msg}</p>}
+        <button onClick={save} disabled={busy || !password}
+          className="rounded-full bg-[var(--color-accent)] px-5 py-2 text-sm font-semibold text-black transition hover:opacity-90 disabled:opacity-50">
+          {busy ? 'Guardando…' : 'Guardar contraseña'}
+        </button>
+      </div>
+    </Section>
   );
 }
 

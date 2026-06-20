@@ -13,12 +13,18 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { IsBoolean, IsInt, IsOptional, IsString, Max, MaxLength, Min } from 'class-validator';
+import { IsBoolean, IsEmail, IsInt, IsOptional, IsString, Max, MaxLength, Min, MinLength } from 'class-validator';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
 import type { AuthUser } from '../auth/jwt.strategy';
 import { PrismaService } from '../prisma/prisma.service';
 import { thumbnailDataUri, processImageDataUri } from '../common/images.util';
+import { hashPassword } from '../common/password.util';
+
+class SetCredentialsDto {
+  @IsOptional() @IsEmail() email?: string;
+  @IsString() @MinLength(8) @MaxLength(72) password!: string;
+}
 
 class UpdateSettingsDto {
   @IsBoolean()
@@ -81,6 +87,23 @@ export class UsersController {
       select: PROFILE_SELECT,
     });
     return { ...u, hasPassword: undefined, isGuest: u?.spotifyId === 'guest' && !u?.username };
+  }
+
+  /**
+   * Set (or change) an email + password on the account. Lets Spotify-only users
+   * sign in with email/password too — Spotify becomes one of several ways in.
+   */
+  @Patch('me/credentials')
+  async setCredentials(@CurrentUser() user: AuthUser, @Body() dto: SetCredentialsDto) {
+    const data: { passwordHash: string; email?: string } = { passwordHash: hashPassword(dto.password) };
+    if (dto.email) {
+      const email = dto.email.trim().toLowerCase();
+      const taken = await this.prisma.user.findFirst({ where: { email, NOT: { id: user.id } }, select: { id: true } });
+      if (taken) throw new ConflictException('Ese email ya está en uso.');
+      data.email = email;
+    }
+    await this.prisma.user.update({ where: { id: user.id }, data });
+    return { ok: true };
   }
 
   /** Edit the Sonora profile. */
