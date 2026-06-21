@@ -80,13 +80,14 @@ export class ProfileController {
       this.prisma.$queryRaw<Array<{ c: number }>>`
         SELECT COUNT(*)::int AS c FROM (
           SELECT "trackId" FROM listening_history WHERE "userId" = ${userId}
-          GROUP BY "trackId" HAVING COUNT(*) >= 15
+          GROUP BY "trackId" HAVING COUNT(*) >= 20
         ) x`,
       this.prisma.$queryRaw<Array<{ c: number }>>`SELECT COUNT(*)::int AS c FROM user_achievements WHERE "userId" = ${userId}`,
+      // Cementerio = canciones que AMASTE (10+ plays) pero llevas 120+ días sin tocar.
       this.prisma.$queryRaw<Array<{ c: number }>>`
         SELECT COUNT(*)::int AS c FROM (
           SELECT "trackId" FROM listening_history WHERE "userId" = ${userId}
-          GROUP BY "trackId" HAVING MAX("playedAt") < now() - interval '120 days'
+          GROUP BY "trackId" HAVING COUNT(*) >= 10 AND MAX("playedAt") < now() - interval '120 days'
         ) x`,
       this.prisma.$queryRaw<Array<{ played: number; total: number }>>`
         SELECT COUNT(*) FILTER (WHERE "playtimeForever" > 0)::float AS played, COUNT(*)::float AS total
