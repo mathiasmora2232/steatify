@@ -16,9 +16,11 @@ import {
   Trash2,
   ExternalLink,
   Palette,
+  Monitor,
+  LogOut,
   type LucideIcon,
 } from 'lucide-react';
-import { api, loginUrl, type UserProfile, type Connections } from '@/lib/api';
+import { api, loginUrl, type UserProfile, type Connections, type SessionInfo } from '@/lib/api';
 import { parseErr } from '@/components/form';
 import { Icon, I } from '@/lib/icons';
 import { THEMES, getSavedTheme, saveTheme, type ThemeKey } from '@/lib/themes';
@@ -38,6 +40,7 @@ export default function SettingsPage() {
           <ProfileSection user={user} onSaved={me.mutate} />
           <ConnectionsSection data={conns.data} onChange={() => { conns.mutate(); me.mutate(); }} lastSync={user.lastSyncedAt} />
           <SecuritySection user={user} onSaved={me.mutate} />
+          <SessionsSection />
           <PrivacySection user={user} onSaved={me.mutate} />
           <AppearanceSection />
           <PreferencesSection user={user} />
@@ -353,6 +356,76 @@ function PrivacySection({ user, onSaved }: { user: UserProfile; onSaved: () => v
 }
 
 /* ── 4. Preferencias ── */
+function deviceName(ua: string | null): string {
+  if (!ua) return 'Dispositivo desconocido';
+  const os = /Windows/i.test(ua) ? 'Windows' : /Mac OS X|Macintosh/i.test(ua) ? 'macOS'
+    : /iPhone|iPad|iOS/i.test(ua) ? 'iOS' : /Android/i.test(ua) ? 'Android' : /Linux/i.test(ua) ? 'Linux' : 'Otro SO';
+  const br = /Edg/i.test(ua) ? 'Edge' : /OPR|Opera/i.test(ua) ? 'Opera' : /Chrome/i.test(ua) ? 'Chrome'
+    : /Firefox/i.test(ua) ? 'Firefox' : /Safari/i.test(ua) ? 'Safari' : 'Navegador';
+  return `${br} · ${os}`;
+}
+
+async function logoutNow() {
+  try { await api.logout(); } catch { /* clear regardless */ }
+  window.location.href = '/login';
+}
+
+function SessionsSection() {
+  const { data: sessions, mutate } = useSWR('sessions', api.sessions);
+  const [busy, setBusy] = useState<string | null>(null);
+
+  async function revoke(id: string) {
+    setBusy(id);
+    try { await api.revokeSession(id); await mutate(); } finally { setBusy(null); }
+  }
+  async function revokeOthers() {
+    setBusy('others');
+    try { await api.revokeOtherSessions(); await mutate(); } finally { setBusy(null); }
+  }
+
+  const others = (sessions ?? []).filter((s) => !s.current).length;
+
+  return (
+    <Section icon={Monitor} title="Sesiones y dispositivos" desc="Dónde tienes la sesión abierta. Cierra las que no reconozcas.">
+      <div className="space-y-2">
+        {(sessions ?? []).map((s: SessionInfo) => (
+          <div key={s.id} className="flex items-center gap-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-2)]/30 px-3 py-2.5">
+            <Monitor className="h-4 w-4 shrink-0 text-[var(--color-muted)]" />
+            <div className="min-w-0 flex-1">
+              <p className="flex items-center gap-2 text-sm font-medium text-white">
+                {deviceName(s.userAgent)}
+                {s.current && <span className="rounded-full bg-[var(--color-accent)]/15 px-2 py-0.5 text-[10px] font-semibold text-[var(--color-accent)]">Este dispositivo</span>}
+              </p>
+              <p className="truncate text-xs text-[var(--color-muted)]">
+                {s.ip ? `IP ${s.ip} · ` : ''}desde {new Date(s.createdAt).toLocaleDateString('es', { day: '2-digit', month: 'short', year: 'numeric' })}
+              </p>
+            </div>
+            {!s.current && (
+              <button onClick={() => revoke(s.id)} disabled={busy === s.id}
+                className="shrink-0 rounded-full border border-[var(--color-border)] px-3 py-1.5 text-xs font-medium text-[var(--color-muted)] transition hover:border-[var(--color-rose)]/50 hover:text-[var(--color-rose)] disabled:opacity-50">
+                {busy === s.id ? '…' : 'Cerrar'}
+              </button>
+            )}
+          </div>
+        ))}
+        {sessions && sessions.length === 0 && <p className="text-sm text-[var(--color-muted)]">No hay sesiones activas.</p>}
+      </div>
+
+      <div className="mt-4 flex flex-wrap items-center gap-3">
+        <button onClick={logoutNow} className="flex items-center gap-1.5 rounded-full bg-[var(--color-rose)]/15 px-4 py-2 text-sm font-semibold text-[var(--color-rose)] transition hover:bg-[var(--color-rose)]/25">
+          <LogOut className="h-4 w-4" /> Cerrar sesión aquí
+        </button>
+        {others > 0 && (
+          <button onClick={revokeOthers} disabled={busy === 'others'}
+            className="rounded-full border border-[var(--color-border)] px-4 py-2 text-sm font-medium text-[var(--color-muted)] transition hover:text-white disabled:opacity-50">
+            {busy === 'others' ? 'Cerrando…' : `Cerrar las otras ${others} sesion${others > 1 ? 'es' : ''}`}
+          </button>
+        )}
+      </div>
+    </Section>
+  );
+}
+
 function AppearanceSection() {
   const [theme, setTheme] = useState<ThemeKey>('sonora');
   useEffect(() => setTheme(getSavedTheme()), []);

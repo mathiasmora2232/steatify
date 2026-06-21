@@ -1,8 +1,10 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Logger,
+  Param,
   Post,
   Query,
   Req,
@@ -172,6 +174,26 @@ export class AuthController {
     await this.auth.logout((req.cookies as Record<string, string>)?.refresh_token);
     res.clearCookie('access_token');
     res.clearCookie('refresh_token');
+    return { ok: true };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('sessions')
+  async sessions(@CurrentUser() user: AuthUser, @Req() req: Request) {
+    return this.auth.listSessions(user.id, (req.cookies as Record<string, string>)?.refresh_token);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete('sessions/:id')
+  async revokeSession(@CurrentUser() user: AuthUser, @Param('id') id: string) {
+    await this.auth.revokeSession(user.id, id);
+    return { ok: true };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('sessions/revoke-others')
+  async revokeOthers(@CurrentUser() user: AuthUser, @Req() req: Request) {
+    await this.auth.revokeOtherSessions(user.id, (req.cookies as Record<string, string>)?.refresh_token);
     return { ok: true };
   }
 

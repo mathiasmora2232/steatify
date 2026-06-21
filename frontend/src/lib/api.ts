@@ -68,6 +68,9 @@ export const api = {
     }),
   syncNow: () => request<{ enqueued: boolean; jobId: string }>('/ingestion/sync', { method: 'POST' }),
   logout: () => request<{ ok: boolean }>('/auth/logout', { method: 'POST' }),
+  sessions: () => request<SessionInfo[]>('/auth/sessions'),
+  revokeSession: (id: string) => request<{ ok: boolean }>(`/auth/sessions/${id}`, { method: 'DELETE' }),
+  revokeOtherSessions: () => request<{ ok: boolean }>('/auth/sessions/revoke-others', { method: 'POST' }),
 
   // ── stats (Fase 2) ──
   summary: (range: Range = 'today') => request<Summary>(`/stats/summary?range=${range}`),
@@ -188,6 +191,13 @@ interface VibeLite {
   displayName: string | null;
   avatarUrl: string | null;
   topArchetype: PersonalityMix | null;
+}
+export interface SessionInfo {
+  id: string;
+  userAgent: string | null;
+  ip: string | null;
+  createdAt: string;
+  current: boolean;
 }
 export interface FollowUser {
   username: string | null;

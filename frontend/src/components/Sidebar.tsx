@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import useSWR from 'swr';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, LogOut } from 'lucide-react';
 import { api } from '@/lib/api';
 import { computeLevel } from '@/lib/level';
 import { navIcon } from '@/lib/icons';
@@ -106,6 +106,29 @@ function ProfileFooter() {
   );
 }
 
+async function doLogout() {
+  try {
+    await api.logout();
+  } catch {
+    /* ignore — clear client state regardless */
+  }
+  window.location.href = '/login';
+}
+
+function LogoutButton() {
+  const [busy, setBusy] = useState(false);
+  return (
+    <button
+      onClick={() => { setBusy(true); void doLogout(); }}
+      disabled={busy}
+      className="mt-2 flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm text-[var(--color-muted)] transition hover:bg-[var(--color-rose)]/10 hover:text-[var(--color-rose)] disabled:opacity-50"
+    >
+      <LogOut className="h-[18px] w-[18px] shrink-0" strokeWidth={2} />
+      {busy ? 'Cerrando…' : 'Cerrar sesión'}
+    </button>
+  );
+}
+
 /** Desktop sidebar — hidden on mobile (see MobileNav for the small-screen menu). */
 export function Sidebar() {
   const pathname = usePathname();
@@ -117,6 +140,7 @@ export function Sidebar() {
       <GlobalSearch />
       <NavLinks pathname={pathname} />
       <ProfileFooter />
+      <LogoutButton />
     </aside>
   );
 }
@@ -184,6 +208,7 @@ export function MobileNav() {
               <GlobalSearch />
               <NavLinks pathname={pathname} onNavigate={() => setOpen(false)} />
               <ProfileFooter />
+              <LogoutButton />
             </motion.aside>
           </>
         )}

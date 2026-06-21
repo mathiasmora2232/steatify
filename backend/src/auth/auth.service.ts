@@ -221,4 +221,38 @@ export class AuthService {
       data: { revokedAt: new Date() },
     });
   }
+
+  /** Active sessions for a user, flagging which one is the current device. */
+  async listSessions(userId: string, currentRefreshToken?: string) {
+    const currentHash = currentRefreshToken ? sha256(currentRefreshToken) : null;
+    const sessions = await this.prisma.session.findMany({
+      where: { userId, revokedAt: null, expiresAt: { gt: new Date() } },
+      orderBy: { createdAt: 'desc' },
+      select: { id: true, userAgent: true, ip: true, createdAt: true, refreshTokenHash: true },
+    });
+    return sessions.map((s) => ({
+      id: s.id,
+      userAgent: s.userAgent,
+      ip: s.ip,
+      createdAt: s.createdAt,
+      current: currentHash != null && s.refreshTokenHash === currentHash,
+    }));
+  }
+
+  /** Revoke one session (must belong to the user). */
+  async revokeSession(userId: string, sessionId: string): Promise<void> {
+    await this.prisma.session.updateMany({
+      where: { id: sessionId, userId, revokedAt: null },
+      data: { revokedAt: new Date() },
+    });
+  }
+
+  /** Revoke every session except the current device ("log out everywhere else"). */
+  async revokeOtherSessions(userId: string, currentRefreshToken?: string): Promise<void> {
+    const currentHash = currentRefreshToken ? sha256(currentRefreshToken) : '';
+    await this.prisma.session.updateMany({
+      where: { userId, revokedAt: null, refreshTokenHash: { not: currentHash } },
+      data: { revokedAt: new Date() },
+    });
+  }
 }
