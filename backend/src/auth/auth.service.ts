@@ -178,6 +178,12 @@ export class AuthService {
 
   /** Mint an access JWT + a rotating opaque refresh token (stored hashed). */
   async issueSession(userId: string, meta: SessionMeta): Promise<AuthTokens> {
+    // Prune this user's dead sessions (revoked or expired) so they don't pile up
+    // — every fresh login used to leave a new row behind forever.
+    await this.prisma.session.deleteMany({
+      where: { userId, OR: [{ revokedAt: { not: null } }, { expiresAt: { lt: new Date() } }] },
+    });
+
     const accessToken = await this.jwt.signAsync(
       { sub: userId },
       { expiresIn: this.config.get('JWT_ACCESS_TTL', { infer: true }) },
@@ -198,7 +204,14 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
-  /** Rotate a refresh token: validate, revoke old, issue a fresh pair. */
+  /**
+   * Refresh WITHOUT rotating the refresh token. Rotation caused a race: when
+   * several requests hit a just-expired access token at once, the first rotated
+   * (revoked) the token and the rest failed → spurious logout → re-login →
+   * hundreds of dangling sessions. Now we keep the same refresh token, just
+   * slide its 30-day window forward and mint a fresh access token. Idempotent,
+   * so parallel refreshes all succeed.
+   */
   async refresh(refreshToken: string, meta: SessionMeta): Promise<AuthTokens> {
     const hash = sha256(refreshToken);
     const session = await this.prisma.session.findUnique({ where: { refreshTokenHash: hash } });
@@ -207,11 +220,21 @@ export class AuthService {
       throw new UnauthorizedException('Invalid or expired session');
     }
 
+    const refreshTtl = this.config.get('JWT_REFRESH_TTL', { infer: true });
     await this.prisma.session.update({
       where: { id: session.id },
-      data: { revokedAt: new Date() },
+      data: {
+        expiresAt: new Date(Date.now() + refreshTtl * 1000),
+        userAgent: meta.userAgent ?? session.userAgent,
+        ip: meta.ip ?? session.ip,
+      },
     });
-    return this.issueSession(session.userId, meta);
+
+    const accessToken = await this.jwt.signAsync(
+      { sub: session.userId },
+      { expiresIn: this.config.get('JWT_ACCESS_TTL', { infer: true }) },
+    );
+    return { accessToken, refreshToken };
   }
 
   async logout(refreshToken?: string): Promise<void> {
