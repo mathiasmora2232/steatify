@@ -15,6 +15,10 @@ export default function LandingPage() {
         Tu vida musical convertida en datos: rankings, eras, moods y un diario
         inteligente que aprende de lo que escuchas.
       </p>
+      <p className="mt-3 max-w-xl text-sm text-[var(--color-muted)]/80">
+        Sonora analiza tu historial de Spotify para crear estadísticas, eras, tendencias y tu resumen
+        personal. <strong className="text-[var(--color-text)]">No vendemos tus datos ni modificamos tu cuenta de Spotify.</strong>
+      </p>
       <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
         <Link
           href="/register"
@@ -38,6 +42,13 @@ export default function LandingPage() {
         </a>
         <GuestButton />
       </div>
+
+      {/* Footer — required-ish for the Spotify quota review */}
+      <footer className="mt-16 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-[var(--color-muted)]">
+        <Link href="/privacy" className="transition hover:text-[var(--color-text)]">Política de privacidad</Link>
+        <Link href="/terms" className="transition hover:text-[var(--color-text)]">Términos de servicio</Link>
+        <span>No afiliado a Spotify ni a Steam.</span>
+      </footer>
     </main>
   );
 }

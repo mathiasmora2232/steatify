@@ -80,6 +80,10 @@ export default function LoginPage() {
           Regístrate
         </Link>
       </p>
+      <p className="mt-4 text-center text-[11px] text-[var(--color-muted)]">
+        Al continuar aceptas los <Link href="/terms" className="hover:text-[var(--color-text)] hover:underline">Términos</Link> y la{' '}
+        <Link href="/privacy" className="hover:text-[var(--color-text)] hover:underline">Privacidad</Link>.
+      </p>
     </main>
   );
 }
