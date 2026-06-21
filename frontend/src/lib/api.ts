@@ -833,11 +833,16 @@ export interface PublicProfile {
   private?: boolean;
   createdAt: string;
   personalityName?: string;
+  personality?: { key: string; label: string; emoji: string; tagline: string };
+  mix?: PersonalityMix[];
   music?: Wrapped['music'];
   gaming?: Wrapped['gaming'];
   dna?: { archetypes: DnaArchetype[]; personality: string };
   hallOfFame?: HallOfFameEntry[];
   records?: ChartsRecords['records'];
+  collections?: { obsesiones: number; mundos: number; leyendas: number; cementerio: number };
+  timeline?: { date: string; title: string; type: string | null }[];
+  exploration?: number | null;
 }
 
 // ── stats types (espejo del backend) ──

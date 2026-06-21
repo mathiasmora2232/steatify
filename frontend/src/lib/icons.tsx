@@ -1,6 +1,7 @@
 import {
   LayoutDashboard,
   Users,
+  IdCard,
   Gift,
   Dna,
   Trophy,
@@ -51,6 +52,7 @@ export type { LucideIcon };
 /** Left-nav route icons, keyed by href. */
 export const navIcon: Record<string, LucideIcon> = {
   '/dashboard': LayoutDashboard,
+  '/dashboard/profile': IdCard,
   '/dashboard/wrapped': Gift,
   '/dashboard/dna': Dna,
   '/dashboard/rankings': Trophy,

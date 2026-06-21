@@ -13,6 +13,7 @@ import { GlobalSearch } from './GlobalSearch';
 
 const NAV = [
   { href: '/dashboard', label: 'Resumen' },
+  { href: '/dashboard/profile', label: 'Mi Perfil' },
   { href: '/dashboard/wrapped', label: 'Wrapped' },
   { href: '/dashboard/dna', label: 'ADN Musical' },
   { href: '/dashboard/rankings', label: 'Rankings' },
@@ -73,7 +74,7 @@ function ProfileFooter() {
 
   return (
     <Link
-      href={user?.username ? `/u/${user.username}` : '/dashboard/settings'}
+      href={user?.username ? '/dashboard/profile' : '/dashboard/settings'}
       className="mt-3 block rounded-2xl border bg-[var(--color-surface-2)]/40 p-3 transition hover:border-[var(--color-accent)]/40"
     >
       <div className="flex items-center gap-3">
