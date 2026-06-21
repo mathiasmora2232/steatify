@@ -15,11 +15,13 @@ import {
   Download,
   Trash2,
   ExternalLink,
+  Palette,
   type LucideIcon,
 } from 'lucide-react';
 import { api, loginUrl, type UserProfile, type Connections } from '@/lib/api';
 import { parseErr } from '@/components/form';
 import { Icon, I } from '@/lib/icons';
+import { THEMES, getSavedTheme, saveTheme, type ThemeKey } from '@/lib/themes';
 
 export default function SettingsPage() {
   const me = useSWR('me', api.me);
@@ -37,6 +39,7 @@ export default function SettingsPage() {
           <ConnectionsSection data={conns.data} onChange={() => { conns.mutate(); me.mutate(); }} lastSync={user.lastSyncedAt} />
           <SecuritySection user={user} onSaved={me.mutate} />
           <PrivacySection user={user} onSaved={me.mutate} />
+          <AppearanceSection />
           <PreferencesSection user={user} />
           <AiSection user={user} onSaved={me.mutate} />
           <DataSection />
@@ -242,6 +245,7 @@ function ProfileSection({ user, onSaved }: { user: UserProfile; onSaved: () => v
           <Field label="Bio" value={form.bio} onChange={(v) => setForm({ ...form, bio: v })} hint="una línea sobre ti" />
         </div>
       </div>
+      {form.username && <ShareLink username={form.username} />}
       <div className="mt-4 flex items-center gap-3">
         <button onClick={save} disabled={busy} className="rounded-full bg-[var(--color-accent)] px-5 py-2 text-sm font-semibold text-black transition hover:brightness-110 disabled:opacity-50">
           {busy ? 'Guardando…' : 'Guardar'}
@@ -258,6 +262,28 @@ function ProfileSection({ user, onSaved }: { user: UserProfile; onSaved: () => v
         )}
       </div>
     </Section>
+  );
+}
+
+function ShareLink({ username }: { username: string }) {
+  const [copied, setCopied] = useState(false);
+  const url = typeof window !== 'undefined' ? `${window.location.origin}/u/${username}` : `/u/${username}`;
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1600);
+    } catch {
+      /* clipboard blocked */
+    }
+  }
+  return (
+    <div className="mt-4 flex items-center gap-2 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-2)]/40 px-3 py-2">
+      <span className="min-w-0 flex-1 truncate text-sm text-[var(--color-muted)]">{url.replace(/^https?:\/\//, '')}</span>
+      <button onClick={copy} className="shrink-0 rounded-full bg-[var(--color-accent)]/15 px-3 py-1.5 text-xs font-semibold text-[var(--color-accent)] transition hover:bg-[var(--color-accent)]/25">
+        {copied ? '¡Copiado!' : 'Copiar enlace'}
+      </button>
+    </div>
   );
 }
 
@@ -327,6 +353,39 @@ function PrivacySection({ user, onSaved }: { user: UserProfile; onSaved: () => v
 }
 
 /* ── 4. Preferencias ── */
+function AppearanceSection() {
+  const [theme, setTheme] = useState<ThemeKey>('sonora');
+  useEffect(() => setTheme(getSavedTheme()), []);
+
+  function pick(key: ThemeKey) {
+    setTheme(key);
+    saveTheme(key);
+  }
+
+  return (
+    <Section icon={Palette} title="Apariencia" desc="Elige el color de acento de tu Sonora (se guarda en este dispositivo).">
+      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+        {THEMES.map((t) => {
+          const active = theme === t.key;
+          return (
+            <button
+              key={t.key}
+              onClick={() => pick(t.key)}
+              className={`flex items-center gap-2.5 rounded-2xl border px-3 py-2.5 text-left transition ${
+                active ? 'border-white/40 bg-white/[0.06]' : 'border-[var(--color-border)] hover:border-white/20'
+              }`}
+            >
+              <span className="h-7 w-7 shrink-0 rounded-full ring-2 ring-white/10" style={{ background: `linear-gradient(135deg, ${t.accent}, ${t.accent2})` }} />
+              <span className="min-w-0 flex-1 truncate text-sm font-medium text-white">{t.name}</span>
+              {active && <Check className="h-4 w-4 shrink-0 text-white" />}
+            </button>
+          );
+        })}
+      </div>
+    </Section>
+  );
+}
+
 function PreferencesSection({ user }: { user: UserProfile }) {
   const [hour24, setHour24] = useState(true);
   const [tzMsg, setTzMsg] = useState<string | null>(null);
