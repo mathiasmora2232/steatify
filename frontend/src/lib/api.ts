@@ -55,6 +55,7 @@ export const api = {
   disconnectSpotify: () => request<{ ok: boolean }>('/connections/spotify', { method: 'DELETE' }),
   disconnectSteam: () => request<{ ok: boolean }>('/connections/steam', { method: 'DELETE' }),
   publicProfile: (username: string) => request<PublicProfile>(`/profiles/${username}`),
+  compareSpaces: (a: string, b: string) => request<CompareResult>(`/compare/${a}/${b}`),
   setTimezone: (offsetMinutes: number) =>
     request<{ ok: boolean }>('/users/me/timezone', {
       method: 'PUT',
@@ -175,6 +176,25 @@ export interface PersonalityMix {
   label: string;
   emoji: string;
   pct: number;
+}
+
+interface VibeLite {
+  username: string | null;
+  displayName: string | null;
+  avatarUrl: string | null;
+  topArchetype: PersonalityMix | null;
+}
+export interface CompareResult {
+  a: VibeLite;
+  b: VibeLite;
+  compatibility: number;
+  breakdown: { music: number; gaming: number; behavior: number };
+  shared: {
+    artists: { name: string; img: string | null }[];
+    games: { name: string; appId: number }[];
+    genres: string[];
+  };
+  contrast: { a: string; b: string } | null;
 }
 export interface TimelineEvent {
   date: string | null;

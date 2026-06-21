@@ -1,10 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
 import useSWR from 'swr';
 import { motion } from 'framer-motion';
-import { Headphones, Gamepad2, MapPin, Globe, Lock } from 'lucide-react';
+import { Headphones, Gamepad2, MapPin, Globe, Lock, GitCompareArrows, ArrowRight } from 'lucide-react';
 import { api, type WrappedItem, type ChartRecord } from '@/lib/api';
 import { computeLevel } from '@/lib/level';
 import { Icon, I, archetypeIcon } from '@/lib/icons';
@@ -24,6 +25,7 @@ const stagger = {
 
 export default function PublicProfilePage() {
   const params = useParams<{ username: string }>();
+  const router = useRouter();
   const username = params.username;
   const { data, error, isLoading } = useSWR(username ? `profile:${username}` : null, () =>
     api.publicProfile(username),
@@ -82,7 +84,15 @@ export default function PublicProfilePage() {
   const hasUniverse = (music?.minutes ?? 0) > 0 || (gaming?.hours ?? 0) > 0;
 
   return (
-    <main className="min-h-screen bg-[var(--color-bg)] pb-16">
+    <main className="relative min-h-screen bg-[var(--color-bg)] pb-16">
+      {/* Top bar — keeps the public profile connected to the app */}
+      <div className="absolute inset-x-0 top-0 z-20">
+        <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-4">
+          <Link href="/dashboard" className="text-base font-bold tracking-tight text-white drop-shadow-lg">Sonora</Link>
+          <Link href="/dashboard/settings" className="rounded-full bg-black/30 px-3 py-1 text-xs font-medium text-white/80 backdrop-blur transition hover:text-white">Mi cuenta</Link>
+        </div>
+      </div>
+
       {/* ─────────────────────────── HERO ─────────────────────────── */}
       <section className="relative">
         {/* Banner */}
@@ -140,14 +150,15 @@ export default function PublicProfilePage() {
               <p className="mt-0.5 text-sm text-[var(--color-muted)]">@{data.username}</p>
 
               {data.personalityName && (
-                <p className="mt-2 bg-gradient-to-r from-[var(--color-accent)] via-[var(--color-accent-2)] to-[var(--color-rose)] bg-clip-text text-lg font-bold text-transparent">
+                <span className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.06] px-3.5 py-1.5 text-sm font-bold text-white">
                   {data.personalityName}
-                </p>
+                </span>
               )}
             </motion.div>
 
-            {/* Share button */}
-            <motion.div variants={fadeUp} className="relative shrink-0 pb-1">
+            {/* Compare + Share */}
+            <motion.div variants={fadeUp} className="relative flex shrink-0 items-center gap-2 pb-1">
+              <CompareButton onCompare={(other) => router.push(`/u/${username}/vs/${other}`)} />
               <button
                 onClick={share}
                 className="flex items-center gap-2 rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 text-sm font-medium text-[var(--color-text)] transition hover:border-[var(--color-accent-2)] hover:bg-[var(--color-surface-2)]"
@@ -433,6 +444,37 @@ export default function PublicProfilePage() {
 }
 
 /* ─────────────────────────── pieces ─────────────────────────── */
+
+function CompareButton({ onCompare }: { onCompare: (other: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const [other, setOther] = useState('');
+  function go() {
+    const u = other.trim().replace(/^@/, '').toLowerCase();
+    if (u) onCompare(u);
+  }
+  if (!open)
+    return (
+      <button
+        onClick={() => setOpen(true)}
+        className="flex items-center gap-2 rounded-full border border-[var(--color-accent)]/40 bg-[var(--color-accent)]/10 px-4 py-2 text-sm font-medium text-[var(--color-accent)] transition hover:bg-[var(--color-accent)]/15"
+      >
+        <GitCompareArrows className="h-4 w-4" /> Comparar
+      </button>
+    );
+  return (
+    <div className="flex items-center gap-1 rounded-full border border-[var(--color-accent)]/40 bg-[var(--color-surface)] py-1 pl-3 pr-1">
+      <span className="text-sm text-[var(--color-muted)]">@</span>
+      <input
+        autoFocus value={other} onChange={(e) => setOther(e.target.value)}
+        onKeyDown={(e) => e.key === 'Enter' && go()}
+        placeholder="usuario" className="w-24 bg-transparent text-sm text-white outline-none"
+      />
+      <button onClick={go} className="grid h-7 w-7 place-items-center rounded-full bg-[var(--color-accent)] text-black">
+        <ArrowRight className="h-4 w-4" />
+      </button>
+    </div>
+  );
+}
 
 function LevelBadge({ level, rarity }: { level: number; rarity: string }) {
   return (
