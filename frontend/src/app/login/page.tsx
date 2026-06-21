@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { api, loginUrl } from '@/lib/api';
 import { GuestButton } from '@/components/GuestButton';
 import { Input, parseErr } from '@/components/form';
+import { Logo } from '@/components/Logo';
 
 const SPOTIFY_ERRORS: Record<string, string> = {
   spotify_access:
@@ -42,6 +43,7 @@ export default function LoginPage() {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-6">
+      <Logo size={44} className="mb-3" />
       <h1 className="mb-6 text-3xl font-bold">Entra a Sonora</h1>
 
       <form onSubmit={submit} className="space-y-3">

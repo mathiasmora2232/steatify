@@ -1,16 +1,21 @@
 import Link from 'next/link';
 import { loginUrl } from '@/lib/api';
 import { GuestButton } from '@/components/GuestButton';
+import { Logo } from '@/components/Logo';
 
 export default function LandingPage() {
   return (
     <main className="mx-auto flex min-h-screen max-w-5xl flex-col items-center justify-center px-6 text-center">
-      <span className="mb-4 rounded-full border px-3 py-1 text-xs text-[var(--color-muted)]">
+      <span className="mb-6 rounded-full border px-3 py-1 text-xs text-[var(--color-muted)]">
         Spotify Wrapped permanente · en tiempo real
       </span>
-      <h1 className="bg-gradient-to-b from-white to-[#9aa0ad] bg-clip-text text-5xl font-bold tracking-tight text-transparent sm:text-7xl">
-        Sonora
+      <Logo size={96} className="mb-3 drop-shadow-[0_0_40px_rgba(59,130,246,0.35)]" />
+      <h1 className="bg-gradient-to-b from-white to-[#9aa0ad] bg-clip-text text-5xl font-bold tracking-[0.2em] text-transparent sm:text-7xl">
+        SONORA
       </h1>
+      <p className="mt-3 bg-gradient-to-r from-[#34e0a1] via-[#3b82f6] to-[#a855f7] bg-clip-text text-xs font-semibold uppercase tracking-[0.25em] text-transparent sm:text-sm">
+        Tu universo. Tu historia. Tus datos.
+      </p>
       <p className="mt-5 max-w-xl text-lg text-[var(--color-muted)]">
         Tu vida musical convertida en datos: rankings, eras, moods y un diario
         inteligente que aprende de lo que escuchas.

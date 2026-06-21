@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { api } from '@/lib/api';
 import { Input, parseErr } from '@/components/form';
+import { Logo } from '@/components/Logo';
 
 export default function RegisterPage() {
   const [email, setEmail] = useState('');
@@ -32,6 +33,7 @@ export default function RegisterPage() {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-6">
+      <Logo size={44} className="mb-3" />
       <h1 className="mb-1 text-3xl font-bold">Crea tu cuenta Sonora</h1>
       <p className="mb-6 text-sm text-[var(--color-muted)]">
         Una identidad propia. Luego conectas Spotify y Steam.

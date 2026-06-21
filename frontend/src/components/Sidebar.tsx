@@ -9,6 +9,7 @@ import { Menu, X } from 'lucide-react';
 import { api } from '@/lib/api';
 import { computeLevel } from '@/lib/level';
 import { navIcon } from '@/lib/icons';
+import { LogoWordmark } from './Logo';
 import { GlobalSearch } from './GlobalSearch';
 
 const NAV = [
@@ -110,8 +111,8 @@ export function Sidebar() {
   const pathname = usePathname();
   return (
     <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r bg-[var(--color-surface)]/60 p-5 backdrop-blur md:flex">
-      <Link href="/dashboard" className="mb-4 px-2 text-xl font-bold tracking-tight">
-        Sonora
+      <Link href="/dashboard" className="mb-4 px-1">
+        <LogoWordmark size={26} />
       </Link>
       <GlobalSearch />
       <NavLinks pathname={pathname} />
@@ -139,8 +140,8 @@ export function MobileNav() {
   return (
     <>
       <div className="sticky top-0 z-30 flex items-center justify-between border-b bg-[var(--color-surface)]/80 px-4 py-3 backdrop-blur md:hidden">
-        <Link href="/dashboard" className="text-lg font-bold tracking-tight">
-          Sonora
+        <Link href="/dashboard">
+          <LogoWordmark size={24} />
         </Link>
         <button
           onClick={() => setOpen(true)}
@@ -169,8 +170,8 @@ export function MobileNav() {
               className="fixed inset-y-0 left-0 z-50 flex w-[82%] max-w-xs flex-col border-r bg-[var(--color-surface)] p-5 md:hidden"
             >
               <div className="mb-4 flex items-center justify-between">
-                <Link href="/dashboard" className="text-xl font-bold tracking-tight" onClick={() => setOpen(false)}>
-                  Sonora
+                <Link href="/dashboard" onClick={() => setOpen(false)}>
+                  <LogoWordmark size={26} />
                 </Link>
                 <button
                   onClick={() => setOpen(false)}
