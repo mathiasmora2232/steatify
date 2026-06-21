@@ -14,6 +14,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { IsEmail, IsOptional, IsString, MinLength } from 'class-validator';
+import { Throttle } from '@nestjs/throttler';
 import { ConfigService } from '@nestjs/config';
 import { randomBytes } from 'crypto';
 import type { Request, Response, CookieOptions } from 'express';
@@ -62,6 +63,7 @@ export class AuthController {
   ) {}
 
   // ── Sonora account ──
+  @Throttle({ default: { limit: 15, ttl: 60_000 } })
   @Post('register')
   async register(
     @Body() dto: RegisterDto,
@@ -76,6 +78,7 @@ export class AuthController {
     return { ok: true };
   }
 
+  @Throttle({ default: { limit: 15, ttl: 60_000 } })
   @Post('login')
   async login(
     @Body() dto: LoginDto,
@@ -147,6 +150,7 @@ export class AuthController {
   }
 
   // Enter without Spotify (demo / Steam-only).
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @Post('guest')
   async guest(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     const tokens = await this.auth.guestSession({

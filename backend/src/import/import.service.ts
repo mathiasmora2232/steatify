@@ -45,9 +45,11 @@ export class ImportService {
     return String(job.id);
   }
 
-  async status(jobId: string) {
+  async status(jobId: string, userId: string) {
     const job = await this.queue.getJob(jobId);
-    if (!job) return { found: false };
+    // Ownership check — a job belongs to the user that enqueued it (job.data.userId).
+    // Without this, any logged-in user could poll another user's import by job id.
+    if (!job || (job.data as { userId?: string })?.userId !== userId) return { found: false };
     return {
       found: true,
       state: await job.getState(),

@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { BullModule } from '@nestjs/bullmq';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { ProxyThrottlerGuard } from './common/proxy-throttler.guard';
 import { validateEnv } from './config/env';
 import { PrismaModule } from './prisma/prisma.module';
 import { HealthModule } from './health/health.module';
@@ -44,7 +46,9 @@ import { BrainModule } from './brain/brain.module';
       envFilePath: ['../.env', '.env'],
     }),
     ScheduleModule.forRoot(),
-    ThrottlerModule.forRoot([{ ttl: 60_000, limit: 120 }]),
+    // Global rate limit, keyed by real client IP (see ProxyThrottlerGuard).
+    // 300/min is generous for one user's SWR bursts but stops floods.
+    ThrottlerModule.forRoot([{ ttl: 60_000, limit: 300 }]),
     // Shared BullMQ connection for all queues. Prefer REDIS_URL (includes auth,
     // e.g. managed Redis on Railway/Upstash); fall back to host/port for local.
     BullModule.forRootAsync({
@@ -88,5 +92,6 @@ import { BrainModule } from './brain/brain.module';
     SearchModule,
     BrainModule,
   ],
+  providers: [{ provide: APP_GUARD, useClass: ProxyThrottlerGuard }],
 })
 export class AppModule {}

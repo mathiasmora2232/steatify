@@ -38,9 +38,9 @@ export class ImportController {
     return { accepted: entries.length, jobId };
   }
 
-  /** Poll the status of an import job. */
+  /** Poll the status of an import job (only your own). */
   @Get('status/:jobId')
-  status(@Param('jobId') jobId: string) {
-    return this.importService.status(jobId);
+  status(@CurrentUser() user: AuthUser, @Param('jobId') jobId: string) {
+    return this.importService.status(jobId, user.id);
   }
 }

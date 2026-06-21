@@ -16,6 +16,10 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
   const config = app.get(ConfigService<Env, true>);
 
+  // Behind Vercel/Next + Railway proxies — trust X-Forwarded-For so req.ip is
+  // the real client (used for session IP logging and rate-limit keying).
+  (app.getHttpAdapter().getInstance() as { set: (k: string, v: unknown) => void }).set('trust proxy', true);
+
   app.setGlobalPrefix('api');
   app.use(helmet());
   app.use(cookieParser());
