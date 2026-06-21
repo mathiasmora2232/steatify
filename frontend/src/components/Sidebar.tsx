@@ -18,6 +18,7 @@ const NAV = [
   { href: '/dashboard/rankings', label: 'Rankings' },
   { href: '/dashboard/eras', label: 'Eras' },
   { href: '/dashboard/versus', label: 'Tú vs Tú' },
+  { href: '/dashboard/social', label: 'Social' },
   { href: '/dashboard/trends', label: 'Tendencias' },
   { href: '/dashboard/graveyard', label: 'Cementerio' },
   { href: '/dashboard/activity', label: 'Actividad' },

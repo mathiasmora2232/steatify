@@ -156,8 +156,9 @@ export default function PublicProfilePage() {
               )}
             </motion.div>
 
-            {/* Compare + Share */}
+            {/* Follow + Compare + Share */}
             <motion.div variants={fadeUp} className="relative flex shrink-0 items-center gap-2 pb-1">
+              <FollowButton username={data.username ?? ''} />
               <CompareButton onCompare={(other) => router.push(`/u/${username}/vs/${other}`)} />
               <button
                 onClick={share}
@@ -444,6 +445,52 @@ export default function PublicProfilePage() {
 }
 
 /* ─────────────────────────── pieces ─────────────────────────── */
+
+function FollowButton({ username }: { username: string }) {
+  const me = useSWR('me', () => api.me().catch(() => null));
+  const status = useSWR(username ? `follow:${username}` : null, () => api.followStatus(username));
+  const [busy, setBusy] = useState(false);
+  const isOwn = me.data?.username === username;
+  const isMe = !!me.data; // logged in
+  const following = status.data?.following;
+
+  async function toggle() {
+    if (busy) return;
+    setBusy(true);
+    try {
+      if (following) await api.unfollow(username);
+      else await api.follow(username);
+      await status.mutate();
+    } catch {
+      /* not logged in or error */
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (isOwn) {
+    return (
+      <span className="rounded-full border bg-[var(--color-surface)] px-3 py-2 text-xs text-[var(--color-muted)]">
+        {status.data?.followers ?? 0} seguidores
+      </span>
+    );
+  }
+  if (!isMe) return null; // only logged-in users can follow
+
+  return (
+    <button
+      onClick={toggle}
+      disabled={busy}
+      className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold transition disabled:opacity-50 ${
+        following
+          ? 'border bg-[var(--color-surface)] text-[var(--color-text)] hover:border-[var(--color-rose)]/50 hover:text-[var(--color-rose)]'
+          : 'bg-[var(--color-accent)] text-black hover:brightness-110'
+      }`}
+    >
+      {following ? 'Siguiendo' : '+ Seguir'}
+    </button>
+  );
+}
 
 function CompareButton({ onCompare }: { onCompare: (other: string) => void }) {
   const [open, setOpen] = useState(false);

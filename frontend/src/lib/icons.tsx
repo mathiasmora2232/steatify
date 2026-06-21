@@ -1,5 +1,6 @@
 import {
   LayoutDashboard,
+  Users,
   Gift,
   Dna,
   Trophy,
@@ -55,6 +56,7 @@ export const navIcon: Record<string, LucideIcon> = {
   '/dashboard/rankings': Trophy,
   '/dashboard/eras': Layers,
   '/dashboard/versus': GitCompareArrows,
+  '/dashboard/social': Users,
   '/dashboard/trends': TrendingUp,
   '/dashboard/graveyard': Skull,
   '/dashboard/activity': CalendarDays,

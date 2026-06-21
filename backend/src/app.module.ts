@@ -29,6 +29,7 @@ import { ProfileModule } from './profile/profile.module';
 import { ArtistsModule } from './artists/artists.module';
 import { AlbumsModule } from './albums/albums.module';
 import { CompareModule } from './compare/compare.module';
+import { SocialModule } from './social/social.module';
 import { CacheModule } from './cache/cache.module';
 import { SearchModule } from './search/search.module';
 import { BrainModule } from './brain/brain.module';
@@ -83,6 +84,7 @@ import { BrainModule } from './brain/brain.module';
     ArtistsModule,
     AlbumsModule,
     CompareModule,
+    SocialModule,
     SearchModule,
     BrainModule,
   ],

@@ -56,6 +56,11 @@ export const api = {
   disconnectSteam: () => request<{ ok: boolean }>('/connections/steam', { method: 'DELETE' }),
   publicProfile: (username: string) => request<PublicProfile>(`/profiles/${username}`),
   compareSpaces: (a: string, b: string) => request<CompareResult>(`/compare/${a}/${b}`),
+  follow: (username: string) => request<{ following: boolean }>(`/social/follow/${username}`, { method: 'POST' }),
+  unfollow: (username: string) => request<{ following: boolean }>(`/social/follow/${username}`, { method: 'DELETE' }),
+  following: () => request<FollowUser[]>('/social/following'),
+  followStatus: (username: string) => request<{ following: boolean; followers: number; followingCount: number }>(`/social/status/${username}`),
+  socialFeed: (limit = 40) => request<FeedItem[]>(`/social/feed?limit=${limit}`),
   setTimezone: (offsetMinutes: number) =>
     request<{ ok: boolean }>('/users/me/timezone', {
       method: 'PUT',
@@ -183,6 +188,20 @@ interface VibeLite {
   displayName: string | null;
   avatarUrl: string | null;
   topArchetype: PersonalityMix | null;
+}
+export interface FollowUser {
+  username: string | null;
+  displayName: string | null;
+  avatarUrl: string | null;
+  isPublic: boolean;
+}
+export interface FeedItem {
+  user: FollowUser;
+  type: string;
+  entityType: string;
+  title: string;
+  metadata: unknown;
+  createdAt: string;
 }
 export interface CompareResult {
   a: VibeLite;

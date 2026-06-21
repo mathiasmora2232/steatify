@@ -72,7 +72,24 @@ model User {
 
   musicEvents  MusicEvent[]
 
+  following    Follow[] @relation("follower")
+  followers    Follow[] @relation("following")
+
   @@map("users")
+}
+
+// Directed follow (like Letterboxd/Twitter). follower follows following.
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String
+  followingId String
+  follower    User     @relation("follower", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("following", fields: [followingId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@unique([followerId, followingId])
+  @@index([followingId])
+  @@map("follows")
 }
 
 // Spotify OAuth credentials, kept separate from the user profile.
