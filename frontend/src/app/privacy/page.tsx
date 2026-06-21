@@ -1,103 +1,186 @@
 import Link from 'next/link';
 
 export const metadata = {
-  title: 'Privacy Policy · Sonora',
-  description: 'How Sonora handles your data.',
+  title: 'Política de Privacidad · Sonora',
+  description: 'Cómo Sonora recopila, usa y protege tus datos.',
 };
+
+const EMAIL = 'codecanvas3dstudio@codecanvas3d.com';
 
 export default function PrivacyPage() {
   return (
     <main className="mx-auto max-w-2xl px-6 py-16">
       <Link href="/" className="text-sm text-[var(--color-accent)] hover:underline">← Sonora</Link>
-      <h1 className="mt-6 text-3xl font-bold tracking-tight">Privacy Policy</h1>
-      <p className="mt-1 text-sm text-[var(--color-muted)]">Última actualización: 15 de junio de 2026</p>
+      <h1 className="mt-6 text-3xl font-bold tracking-tight">Política de Privacidad</h1>
+      <p className="mt-1 text-sm text-[var(--color-muted)]">Última actualización: 21 de junio de 2026 · Versión 2.0</p>
 
-      <div className="prose-sonora mt-8 space-y-6 text-[15px] leading-relaxed text-[var(--color-text)]">
-        <p>
-          Sonora ("Sonora Space", "nosotros") es una app que convierte tu actividad de música y
-          gaming en estadísticas personales: rankings, eras, tendencias, logros y un resumen tipo
-          Wrapped. Esta política explica qué datos usamos, para qué, y cómo controlarlos.
-          <strong> No vendemos tus datos ni modificamos tu cuenta de Spotify.</strong>
+      <div className="mt-8 space-y-7 text-[15px] leading-relaxed">
+        <p className="text-[var(--color-muted)]">
+          Esta Política de Privacidad describe cómo <strong className="text-[var(--color-text)]">Sonora</strong> ("Sonora Space",
+          "la aplicación", "nosotros") recopila, utiliza, almacena, comparte y protege la información de las personas que
+          usan el servicio ("tú", "el usuario"). Al crear una cuenta o usar Sonora aceptas las prácticas descritas aquí.
+          Léela junto con nuestros <Link href="/terms" className="text-[var(--color-accent)] hover:underline">Términos de Servicio</Link>.
+          <strong className="text-[var(--color-text)]"> No vendemos tus datos personales, no publicamos en tu nombre y no
+          modificamos tu cuenta de Spotify ni de Steam.</strong>
         </p>
 
-        <Section title="1. Qué datos recogemos">
-          <p>Cuando conectas Spotify (vía OAuth, acceso de solo lectura) accedemos a:</p>
+        <Section n="1" title="Responsable del tratamiento">
+          <p>
+            El responsable del tratamiento de tus datos es el equipo operador de Sonora (CodeCanvas 3D Studio). Para
+            cualquier asunto relacionado con privacidad puedes escribirnos a{' '}
+            <a href={`mailto:${EMAIL}`} className="text-[var(--color-accent)] hover:underline">{EMAIL}</a>.
+          </p>
+        </Section>
+
+        <Section n="2" title="Información que recopilamos">
+          <p>Recopilamos únicamente la información necesaria para ofrecerte tus estadísticas:</p>
+          <Sub title="a) Datos de tu cuenta Sonora">
+            <ul>
+              <li>Correo electrónico y nombre de usuario (handle público).</li>
+              <li>Contraseña, almacenada siempre como un <em>hash</em> criptográfico (scrypt) — nunca en texto plano.</li>
+              <li>Datos de perfil que elijas añadir: nombre visible, biografía, ubicación, sitio web, avatar y banner.</li>
+            </ul>
+          </Sub>
+          <Sub title="b) Datos de Spotify (con tu autorización vía OAuth, solo lectura)">
+            <ul>
+              <li><code>user-read-email</code> y <code>user-read-private</code>: tu correo y perfil básico (nombre, país, tipo de cuenta, imagen).</li>
+              <li><code>user-read-recently-played</code>: tu historial de reproducciones recientes.</li>
+              <li><code>user-top-read</code>: tus artistas y canciones más escuchados.</li>
+              <li><code>user-read-currently-playing</code>: lo que reproduces en el momento, para el widget en vivo.</li>
+            </ul>
+            <p>No solicitamos permisos de escritura ni de control de reproducción. Nunca modificamos tu biblioteca, listas ni reproducción.</p>
+          </Sub>
+          <Sub title="c) Datos de Steam (opcional)">
+            <p>Si conectas Steam, leemos tu identificador, tu biblioteca pública de juegos y las horas jugadas, para generar tus estadísticas de gaming.</p>
+          </Sub>
+          <Sub title="d) Datos técnicos">
+            <p>
+              Para operar y proteger el servicio podemos registrar datos técnicos básicos como dirección IP, tipo de
+              dispositivo/navegador y registros de actividad (logs). Usamos cookies y almacenamiento local
+              estrictamente necesarios para mantener tu sesión iniciada; no usamos cookies publicitarias ni de
+              rastreo de terceros.
+            </p>
+          </Sub>
+        </Section>
+
+        <Section n="3" title="Para qué usamos tus datos y base legal">
+          <p>Tratamos tus datos con base en tu <strong>consentimiento</strong> y en la <strong>ejecución del servicio</strong> que solicitas, para:</p>
           <ul>
-            <li><code>user-read-email</code>, <code>user-read-private</code> — tu correo y perfil básico (nombre, id, imagen) para crear tu cuenta.</li>
-            <li><code>user-read-recently-played</code> — tu historial de reproducciones recientes, para construir tus estadísticas a lo largo del tiempo.</li>
-            <li><code>user-top-read</code> — tus artistas y canciones más escuchados.</li>
-            <li><code>user-read-currently-playing</code> — lo que suena ahora, para el widget en vivo.</li>
+            <li>Generar y mostrarte tus estadísticas: minutos, reproducciones, rankings, eras, arquetipos, logros, Wrapped y tu perfil.</li>
+            <li>Construir tu perfil público e identidad (si decides hacerlo público) y funciones sociales (seguir, comparar, feed de actividad).</li>
+            <li>Mantener la seguridad, prevenir fraude/abuso y operar la infraestructura.</li>
+            <li>Comunicarte avisos esenciales del servicio.</li>
           </ul>
-          <p>
-            <strong>Steam (opcional):</strong> si lo conectas, leemos tu biblioteca pública de juegos y horas
-            jugadas. <strong>Cuenta:</strong> si pones email + contraseña, guardamos el email y un hash de la
-            contraseña (nunca la contraseña en texto plano). <strong>Perfil:</strong> avatar/banner que subas
-            (se procesan a una imagen pequeña).
-          </p>
+          <p><strong className="text-[var(--color-text)]">No usamos tus datos para publicidad, no los vendemos ni los cedemos con fines comerciales.</strong></p>
         </Section>
 
-        <Section title="2. Para qué los usamos">
+        <Section n="4" title="Uso de Inteligencia Artificial (IA)">
           <p>
-            Únicamente para generar y mostrarte tus estadísticas dentro de Sonora: minutos, reproducciones,
-            rankings, eras, arquetipos, comparaciones, tu Wrapped y tu perfil público (si lo activas). No
-            usamos tus datos para publicidad, no los vendemos, no los compartimos con terceros con fines
-            comerciales, y no escribimos ni alteramos nada en tu cuenta de Spotify (acceso de solo lectura).
+            Algunas funciones de Sonora (por ejemplo resúmenes, narrativas de tu Wrapped, "insights" y descripciones
+            de eras) se generan con modelos de Inteligencia Artificial, que pueden ser operados por proveedores externos.
+            En esos casos:
           </p>
-        </Section>
-
-        <Section title="3. Dónde se guardan">
-          <p>
-            Tus datos se almacenan en una base de datos PostgreSQL gestionada (Supabase). Los tokens de
-            acceso de Spotify/Steam se guardan <strong>cifrados</strong>. La app corre en Vercel (frontend) y
-            Railway (backend). Estos proveedores procesan datos solo para alojar el servicio.
-          </p>
-        </Section>
-
-        <Section title="4. Tu control: desconectar y borrar">
           <ul>
-            <li><strong>Desconectar Spotify/Steam</strong> en Ajustes → Conexiones, cuando quieras.</li>
-            <li><strong>Privacidad del perfil</strong>: eliges qué se muestra públicamente (música, gaming, o nada).</li>
-            <li><strong>Borrar tu cuenta</strong> en Ajustes → Datos: elimina permanentemente tu cuenta y todos tus datos asociados.</li>
+            <li>Enviamos a dichos proveedores únicamente datos agregados y estadísticos necesarios para generar el texto (por ejemplo, nombres de artistas/juegos y conteos). No enviamos tu contraseña ni tus tokens de acceso.</li>
+            <li>Solicitamos que tus datos <strong>no se utilicen para entrenar</strong> sus modelos.</li>
+            <li>Los textos generados por IA son <strong>orientativos y automáticos</strong>: pueden contener imprecisiones y no constituyen asesoría profesional de ningún tipo.</li>
+            <li>No tomamos decisiones automatizadas que produzcan efectos jurídicos o significativos sobre ti.</li>
           </ul>
         </Section>
 
-        <Section title="5. Spotify">
+        <Section n="5" title="Con quién compartimos información (encargados)">
+          <p>No vendemos tus datos. Solo los procesan proveedores de infraestructura ("encargados del tratamiento") que nos permiten operar, bajo obligaciones de confidencialidad:</p>
+          <ul>
+            <li><strong>Spotify</strong> y <strong>Steam/Valve</strong>: fuentes de los datos que tú autorizas conectar.</li>
+            <li><strong>Vercel</strong> (alojamiento del frontend) y <strong>Railway</strong> (alojamiento del backend).</li>
+            <li><strong>Supabase</strong> (base de datos PostgreSQL gestionada).</li>
+            <li>Proveedores de modelos de IA, solo para las funciones descritas en la sección 4.</li>
+          </ul>
+          <p>También podríamos divulgar información si la ley lo exige o para proteger derechos, seguridad o integridad del servicio.</p>
+        </Section>
+
+        <Section n="6" title="Transferencias internacionales">
           <p>
-            Sonora usa la Spotify Web API y cumple los Spotify Developer Terms. Spotify es responsable de los
-            datos dentro de tu cuenta de Spotify. Puedes revocar el acceso de Sonora en cualquier momento desde{' '}
-            <a href="https://www.spotify.com/account/apps/" target="_blank" rel="noopener noreferrer" className="text-[var(--color-accent)] hover:underline">tu cuenta de Spotify → Apps</a>.
+            Nuestros proveedores pueden procesar datos en servidores ubicados fuera de tu país. Al usar Sonora aceptas
+            dichas transferencias, que se realizan con las garantías razonables ofrecidas por estos proveedores.
           </p>
         </Section>
 
-        <Section title="6. Menores y cambios">
+        <Section n="7" title="Conservación de datos">
           <p>
-            Sonora no está dirigido a menores de 13 años. Podemos actualizar esta política; los cambios
-            relevantes se reflejarán en esta página con su fecha.
+            Conservamos tus datos mientras tu cuenta esté activa. Si desconectas Spotify o Steam, dejamos de sincronizar
+            esa fuente. Si eliminas tu cuenta, borramos de forma permanente tu cuenta y los datos asociados, salvo lo que
+            debamos conservar por obligaciones legales o de seguridad durante un periodo limitado.
           </p>
         </Section>
 
-        <Section title="7. Contacto">
+        <Section n="8" title="Seguridad">
           <p>
-            Dudas o solicitudes sobre tus datos:{' '}
-            <a href="mailto:aitools@iguanadigital.com.ec" className="text-[var(--color-accent)] hover:underline">aitools@iguanadigital.com.ec</a>.
+            Aplicamos medidas técnicas y organizativas razonables: los tokens de acceso de Spotify/Steam se almacenan
+            <strong> cifrados</strong> (AES-256-GCM), las contraseñas se guardan como hash, y el acceso a la base de datos
+            está restringido. Ningún sistema es 100% infalible; no podemos garantizar seguridad absoluta, pero trabajamos
+            para protegerte.
+          </p>
+        </Section>
+
+        <Section n="9" title="Tus derechos y controles">
+          <p>Tienes control directo desde la app y puedes ejercer estos derechos:</p>
+          <ul>
+            <li><strong>Acceso y portabilidad</strong>: ver tus estadísticas y solicitar una copia de tus datos.</li>
+            <li><strong>Rectificación</strong>: editar tu perfil en Ajustes.</li>
+            <li><strong>Privacidad</strong>: elegir qué se muestra públicamente (música, gaming o nada) en Ajustes → Privacidad.</li>
+            <li><strong>Desconexión</strong>: desvincular Spotify/Steam en Ajustes → Conexiones.</li>
+            <li><strong>Supresión</strong>: eliminar tu cuenta y todos tus datos en Ajustes → Datos.</li>
+            <li><strong>Revocación</strong>: retirar el acceso de Sonora desde{' '}
+              <a href="https://www.spotify.com/account/apps/" target="_blank" rel="noopener noreferrer" className="text-[var(--color-accent)] hover:underline">tu cuenta de Spotify → Apps</a>.</li>
+          </ul>
+          <p>Para cualquier solicitud escríbenos a <a href={`mailto:${EMAIL}`} className="text-[var(--color-accent)] hover:underline">{EMAIL}</a>.</p>
+        </Section>
+
+        <Section n="10" title="Menores de edad">
+          <p>
+            Sonora no está dirigido a menores de 13 años (o la edad mínima que exija tu jurisdicción) y no recopilamos
+            conscientemente sus datos. Si crees que un menor nos facilitó datos, contáctanos para eliminarlos.
+          </p>
+        </Section>
+
+        <Section n="11" title="Cambios a esta política">
+          <p>
+            Podemos actualizar esta Política. Publicaremos la versión vigente en esta página con su fecha; los cambios
+            sustanciales podrán comunicarse dentro de la app. El uso continuado tras una actualización implica su aceptación.
+          </p>
+        </Section>
+
+        <Section n="12" title="Contacto">
+          <p>
+            Dudas, solicitudes o reclamos sobre privacidad:{' '}
+            <a href={`mailto:${EMAIL}`} className="text-[var(--color-accent)] hover:underline">{EMAIL}</a>.
           </p>
         </Section>
       </div>
 
       <p className="mt-10 text-sm text-[var(--color-muted)]">
-        Ver también los <Link href="/terms" className="text-[var(--color-accent)] hover:underline">Términos de servicio</Link>.
+        Ver también los <Link href="/terms" className="text-[var(--color-accent)] hover:underline">Términos de Servicio</Link>.
       </p>
     </main>
   );
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({ n, title, children }: { n: string; title: string; children: React.ReactNode }) {
   return (
     <section>
-      <h2 className="mb-2 text-lg font-semibold text-white">{title}</h2>
-      <div className="space-y-2 text-[var(--color-muted)] [&_a]:text-[var(--color-accent)] [&_code]:rounded [&_code]:bg-[var(--color-surface-2)] [&_code]:px-1 [&_code]:py-0.5 [&_code]:text-xs [&_li]:ml-4 [&_li]:list-disc [&_strong]:text-[var(--color-text)] [&_ul]:space-y-1">
+      <h2 className="mb-2 text-lg font-semibold text-white">{n}. {title}</h2>
+      <div className="space-y-2 text-[var(--color-muted)] [&_a]:text-[var(--color-accent)] [&_code]:rounded [&_code]:bg-[var(--color-surface-2)] [&_code]:px-1 [&_code]:py-0.5 [&_code]:text-xs [&_em]:not-italic [&_em]:text-[var(--color-text)] [&_li]:ml-4 [&_li]:list-disc [&_strong]:text-[var(--color-text)] [&_ul]:space-y-1">
         {children}
       </div>
     </section>
+  );
+}
+function Sub({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="mt-3">
+      <p className="mb-1 font-semibold text-[var(--color-text)]">{title}</p>
+      {children}
+    </div>
   );
 }
