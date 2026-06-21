@@ -58,7 +58,12 @@ export class CompareService {
 
     const artistSim = jaccard([...a.artists.keys()], [...b.artists.keys()]);
     const genreSim = jaccard([...a.genres], [...b.genres]);
-    const musicSim = a.artists.size && b.artists.size ? 0.6 * artistSim + 0.4 * genreSim : 0;
+    // Only blend genres when BOTH sides actually have genre tags — otherwise the
+    // sparse/missing genre data unfairly drags the music score down.
+    const bothGenres = a.genres.size > 0 && b.genres.size > 0;
+    const musicSim = a.artists.size && b.artists.size
+      ? bothGenres ? 0.6 * artistSim + 0.4 * genreSim : artistSim
+      : 0;
     const gamingSim = a.hasGaming && b.hasGaming ? jaccard([...a.games.keys()], [...b.games.keys()]) : null;
     const behaviorSim = cosineMix(a.mix, b.mix);
 
