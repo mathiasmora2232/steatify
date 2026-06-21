@@ -140,7 +140,7 @@ export default function DashboardPage() {
       )}
 
       {/* ROW 1 — Hero + Identity */}
-      <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <div className="mb-6 grid grid-cols-1 items-start gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <HomeHero name={user?.displayName ?? ''} eraText={eraText} topArtist={m?.topArtist ?? null} recentGame={recentGame} />
         </div>

@@ -28,6 +28,8 @@ import {
   Tag,
   Sigma,
   BarChart3,
+  Gem,
+  ArrowRight,
   type LucideIcon,
 } from 'lucide-react';
 import { api, type SteamGame } from '@/lib/api';
@@ -50,6 +52,16 @@ import { buildInsightProfile, assignInsights } from '@/lib/game-insight';
 
 type LibFilter = 'all' | 'played' | 'unplayed' | 'hours' | 'abandoned';
 
+/** Week index since epoch — recommendations auto-rotate once a week. */
+const WEEK_IDX = Math.floor(Date.now() / (7 * 864e5));
+/** Take `n` items from `arr` starting at `off`, wrapping around (rotation). */
+function rotateWindow<T>(arr: T[], off: number, n: number): T[] {
+  if (arr.length <= n) return arr;
+  const out: T[] = [];
+  for (let i = 0; i < n; i++) out.push(arr[(((off + i) % arr.length) + arr.length) % arr.length]);
+  return out;
+}
+
 export default function SteamPage() {
   const account = useSWR('steam:me', api.steamMe);
   const stats = useSWR(account.data ? 'steam:stats' : null, api.steamStats);
@@ -71,6 +83,9 @@ export default function SteamPage() {
   const [showDebug, setShowDebug] = useState(false);
   const [fullBusy, setFullBusy] = useState(false);
   const [shown, setShown] = useState(50);
+  // Reroll offsets for the rotating recommendation / graveyard lists.
+  const [rerollRecs, setRerollRecs] = useState(0);
+  const [rerollGrave, setRerollGrave] = useState(0);
 
   async function forceFull() {
     setFullBusy(true);
@@ -168,10 +183,23 @@ export default function SteamPage() {
   const market = gamingMarket(lib);
   const topGenres = new Set((genres.data?.genres ?? []).slice(0, 5).map((x) => x.genre));
   const lovedTokens = lovedSagaTokens(lib);
-  const promesas = [...(backlog.data?.neverPlayed ?? [])]
-    .sort((a, b) => pendingScore(b, topGenres, lovedTokens) - pendingScore(a, topGenres, lovedTokens))
-    .slice(0, 8);
-  const recs = recommendations(lib, topGenres, 4);
+  // Cementerio: rank the whole never-played pool, then show a rotating window of 8
+  // (auto-rotates weekly; the reroll button advances it).
+  const promesasPool = [...(backlog.data?.neverPlayed ?? [])].sort(
+    (a, b) => pendingScore(b, topGenres, lovedTokens) - pendingScore(a, topGenres, lovedTokens),
+  );
+  const promesas = rotateWindow(promesasPool, (WEEK_IDX + rerollGrave) * 8, 8);
+  // Recommendations: build a big scored pool, show a rotating window of 6 each.
+  const recsPool = recommendations(lib, topGenres, 30);
+  const recs = {
+    start: rotateWindow(recsPool.start, (WEEK_IDX + rerollRecs) * 6, 6),
+    revive: rotateWindow(recsPool.revive, (WEEK_IDX + rerollRecs) * 6, 6),
+  };
+  // NEW: "Joya oculta" — a critically acclaimed game you've barely touched.
+  const hiddenGem =
+    [...lib]
+      .filter((g) => (g.metacritic ?? 0) >= 80 && g.hoursForever < 2)
+      .sort((a, b) => (b.metacritic ?? 0) - (a.metacritic ?? 0))[0] ?? null;
   const gType = s ? gamerType(s, lib, genres.data?.genres ?? [], momentum.data?.resumed.length ?? 0).top : null;
   const insightProfile = buildInsightProfile(lib, genres.data?.genres);
   const startMsgs = assignInsights(recs.start.map((p) => p.game), insightProfile);
@@ -519,11 +547,21 @@ export default function SteamPage() {
       {/* ── Sonora te recomienda (empezar nuevos / retomar abandonados) ── */}
       {(recs.start.length > 0 || recs.revive.length > 0) && (
         <section className="mb-6">
-          <h2 className="mb-1 flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-[var(--color-muted)]">
-            <Sparkles className="h-4 w-4 text-[var(--color-accent)]" /> Sonora te recomienda
-          </h2>
+          <div className="mb-1 flex items-center justify-between gap-2">
+            <h2 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-[var(--color-muted)]">
+              <Sparkles className="h-4 w-4 text-[var(--color-accent)]" /> Sonora te recomienda
+            </h2>
+            {(recsPool.start.length > 6 || recsPool.revive.length > 6) && (
+              <button
+                onClick={() => setRerollRecs((r) => r + 1)}
+                className="flex items-center gap-1.5 rounded-full border border-[var(--color-border)] px-3 py-1.5 text-xs font-medium text-[var(--color-muted)] transition hover:border-[var(--color-accent)]/50 hover:text-[var(--color-accent)]"
+              >
+                <RefreshCw className="h-3.5 w-3.5" /> Ver otras
+              </button>
+            )}
+          </div>
           <p className="mb-4 text-xs text-[var(--color-muted)]/70">
-            Qué jugar después — elegido por calidad, popularidad, tus géneros más jugados y franquicias reconocidas.
+            Qué jugar después — elegido por calidad, popularidad, tus géneros más jugados y franquicias reconocidas. Rotan cada semana.
           </p>
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             {recs.start.length > 0 && (
@@ -569,6 +607,31 @@ export default function SteamPage() {
               </div>
             )}
           </div>
+        </section>
+      )}
+
+      {/* ── Joya oculta (nueva estadística) ── */}
+      {hiddenGem && (
+        <section className="mb-6">
+          <Link
+            href={`/dashboard/steam/game/${hiddenGem.appId}`}
+            className="group relative flex items-center gap-4 overflow-hidden rounded-3xl border bg-[var(--color-surface)] p-4 transition hover:border-[#fbbf24]/40"
+          >
+            <span className="absolute inset-y-0 left-0 w-1" style={{ background: 'linear-gradient(#fbbf24,#f59e0b)' }} />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={hiddenGem.headerUrl} alt="" className="h-20 w-36 shrink-0 rounded-xl object-cover" />
+            <div className="min-w-0 flex-1">
+              <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-[#fbbf24]">
+                <Gem className="h-3.5 w-3.5" /> Joya oculta
+              </p>
+              <p className="truncate text-lg font-black text-white">{hiddenGem.name}</p>
+              <p className="text-xs text-[var(--color-muted)]">
+                Metacritic <span className="font-bold text-[#fbbf24]">{hiddenGem.metacritic}</span> · y solo le has dado{' '}
+                <span className="font-bold text-white">{hiddenGem.hoursForever}h</span>. Te estás perdiendo algo bueno.
+              </p>
+            </div>
+            <ArrowRight className="h-5 w-5 shrink-0 text-[var(--color-muted)] transition group-hover:translate-x-1 group-hover:text-[#fbbf24]" />
+          </Link>
         </section>
       )}
 
@@ -646,12 +709,22 @@ export default function SteamPage() {
           </p>
           {promesas.length > 0 && (
             <>
-              <p className="mb-2 flex items-center gap-2 text-xs text-[var(--color-muted)]">
-                Promesas pendientes
-                <span className="rounded-full bg-[var(--color-accent)]/10 px-2 py-0.5 text-[10px] text-[var(--color-accent)]">
-                  por afinidad + rating
-                </span>
-              </p>
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <p className="flex items-center gap-2 text-xs text-[var(--color-muted)]">
+                  Promesas pendientes
+                  <span className="rounded-full bg-[var(--color-accent)]/10 px-2 py-0.5 text-[10px] text-[var(--color-accent)]">
+                    por afinidad + rating · rotan cada semana
+                  </span>
+                </p>
+                {promesasPool.length > 8 && (
+                  <button
+                    onClick={() => setRerollGrave((r) => r + 1)}
+                    className="flex items-center gap-1.5 rounded-full border border-[var(--color-border)] px-3 py-1.5 text-xs font-medium text-[var(--color-muted)] transition hover:border-[var(--color-rose)]/50 hover:text-[var(--color-rose)]"
+                  >
+                    <RefreshCw className="h-3.5 w-3.5" /> Ver otras
+                  </button>
+                )}
+              </div>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
                 {promesas.map((g, i) => (
                   <GameCard key={g.appId} g={g} delay={i * 0.04} showState />

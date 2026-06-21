@@ -52,7 +52,7 @@ export function HomeHero({
   const fmtMs = (ms: number) => `${Math.floor(ms / 60000)}:${String(Math.floor((ms % 60000) / 1000)).padStart(2, '0')}`;
 
   return (
-    <section className="relative mb-8 overflow-hidden rounded-3xl border bg-[var(--color-surface)]">
+    <section className="relative overflow-hidden rounded-3xl border bg-[var(--color-surface)]">
       {/* Glow backdrop from the cover */}
       {cover && (
         // eslint-disable-next-line @next/next/no-img-element
