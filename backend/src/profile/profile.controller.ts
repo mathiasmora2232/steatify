@@ -33,6 +33,7 @@ export class ProfileController {
         isPublic: true,
         showMusic: true,
         showSteam: true,
+        showcase: true,
         createdAt: true,
       },
     });
@@ -47,6 +48,7 @@ export class ProfileController {
       location: u.location,
       website: u.website,
       isPublic: u.isPublic,
+      showcase: u.showcase,
       createdAt: u.createdAt,
     };
     if (!u.isPublic) return { ...base, private: true };

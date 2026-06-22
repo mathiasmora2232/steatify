@@ -18,9 +18,10 @@ import {
   Palette,
   Monitor,
   LogOut,
+  Trophy,
   type LucideIcon,
 } from 'lucide-react';
-import { api, loginUrl, type UserProfile, type Connections, type SessionInfo } from '@/lib/api';
+import { api, loginUrl, type UserProfile, type Connections, type SessionInfo, type ShowcasePick } from '@/lib/api';
 import { parseErr } from '@/components/form';
 import { Icon, I } from '@/lib/icons';
 import { THEMES, getSavedTheme, saveTheme, type ThemeKey } from '@/lib/themes';
@@ -38,6 +39,7 @@ export default function SettingsPage() {
       {user && (
         <div className="space-y-5">
           <ProfileSection user={user} onSaved={me.mutate} />
+          <ShowcaseSection user={user} onSaved={me.mutate} />
           <ConnectionsSection data={conns.data} onChange={() => { conns.mutate(); me.mutate(); }} lastSync={user.lastSyncedAt} />
           <SecuritySection user={user} onSaved={me.mutate} />
           <SessionsSection />
@@ -423,6 +425,104 @@ function SessionsSection() {
         )}
       </div>
     </Section>
+  );
+}
+
+function ShowcaseSection({ user, onSaved }: { user: UserProfile; onSaved: () => void }) {
+  const tracks = useSWR('top:tracks:all', () => api.top('tracks', 'all', 12));
+  const artists = useSWR('top:artists:all', () => api.top('artists', 'all', 12));
+  const lib = useSWR('steam:library', api.steamLibrary);
+  const [sc, setSc] = useState<Record<string, ShowcasePick>>((user.showcase as Record<string, ShowcasePick>) ?? {});
+  const [busy, setBusy] = useState<string | null>(null);
+
+  async function save(next: Record<string, ShowcasePick>, slot: string) {
+    setSc(next);
+    setBusy(slot);
+    try {
+      await api.updateProfile({ showcase: next });
+      onSaved();
+    } finally {
+      setBusy(null);
+    }
+  }
+  const pick = (slot: string, item: ShowcasePick) => save({ ...sc, [slot]: item }, slot);
+  const clear = (slot: string) => {
+    const next = { ...sc };
+    delete next[slot];
+    return save(next, slot);
+  };
+
+  const games = [...(lib.data ?? [])].sort((a, b) => b.hoursForever - a.hoursForever).slice(0, 12);
+
+  return (
+    <Section icon={Trophy} title="Vitrinas" desc="Elige qué presumir en tu perfil. Si no eliges, se muestra lo más jugado/escuchado.">
+      <ShowcaseSlot
+        label="💿 Canción inmortal" busy={busy === 'song'} current={sc.song} onClear={() => clear('song')}
+        options={(tracks.data ?? []).map((t) => ({ id: t.id, name: t.name, image: t.imageUrl ?? null, sub: t.subtitle ?? `${t.plays} reproducciones` }))}
+        onPick={(it) => pick('song', it)}
+      />
+      <ShowcaseSlot
+        label="🎵 Artista histórico" busy={busy === 'artist'} current={sc.artist} onClear={() => clear('artist')} round
+        options={(artists.data ?? []).map((a) => ({ id: a.id, name: a.name, image: a.imageUrl ?? null, sub: `${a.plays} reproducciones` }))}
+        onPick={(it) => pick('artist', it)}
+      />
+      <ShowcaseSlot
+        label="🎮 Juego legendario" busy={busy === 'game'} current={sc.game} onClear={() => clear('game')} wide
+        options={games.map((g) => ({ id: String(g.appId), name: g.name, image: g.headerUrl ?? null, sub: `${g.hoursForever} horas` }))}
+        onPick={(it) => pick('game', it)}
+      />
+    </Section>
+  );
+}
+
+function ShowcaseSlot({
+  label, options, current, onPick, onClear, busy, round, wide,
+}: {
+  label: string;
+  options: ShowcasePick[];
+  current?: ShowcasePick;
+  onPick: (it: ShowcasePick) => void;
+  onClear: () => void;
+  busy: boolean;
+  round?: boolean;
+  wide?: boolean;
+}) {
+  return (
+    <div className="mb-5 last:mb-0">
+      <div className="mb-2 flex items-center justify-between">
+        <p className="text-sm font-medium text-white">{label}</p>
+        {current && (
+          <button onClick={onClear} disabled={busy} className="text-xs text-[var(--color-muted)] transition hover:text-white disabled:opacity-50">
+            Volver a automático
+          </button>
+        )}
+      </div>
+      {options.length === 0 ? (
+        <p className="text-xs text-[var(--color-muted)]">Sin datos todavía (conecta y sincroniza).</p>
+      ) : (
+        <div className="flex gap-2 overflow-x-auto pb-1">
+          {options.map((o) => {
+            const active = current?.id === o.id;
+            return (
+              <button
+                key={o.id} onClick={() => onPick(o)} disabled={busy}
+                className={`flex w-24 shrink-0 flex-col items-center gap-1.5 rounded-xl border p-2 text-center transition disabled:opacity-50 ${
+                  active ? 'border-[var(--color-accent)] bg-[var(--color-accent)]/10' : 'border-[var(--color-border)] hover:border-white/20'
+                }`}
+              >
+                {o.image ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={o.image} alt="" className={`h-14 object-cover ${wide ? 'w-20 rounded-md' : round ? 'w-14 rounded-full' : 'w-14 rounded-md'}`} />
+                ) : (
+                  <div className={`h-14 bg-[var(--color-surface-2)] ${wide ? 'w-20 rounded-md' : round ? 'w-14 rounded-full' : 'w-14 rounded-md'}`} />
+                )}
+                <span className="line-clamp-2 text-[10px] leading-tight text-white">{o.name}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
   );
 }
 

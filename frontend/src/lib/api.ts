@@ -803,6 +803,18 @@ function winQS(w: WindowParams): string {
   return p.toString();
 }
 
+export interface ShowcasePick {
+  id: string;
+  name: string;
+  image: string | null;
+  sub: string | null;
+}
+export interface Showcase {
+  song?: ShowcasePick;
+  game?: ShowcasePick;
+  artist?: ShowcasePick;
+}
+
 export interface UserProfile {
   id: string;
   email?: string | null;
@@ -817,6 +829,7 @@ export interface UserProfile {
   showSteam?: boolean;
   showMusic?: boolean;
   aiAuto?: boolean;
+  showcase?: Showcase | null;
   country: string | null;
   product: string | null;
   createdAt: string;
@@ -842,6 +855,7 @@ export interface PublicProfile {
   isPublic: boolean;
   private?: boolean;
   createdAt: string;
+  showcase?: Showcase | null;
   personalityName?: string;
   personality?: { key: string; label: string; emoji: string; tagline: string };
   mix?: PersonalityMix[];

@@ -13,7 +13,7 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { IsBoolean, IsEmail, IsInt, IsOptional, IsString, Max, MaxLength, Min, MinLength } from 'class-validator';
+import { IsBoolean, IsEmail, IsInt, IsObject, IsOptional, IsString, Max, MaxLength, Min, MinLength } from 'class-validator';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
 import type { AuthUser } from '../auth/jwt.strategy';
@@ -50,6 +50,7 @@ class UpdateProfileDto {
   @IsOptional() @IsBoolean() showSteam?: boolean;
   @IsOptional() @IsBoolean() showMusic?: boolean;
   @IsOptional() @IsBoolean() aiAuto?: boolean;
+  @IsOptional() @IsObject() showcase?: Record<string, unknown>;
 }
 
 const PROFILE_SELECT = {
@@ -66,6 +67,7 @@ const PROFILE_SELECT = {
   showSteam: true,
   showMusic: true,
   aiAuto: true,
+  showcase: true,
   country: true,
   product: true,
   createdAt: true,
@@ -135,6 +137,7 @@ export class UsersController {
         showSteam: dto.showSteam,
         showMusic: dto.showMusic,
         aiAuto: dto.aiAuto,
+        showcase: dto.showcase === undefined ? undefined : (dto.showcase as object),
       },
       select: PROFILE_SELECT,
     });

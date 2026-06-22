@@ -117,18 +117,32 @@ export function ProfileBody({ data, actions }: { data: PublicProfile; actions?: 
             </Section>
           )}
 
-          {/* ── VITRINAS ── */}
-          <div>
-            <H2 icon={Trophy} accent={accent}>Mis vitrinas</H2>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-              <Vitrina kicker="Canción inmortal" icon={Flame} color="#ff5d8f" img={music?.songOfPeriod?.imageUrl ?? data.hallOfFame?.[0]?.imageUrl ?? null}
-                name={music?.songOfPeriod?.name ?? data.hallOfFame?.[0]?.name ?? '—'} sub={music?.songOfPeriod?.plays ? `${music.songOfPeriod.plays} reproducciones` : null} />
-              <Vitrina kicker="Juego legendario" icon={Gamepad2} color="#7c5cff" img={gaming?.topGame?.headerUrl ?? null}
-                name={gaming?.topGame?.name ?? '—'} sub={gaming?.topGame?.hours ? `${gaming.topGame.hours.toLocaleString()} horas` : null} wide />
-              <Vitrina kicker="Artista histórico" icon={Music2} color="#1db954" img={music?.topArtist?.imageUrl ?? null}
-                name={music?.topArtist?.name ?? '—'} sub={music?.minutes ? `${music.minutes.toLocaleString()} minutos` : null} round />
-            </div>
-          </div>
+          {/* ── VITRINAS (editables: usa la elección del usuario, si la hay) ── */}
+          {(() => {
+            const sc = data.showcase ?? {};
+            const song = sc.song;
+            const game = sc.game;
+            const artist = sc.artist;
+            return (
+              <div>
+                <H2 icon={Trophy} accent={accent}>Mis vitrinas</H2>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                  <Vitrina kicker="Canción inmortal" icon={Flame} color="#ff5d8f"
+                    img={song?.image ?? music?.songOfPeriod?.imageUrl ?? data.hallOfFame?.[0]?.imageUrl ?? null}
+                    name={song?.name ?? music?.songOfPeriod?.name ?? data.hallOfFame?.[0]?.name ?? '—'}
+                    sub={song?.sub ?? (music?.songOfPeriod?.plays ? `${music.songOfPeriod.plays} reproducciones` : null)} />
+                  <Vitrina kicker="Juego legendario" icon={Gamepad2} color="#7c5cff"
+                    img={game?.image ?? gaming?.topGame?.headerUrl ?? null}
+                    name={game?.name ?? gaming?.topGame?.name ?? '—'}
+                    sub={game?.sub ?? (gaming?.topGame?.hours ? `${gaming.topGame.hours.toLocaleString()} horas` : null)} wide />
+                  <Vitrina kicker="Artista histórico" icon={Music2} color="#1db954"
+                    img={artist?.image ?? music?.topArtist?.imageUrl ?? null}
+                    name={artist?.name ?? music?.topArtist?.name ?? '—'}
+                    sub={artist?.sub ?? (music?.minutes ? `${music.minutes.toLocaleString()} minutos` : null)} round />
+                </div>
+              </div>
+            );
+          })()}
 
           {/* ── MI UNIVERSO ── */}
           <Section icon={Compass} title="Mi universo" accent={accent}>
