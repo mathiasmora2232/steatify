@@ -10,6 +10,7 @@ import { api } from '@/lib/api';
 import { computeLevel } from '@/lib/level';
 import { navIcon } from '@/lib/icons';
 import { LogoWordmark } from './Logo';
+import { NotificationBell } from './NotificationBell';
 import { GlobalSearch } from './GlobalSearch';
 
 const NAV = [
@@ -134,9 +135,12 @@ export function Sidebar() {
   const pathname = usePathname();
   return (
     <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r bg-[var(--color-surface)]/60 p-5 backdrop-blur md:flex">
-      <Link href="/dashboard" className="mb-4 px-1">
-        <LogoWordmark size={26} />
-      </Link>
+      <div className="mb-4 flex items-center justify-between px-1">
+        <Link href="/dashboard">
+          <LogoWordmark size={26} />
+        </Link>
+        <NotificationBell />
+      </div>
       <GlobalSearch />
       <NavLinks pathname={pathname} />
       <ProfileFooter />
@@ -167,6 +171,8 @@ export function MobileNav() {
         <Link href="/dashboard">
           <LogoWordmark size={24} />
         </Link>
+        <div className="flex items-center gap-1">
+        <NotificationBell />
         <button
           onClick={() => setOpen(true)}
           aria-label="Abrir menú"
@@ -174,6 +180,7 @@ export function MobileNav() {
         >
           <Menu className="h-5 w-5" />
         </button>
+        </div>
       </div>
 
       <AnimatePresence>
