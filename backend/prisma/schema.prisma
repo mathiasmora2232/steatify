@@ -25,6 +25,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Access role for operating the product (admin panel). Not for stalking users.
+enum Role {
+  USER
+  ADMIN
+  SUPER_ADMIN
+}
+
+// Subscription tier (monetization).
+enum Plan {
+  FREE
+  PLUS
+  PRO
+}
+
 // ───────────────────────────── Users / Auth ─────────────────────────────
 
 model User {
@@ -45,6 +59,10 @@ model User {
   aiAuto        Boolean  @default(true) // auto-generate weekly insights
   showcase      Json? // user-curated profile vitrinas { song?, game?, artist? } (denormalized display data)
   theme         String? // chosen appearance theme key (syncs across devices)
+  role          Role     @default(USER) // operate the product (admin panel)
+  plan          Plan     @default(FREE) // subscription tier
+  planRenewsAt  DateTime? // when the current paid plan renews/expires
+  suspendedAt   DateTime? // set by admins; blocks the account
   // ── Spotify connection details (kept here for convenience) ──
   spotifyId     String?  @unique // a CONNECTION now, not the identity
   country       String? // ISO 3166-1 alpha-2

@@ -29,14 +29,15 @@ const NAV = [
   { href: '/dashboard/insights', label: 'Insights IA' },
   { href: '/dashboard/steam', label: 'Steam' },
   { href: '/dashboard/import', label: 'Importar' },
+  { href: '/dashboard/plans', label: 'Planes' },
   { href: '/dashboard/settings', label: 'Ajustes' },
-  { href: '/dashboard/admin', label: 'Estado' },
+  { href: '/dashboard/admin', label: 'Admin', adminOnly: true },
 ];
 
-function NavLinks({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
+function NavLinks({ pathname, onNavigate, isAdmin }: { pathname: string; onNavigate?: () => void; isAdmin?: boolean }) {
   return (
     <nav className="flex flex-1 flex-col gap-0.5 overflow-y-auto">
-      {NAV.map((item) => {
+      {NAV.filter((item) => !item.adminOnly || isAdmin).map((item) => {
         const active = pathname === item.href;
         const IconCmp = navIcon[item.href];
         return (
@@ -133,6 +134,8 @@ function LogoutButton() {
 /** Desktop sidebar — hidden on mobile (see MobileNav for the small-screen menu). */
 export function Sidebar() {
   const pathname = usePathname();
+  const { data: me } = useSWR('me', api.me);
+  const isAdmin = me?.role === 'ADMIN' || me?.role === 'SUPER_ADMIN';
   return (
     <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r bg-[var(--color-surface)]/60 p-5 backdrop-blur md:flex">
       <div className="mb-4 flex items-center justify-between px-1">
@@ -142,7 +145,7 @@ export function Sidebar() {
         <NotificationBell />
       </div>
       <GlobalSearch />
-      <NavLinks pathname={pathname} />
+      <NavLinks pathname={pathname} isAdmin={isAdmin} />
       <ProfileFooter />
       <LogoutButton />
     </aside>
@@ -153,6 +156,8 @@ export function Sidebar() {
 export function MobileNav() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const { data: me } = useSWR('me', api.me);
+  const isAdmin = me?.role === 'ADMIN' || me?.role === 'SUPER_ADMIN';
 
   // Close the drawer whenever the route changes + lock body scroll while open.
   useEffect(() => {
@@ -213,7 +218,7 @@ export function MobileNav() {
                 </button>
               </div>
               <GlobalSearch />
-              <NavLinks pathname={pathname} onNavigate={() => setOpen(false)} />
+              <NavLinks pathname={pathname} onNavigate={() => setOpen(false)} isAdmin={isAdmin} />
               <ProfileFooter />
               <LogoutButton />
             </motion.aside>

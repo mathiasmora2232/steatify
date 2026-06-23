@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ForbiddenException } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { PrismaService } from '../prisma/prisma.service';
@@ -54,6 +54,84 @@ export class AdminService {
       tzOffset: user?.tzOffset ?? 0,
       totals,
     };
+  }
+
+  /** Only ADMIN / SUPER_ADMIN may operate the product. */
+  async requireAdmin(userId: string): Promise<'ADMIN' | 'SUPER_ADMIN'> {
+    const u = await this.prisma.user.findUnique({ where: { id: userId }, select: { role: true } });
+    if (!u || u.role === 'USER') throw new ForbiddenException('Solo administradores.');
+    return u.role;
+  }
+
+  /** Product-wide metrics for the admin panel (operate, don't stalk). */
+  async metrics(requesterId: string) {
+    await this.requireAdmin(requesterId);
+    const now = Date.now();
+    const d1 = new Date(now - 864e5);
+    const d7 = new Date(now - 7 * 864e5);
+    const d30 = new Date(now - 30 * 864e5);
+
+    const [
+      totalUsers, newToday, new7d, withPassword, suspended,
+      spotify, steam,
+      synced1d, synced7d, synced30d, loggedIn,
+      insights, plans, sync, importc, db, redis, plays, games,
+    ] = await Promise.all([
+      this.prisma.user.count(),
+      this.prisma.user.count({ where: { createdAt: { gte: d1 } } }),
+      this.prisma.user.count({ where: { createdAt: { gte: d7 } } }),
+      this.prisma.user.count({ where: { passwordHash: { not: null } } }),
+      this.prisma.user.count({ where: { suspendedAt: { not: null } } }),
+      this.prisma.spotifyAccount.count(),
+      this.prisma.steamAccount.count(),
+      this.prisma.user.count({ where: { lastSyncedAt: { gte: d1 } } }),
+      this.prisma.user.count({ where: { lastSyncedAt: { gte: d7 } } }),
+      this.prisma.user.count({ where: { lastSyncedAt: { gte: d30 } } }),
+      this.prisma.$queryRaw<Array<{ c: number }>>`SELECT COUNT(DISTINCT "userId")::int AS c FROM sessions WHERE "revokedAt" IS NULL AND "expiresAt" > now()`,
+      this.prisma.aiInsight.count(),
+      this.prisma.user.groupBy({ by: ['plan'], _count: true }),
+      this.syncQueue.getJobCounts().catch(() => null),
+      this.importQueue.getJobCounts().catch(() => null),
+      this.dbStatus(),
+      this.redisStatus(),
+      this.prisma.listeningHistory.count(),
+      this.prisma.userGame.count(),
+    ]);
+    const planMap = Object.fromEntries(plans.map((p) => [p.plan, p._count])) as Record<string, number>;
+    return {
+      users: { total: totalUsers, newToday, new7d, suspended, withPassword },
+      connections: { spotify, steam },
+      activity: { syncedToday: synced1d, synced7d, synced30d, loggedIn: loggedIn[0]?.c ?? 0 },
+      plans: { FREE: planMap.FREE ?? 0, PLUS: planMap.PLUS ?? 0, PRO: planMap.PRO ?? 0 },
+      ai: { insightsTotal: insights },
+      system: { db, redis, queues: { sync, import: importc } },
+      data: { plays, games },
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  /** Recent users for the admin table — no tokens/passwords, ever. */
+  async users(requesterId: string, take = 60) {
+    await this.requireAdmin(requesterId);
+    return this.prisma.user.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: Math.min(200, take),
+      select: {
+        id: true, username: true, displayName: true, email: true, role: true, plan: true,
+        createdAt: true, lastSyncedAt: true, suspendedAt: true, spotifyId: true,
+      },
+    });
+  }
+
+  /** Suspend / un-suspend an account (super admin protected from self/role targets). */
+  async setSuspended(requesterId: string, targetId: string, suspended: boolean) {
+    await this.requireAdmin(requesterId);
+    const target = await this.prisma.user.findUnique({ where: { id: targetId }, select: { role: true } });
+    if (!target) throw new ForbiddenException('Usuario no existe.');
+    if (target.role !== 'USER') throw new ForbiddenException('No puedes suspender a otro admin.');
+    await this.prisma.user.update({ where: { id: targetId }, data: { suspendedAt: suspended ? new Date() : null } });
+    if (suspended) await this.prisma.session.updateMany({ where: { userId: targetId, revokedAt: null }, data: { revokedAt: new Date() } });
+    return { ok: true };
   }
 
   private async dbStatus(): Promise<'up' | 'down'> {

@@ -2,6 +2,7 @@ import {
   LayoutDashboard,
   Users,
   IdCard,
+  CreditCard,
   Gift,
   Dna,
   Trophy,
@@ -66,6 +67,7 @@ export const navIcon: Record<string, LucideIcon> = {
   '/dashboard/insights': Sparkles,
   '/dashboard/steam': Gamepad2,
   '/dashboard/import': Download,
+  '/dashboard/plans': CreditCard,
   '/dashboard/settings': Settings,
   '/dashboard/admin': Gauge,
 };

@@ -151,6 +151,9 @@ export const api = {
 
   // ── Admin / salud ──
   adminOverview: () => request<AdminOverview>('/admin/overview'),
+  adminMetrics: () => request<AdminMetrics>('/admin/metrics'),
+  adminUsers: () => request<AdminUser[]>('/admin/users'),
+  adminSuspend: (id: string, suspended: boolean) => request<{ ok: boolean }>(`/admin/users/${id}/suspend`, { method: 'POST', body: JSON.stringify({ suspended }) }),
 
   // ── ADN musical ──
   musicDna: () => request<MusicDna>('/dna'),
@@ -639,6 +642,28 @@ export interface SteamBacklog {
 }
 
 type JobCounts = Record<string, number> | null;
+export interface AdminMetrics {
+  users: { total: number; newToday: number; new7d: number; suspended: number; withPassword: number };
+  connections: { spotify: number; steam: number };
+  activity: { syncedToday: number; synced7d: number; synced30d: number; loggedIn: number };
+  plans: { FREE: number; PLUS: number; PRO: number };
+  ai: { insightsTotal: number };
+  system: { db: 'up' | 'down'; redis: 'up' | 'down'; queues: { sync: Record<string, number> | null; import: Record<string, number> | null } };
+  data: { plays: number; games: number };
+  timestamp: string;
+}
+export interface AdminUser {
+  id: string;
+  username: string | null;
+  displayName: string | null;
+  email: string | null;
+  role: 'USER' | 'ADMIN' | 'SUPER_ADMIN';
+  plan: 'FREE' | 'PLUS' | 'PRO';
+  createdAt: string;
+  lastSyncedAt: string | null;
+  suspendedAt: string | null;
+  spotifyId: string | null;
+}
 export interface AdminOverview {
   timestamp: string;
   services: { db: string; redis: string };
@@ -843,6 +868,9 @@ export interface UserProfile {
   aiAuto?: boolean;
   showcase?: Showcase | null;
   theme?: string | null;
+  role?: 'USER' | 'ADMIN' | 'SUPER_ADMIN';
+  plan?: 'FREE' | 'PLUS' | 'PRO';
+  planRenewsAt?: string | null;
   country: string | null;
   product: string | null;
   createdAt: string;
