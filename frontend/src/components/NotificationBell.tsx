@@ -69,13 +69,13 @@ export function NotificationBell() {
       <AnimatePresence>
         {open && (
           <>
-            <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+            <div className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm" onClick={() => setOpen(false)} />
             <motion.div
               initial={{ opacity: 0, y: -8, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -8, scale: 0.98 }}
               transition={{ duration: 0.15 }}
-              className="absolute left-0 top-11 z-50 max-h-[70vh] w-80 overflow-y-auto rounded-2xl border bg-[var(--color-surface)] p-2 shadow-2xl"
+              className="fixed left-1/2 top-16 z-50 max-h-[72vh] w-[92vw] max-w-md -translate-x-1/2 overflow-y-auto rounded-2xl border bg-[var(--color-surface)] p-2 shadow-2xl sm:left-20 sm:translate-x-0 sm:w-96"
             >
               <p className="px-2 py-2 text-xs font-semibold uppercase tracking-widest text-[var(--color-muted)]">Tu vida en Sonora</p>
               {events.length === 0 ? (

@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import type { PublicProfile } from '@/lib/api';
 import { computeLevel } from '@/lib/level';
+import { titleById, RARITY_COLOR } from '@/lib/titles';
 import { useImageColor } from '@/lib/useImageColor';
 import { CountUp } from './CountUp';
 
@@ -50,6 +51,12 @@ export function ProfileBody({ data, actions }: { data: PublicProfile; actions?: 
           </div>
           <div className="min-w-0 flex-1">
             <h1 className="text-4xl font-black tracking-tight text-white">{data.displayName ?? data.username}</h1>
+            {(() => {
+              const t = titleById(data.showcase?.title);
+              return t ? (
+                <p className="text-sm font-bold italic" style={{ color: RARITY_COLOR[t.rarity] }}>« {t.label} »</p>
+              ) : null;
+            })()}
             <p className="text-sm text-[var(--color-muted)]">@{data.username}</p>
             <div className="mt-2 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
               <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide" style={{ background: `${accent}26`, color: accent }}>

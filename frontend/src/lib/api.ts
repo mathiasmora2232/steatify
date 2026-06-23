@@ -813,6 +813,7 @@ export interface Showcase {
   song?: ShowcasePick;
   game?: ShowcasePick;
   artist?: ShowcasePick;
+  title?: string; // equipped title id (e.g. "loop_master")
 }
 
 export interface UserProfile {

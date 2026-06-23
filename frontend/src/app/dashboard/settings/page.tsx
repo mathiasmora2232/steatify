@@ -19,12 +19,15 @@ import {
   Monitor,
   LogOut,
   Trophy,
+  Lock,
   type LucideIcon,
 } from 'lucide-react';
 import { api, loginUrl, type UserProfile, type Connections, type SessionInfo, type ShowcasePick } from '@/lib/api';
 import { parseErr } from '@/components/form';
 import { Icon, I } from '@/lib/icons';
 import { THEMES, getSavedTheme, saveTheme, type ThemeKey } from '@/lib/themes';
+import { TITLES, RARITY_COLOR } from '@/lib/titles';
+import { computeLevel } from '@/lib/level';
 
 export default function SettingsPage() {
   const me = useSWR('me', api.me);
@@ -40,6 +43,7 @@ export default function SettingsPage() {
         <div className="space-y-5">
           <ProfileSection user={user} onSaved={me.mutate} />
           <ShowcaseSection user={user} onSaved={me.mutate} />
+          <TitlesSection user={user} onSaved={me.mutate} />
           <ConnectionsSection data={conns.data} onChange={() => { conns.mutate(); me.mutate(); }} lastSync={user.lastSyncedAt} />
           <SecuritySection user={user} onSaved={me.mutate} />
           <SessionsSection />
@@ -423,6 +427,66 @@ function SessionsSection() {
             {busy === 'others' ? 'Cerrando…' : `Cerrar las otras ${others} sesion${others > 1 ? 'es' : ''}`}
           </button>
         )}
+      </div>
+    </Section>
+  );
+}
+
+function TitlesSection({ user, onSaved }: { user: UserProfile; onSaved: () => void }) {
+  const dna = useSWR('dna', api.musicDna);
+  const steam = useSWR('steam:stats', api.steamStats);
+  const [busy, setBusy] = useState(false);
+
+  const showcase = (user.showcase as Record<string, unknown>) ?? {};
+  const equipped = typeof showcase.title === 'string' ? showcase.title : undefined;
+  const plays = dna.data?.totals.plays ?? 0;
+  const minutes = dna.data?.totals.minutes ?? 0;
+  const hours = steam.data?.totalHours ?? 0;
+  const ctx = { level: computeLevel(plays, minutes, hours).level, plays, minutes, hours };
+
+  async function equip(id?: string) {
+    setBusy(true);
+    const next = { ...showcase };
+    if (id) next.title = id;
+    else delete next.title;
+    try {
+      await api.updateProfile({ showcase: next });
+      onSaved();
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const unlockedCount = TITLES.filter((t) => t.unlocked(ctx)).length;
+
+  return (
+    <Section icon={Trophy} title="Títulos" desc={`Equipa un título que sale en tu perfil. Desbloqueados: ${unlockedCount}/${TITLES.length}.`}>
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+        {TITLES.map((t) => {
+          const unlocked = t.unlocked(ctx);
+          const active = equipped === t.id;
+          return (
+            <button
+              key={t.id}
+              disabled={busy || !unlocked}
+              onClick={() => equip(active ? undefined : t.id)}
+              className={`flex items-center gap-3 rounded-2xl border px-3 py-2.5 text-left transition disabled:cursor-not-allowed ${
+                active ? 'border-white/50 ring-1 ring-white/20' : unlocked ? 'border-[var(--color-border)] hover:border-white/25' : 'border-[var(--color-border)] opacity-45'
+              }`}
+            >
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl" style={{ background: `${RARITY_COLOR[t.rarity]}22`, color: RARITY_COLOR[t.rarity] }}>
+                {unlocked ? <Trophy className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-bold" style={{ color: unlocked ? RARITY_COLOR[t.rarity] : 'var(--color-muted)' }}>{t.label}</p>
+                <p className="truncate text-[10px] uppercase tracking-wide text-[var(--color-muted)]">
+                  {t.rarity}{unlocked ? (active ? ' · equipado' : '') : ` · 🔒 ${t.req}`}
+                </p>
+              </div>
+              {active && <Check className="h-4 w-4 shrink-0 text-white" />}
+            </button>
+          );
+        })}
       </div>
     </Section>
   );
