@@ -4,7 +4,16 @@
  * mood — not just buttons. Stored per-device in localStorage; the no-FOUC
  * inline script in the root layout mirrors this list (keep them in sync).
  */
-export type ThemeKey = 'sonora' | 'cyber' | 'steam' | 'midnight' | 'rose' | 'sunset' | 'aqua' | 'mono';
+export type ThemeKey =
+  | 'sonora' | 'cyber' | 'steam' | 'midnight' | 'rose' | 'sunset' | 'aqua' | 'mono'
+  | 'aurora' | 'inferno' | 'void';
+
+export interface ThemeUnlockCtx {
+  level: number;
+  plays: number;
+  minutes: number;
+  hours: number;
+}
 
 export interface Theme {
   key: ThemeKey;
@@ -14,6 +23,8 @@ export interface Theme {
   accent2: string;
   glow1: string;
   glow2: string;
+  unlock?: (c: ThemeUnlockCtx) => boolean; // undefined = always available
+  req?: string;
 }
 
 export const THEMES: Theme[] = [
@@ -25,6 +36,10 @@ export const THEMES: Theme[] = [
   { key: 'sunset', name: 'Sunset', desc: 'Atardecer', accent: '#ff8a00', accent2: '#ff2e63', glow1: 'rgba(255,138,0,0.15)', glow2: 'rgba(255,46,99,0.12)' },
   { key: 'aqua', name: 'Aqua', desc: 'Fresco', accent: '#2dd4bf', accent2: '#38bdf8', glow1: 'rgba(45,212,191,0.15)', glow2: 'rgba(56,189,248,0.12)' },
   { key: 'mono', name: 'Mono', desc: 'Minimalista', accent: '#e5e7eb', accent2: '#9ca3af', glow1: 'rgba(255,255,255,0.06)', glow2: 'rgba(148,163,184,0.05)' },
+  // ── Desbloqueables ──
+  { key: 'aurora', name: 'Aurora', desc: 'Nivel 30', accent: '#34d399', accent2: '#22d3ee', glow1: 'rgba(52,211,153,0.18)', glow2: 'rgba(34,211,238,0.13)', unlock: (c) => c.level >= 30, req: 'Nivel 30' },
+  { key: 'inferno', name: 'Inferno', desc: '500 h de juego', accent: '#ff6a00', accent2: '#ff1e3c', glow1: 'rgba(255,106,0,0.18)', glow2: 'rgba(255,30,60,0.14)', unlock: (c) => c.hours >= 500, req: '500 horas de juego' },
+  { key: 'void', name: 'Void', desc: '100.000 min de música', accent: '#8b5cf6', accent2: '#ec4899', glow1: 'rgba(139,92,246,0.20)', glow2: 'rgba(236,72,153,0.14)', unlock: (c) => c.minutes >= 100000, req: '100.000 min de música' },
 ];
 
 export const THEME_KEY = 'sonora-theme';

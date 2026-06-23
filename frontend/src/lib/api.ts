@@ -820,6 +820,7 @@ export interface ShowcaseItem {
 export interface Showcase {
   items?: ShowcaseItem[]; // Steam-style curated showcase (multiple items, mixed types)
   title?: string; // equipped title id (e.g. "loop_master")
+  hidden?: string[]; // profile section keys the user chose to hide
   // legacy single picks — still rendered when `items` is empty
   song?: ShowcasePick;
   game?: ShowcasePick;

@@ -21,6 +21,7 @@ import {
   Trophy,
   Lock,
   X,
+  LayoutGrid,
   type LucideIcon,
 } from 'lucide-react';
 import { api, loginUrl, type UserProfile, type Connections, type SessionInfo, type Showcase, type ShowcaseItem, type ShowcaseType } from '@/lib/api';
@@ -45,6 +46,7 @@ export default function SettingsPage() {
           <ProfileSection user={user} onSaved={me.mutate} />
           <ShowcaseSection user={user} onSaved={me.mutate} />
           <TitlesSection user={user} onSaved={me.mutate} />
+          <BuilderSection user={user} onSaved={me.mutate} />
           <ConnectionsSection data={conns.data} onChange={() => { conns.mutate(); me.mutate(); }} lastSync={user.lastSyncedAt} />
           <SecuritySection user={user} onSaved={me.mutate} />
           <SessionsSection />
@@ -433,6 +435,44 @@ function SessionsSection() {
   );
 }
 
+const PROFILE_SECTIONS: { key: string; label: string }[] = [
+  { key: 'estado', label: 'Estado actual (Modo …)' },
+  { key: 'passport', label: 'Sonora Passport' },
+  { key: 'insignias', label: 'Insignias' },
+  { key: 'vitrinas', label: 'Vitrina' },
+  { key: 'universo', label: 'Mi universo' },
+  { key: 'colecciones', label: 'Colecciones' },
+  { key: 'timeline', label: 'Línea temporal' },
+];
+
+function BuilderSection({ user, onSaved }: { user: UserProfile; onSaved: () => void }) {
+  const base = (user.showcase as Showcase) ?? {};
+  const [hidden, setHidden] = useState<string[]>(base.hidden ?? []);
+  const [busy, setBusy] = useState(false);
+
+  async function toggle(key: string, show: boolean) {
+    const next = show ? hidden.filter((k) => k !== key) : Array.from(new Set([...hidden, key]));
+    setHidden(next);
+    setBusy(true);
+    try {
+      await api.updateProfile({ showcase: { ...base, hidden: next } });
+      onSaved();
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Section icon={LayoutGrid} title="Secciones del perfil" desc="Arma tu perfil: elige qué se muestra públicamente.">
+      <div className="space-y-1">
+        {PROFILE_SECTIONS.map((s) => (
+          <Toggle key={s.key} label={s.label} checked={!hidden.includes(s.key)} onChange={(v) => toggle(s.key, v)} disabled={busy} />
+        ))}
+      </div>
+    </Section>
+  );
+}
+
 function TitlesSection({ user, onSaved }: { user: UserProfile; onSaved: () => void }) {
   const dna = useSWR('dna', api.musicDna);
   const steam = useSWR('steam:stats', api.steamStats);
@@ -609,7 +649,18 @@ function AppearanceSection({ user, onSaved }: { user: UserProfile; onSaved: () =
 
   const current = THEMES.find((t) => t.key === theme) ?? THEMES[0];
 
+  const dna = useSWR('dna', api.musicDna);
+  const steam = useSWR('steam:stats', api.steamStats);
+  const uctx = {
+    level: computeLevel(dna.data?.totals.plays ?? 0, dna.data?.totals.minutes ?? 0, steam.data?.totalHours ?? 0).level,
+    plays: dna.data?.totals.plays ?? 0,
+    minutes: dna.data?.totals.minutes ?? 0,
+    hours: steam.data?.totalHours ?? 0,
+  };
+
   function pick(key: ThemeKey) {
+    const t = THEMES.find((x) => x.key === key);
+    if (t?.unlock && !t.unlock(uctx)) return; // locked
     setTheme(key);
     saveTheme(key); // applies live across the whole app + this device
     void api.updateProfile({ theme: key }).then(onSaved).catch(() => {}); // sync to account
@@ -647,19 +698,25 @@ function AppearanceSection({ user, onSaved }: { user: UserProfile; onSaved: () =
       <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
         {THEMES.map((t) => {
           const active = theme === t.key;
+          const locked = t.unlock ? !t.unlock(uctx) : false;
           return (
             <button
               key={t.key}
               onClick={() => pick(t.key)}
+              disabled={locked}
+              title={locked ? `Bloqueado · ${t.req}` : undefined}
               className={`relative flex flex-col gap-2 overflow-hidden rounded-2xl border p-3 text-left transition ${
                 active ? 'border-white/50 ring-1 ring-white/20' : 'border-[var(--color-border)] hover:border-white/25'
-              }`}
+              } ${locked ? 'cursor-not-allowed' : ''}`}
             >
-              <div className="h-10 w-full rounded-lg" style={{ background: `linear-gradient(120deg, ${t.accent}, ${t.accent2})` }} />
+              <div className={`h-10 w-full rounded-lg ${locked ? 'opacity-30' : ''}`} style={{ background: `linear-gradient(120deg, ${t.accent}, ${t.accent2})` }} />
+              {locked && (
+                <span className="absolute right-2 top-2 grid h-6 w-6 place-items-center rounded-full bg-black/60 text-white"><Lock className="h-3.5 w-3.5" /></span>
+              )}
               <div className="flex items-center justify-between">
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-white">{t.name}</p>
-                  <p className="truncate text-[10px] text-[var(--color-muted)]">{t.desc}</p>
+                  <p className={`truncate text-sm font-semibold ${locked ? 'text-[var(--color-muted)]' : 'text-white'}`}>{t.name}</p>
+                  <p className="truncate text-[10px] text-[var(--color-muted)]">{locked ? `🔒 ${t.req}` : t.desc}</p>
                 </div>
                 {active && <Check className="h-4 w-4 shrink-0 text-white" />}
               </div>

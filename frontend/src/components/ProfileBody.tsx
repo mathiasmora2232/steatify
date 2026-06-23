@@ -7,6 +7,7 @@ import {
 import type { PublicProfile, ShowcaseItem } from '@/lib/api';
 import { computeLevel } from '@/lib/level';
 import { titleById, RARITY_COLOR } from '@/lib/titles';
+import { BADGES, type BadgeCtx } from '@/lib/badges';
 import { useImageColor } from '@/lib/useImageColor';
 import { CountUp } from './CountUp';
 
@@ -26,6 +27,7 @@ export function ProfileBody({ data, actions }: { data: PublicProfile; actions?: 
   const sinceYear = new Date(data.createdAt).toLocaleDateString('es', { month: 'long', year: 'numeric' });
   const topImg = music?.topArtist?.imageUrl ?? data.hallOfFame?.[0]?.imageUrl ?? null;
   const accent = useImageColor(topImg, '#7c5cff');
+  const hidden = new Set(data.showcase?.hidden ?? []); // sections the user chose to hide
 
   return (
     <div className="space-y-6">
@@ -99,7 +101,7 @@ export function ProfileBody({ data, actions }: { data: PublicProfile; actions?: 
       </section>
 
       {/* ── ESTADO ACTUAL (perfil dinámico) ── */}
-      {!data.private && data.mood && (
+      {!data.private && data.mood && !hidden.has('estado') && (
         <motion.div
           initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
           className="flex items-center gap-4 overflow-hidden rounded-3xl border bg-[var(--color-surface)] px-5 py-4"
@@ -123,7 +125,7 @@ export function ProfileBody({ data, actions }: { data: PublicProfile; actions?: 
       ) : (
         <>
           {/* ── SONORA PASSPORT ── */}
-          {data.mix && data.mix.length > 0 && (
+          {!hidden.has('passport') && data.mix && data.mix.length > 0 && (
             <Section icon={Sparkles} title="Sonora Passport" accent={accent}>
               <div className="grid gap-5 sm:grid-cols-[1fr_1.4fr]">
                 <div className="rounded-2xl border border-white/5 bg-black/20 p-4 text-center">
@@ -151,8 +153,50 @@ export function ProfileBody({ data, actions }: { data: PublicProfile; actions?: 
             </Section>
           )}
 
+          {/* ── INSIGNIAS (con rareza global) ── */}
+          {!hidden.has('insignias') && (() => {
+            const ctx: BadgeCtx = {
+              level: level.level,
+              plays: music?.plays ?? 0,
+              minutes: music?.minutes ?? 0,
+              hours: gaming?.hours ?? 0,
+              obsesiones: data.collections?.obsesiones ?? 0,
+              leyendas: data.collections?.leyendas ?? 0,
+              mundos: data.collections?.mundos ?? 0,
+              exploration: data.exploration ?? 0,
+            };
+            const sorted = [...BADGES].sort((a, b) => Number(b.earned(ctx)) - Number(a.earned(ctx)));
+            const earnedN = BADGES.filter((b) => b.earned(ctx)).length;
+            return (
+              <Section icon={Star} title={`Insignias · ${earnedN}/${BADGES.length}`} accent={accent}>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+                  {sorted.map((b) => {
+                    const got = b.earned(ctx);
+                    const c = RARITY_COLOR[b.rarity];
+                    return (
+                      <div
+                        key={b.id}
+                        title={got ? `${b.label} · ${b.rarity}` : `Bloqueada · ${b.req}`}
+                        className={`flex flex-col items-center gap-1 rounded-2xl border p-3 text-center ${got ? '' : 'opacity-40 grayscale'}`}
+                        style={got ? { borderColor: `${c}55`, boxShadow: `inset 0 0 40px -28px ${c}` } : undefined}
+                      >
+                        <span className="grid h-11 w-11 place-items-center rounded-xl text-2xl" style={{ background: got ? `${c}1f` : 'var(--color-surface-2)' }}>{b.emoji}</span>
+                        <p className="text-xs font-bold leading-tight text-white">{b.label}</p>
+                        {got ? (
+                          <p className="text-[10px] font-semibold uppercase tracking-wide" style={{ color: c }}>{b.rarity} · {b.share}</p>
+                        ) : (
+                          <p className="text-[10px] text-[var(--color-muted)]">🔒 {b.req}</p>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </Section>
+            );
+          })()}
+
           {/* ── VITRINAS estilo Steam (multi-ítem) o, si no curó, las automáticas ── */}
-          {(() => {
+          {!hidden.has('vitrinas') && (() => {
             const items = data.showcase?.items ?? [];
             if (items.length > 0) {
               return (
@@ -187,6 +231,7 @@ export function ProfileBody({ data, actions }: { data: PublicProfile; actions?: 
           })()}
 
           {/* ── MI UNIVERSO ── */}
+          {!hidden.has('universo') && (
           <Section icon={Compass} title="Mi universo" accent={accent}>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
               <UniStat icon={Headphones} color="#1db954" value={music?.minutes ?? 0} label="min de música" />
@@ -197,9 +242,10 @@ export function ProfileBody({ data, actions }: { data: PublicProfile; actions?: 
               <UniStat icon={Clock} color="#fbbf24" value={music?.plays ?? 0} label="reproducciones" />
             </div>
           </Section>
+          )}
 
           {/* ── COLECCIONES ── */}
-          {data.collections && (
+          {!hidden.has('colecciones') && data.collections && (
             <div>
               <H2 icon={Star} accent={accent}>Colecciones</H2>
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -212,7 +258,7 @@ export function ProfileBody({ data, actions }: { data: PublicProfile; actions?: 
           )}
 
           {/* ── TIMELINE DE VIDA ── */}
-          {data.timeline && data.timeline.length > 0 && (
+          {!hidden.has('timeline') && data.timeline && data.timeline.length > 0 && (
             <Section icon={Clock} title="Línea temporal" accent={accent}>
               <ol className="relative ml-1 space-y-4 border-l border-[var(--color-border)] pl-5">
                 {data.timeline.map((t, i) => {
