@@ -73,6 +73,7 @@ export default function WeekPage() {
         </Link>
       </div>
 
+      <WeekStories week={week} story={story} topTrack={topTrack} topArtist={topArtist} topGame={topGame} />
       <WeekHero week={week} story={story} topTrack={topTrack} topArtist={topArtist} topGame={topGame} />
 
       <section className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -155,6 +156,115 @@ export default function WeekPage() {
       </section>
     </div>
   );
+}
+
+function WeekStories({
+  week,
+  story,
+  topTrack,
+  topArtist,
+  topGame,
+}: {
+  week: Awaited<ReturnType<typeof api.weeklyRecap>> | undefined;
+  story: Wrapped | null | undefined;
+  topTrack: TopItem | null;
+  topArtist: TopItem | null;
+  topGame: SteamGame | null;
+}) {
+  const minutes = week?.thisWeek.minutes ?? story?.music.minutes ?? 0;
+  const cards = [
+    {
+      eyebrow: 'Historia 1',
+      title: week?.isRecordWeek ? 'Rompiste tu propio récord semanal' : 'Así sonó tu semana',
+      body: `${(minutes / 60).toFixed(1)} horas de música y ${(week?.thisWeek.plays ?? story?.music.plays ?? 0).toLocaleString()} reproducciones.`,
+      image: topTrack?.imageUrl ?? topArtist?.imageUrl ?? null,
+      icon: Headphones,
+      color: C.music,
+      href: topTrack ? `/dashboard/song/${topTrack.id}` : undefined,
+    },
+    {
+      eyebrow: 'Historia 2',
+      title: topTrack?.name ?? week?.obsessionTrack?.name ?? 'Tu canción aún se está formando',
+      body: topTrack?.subtitle ?? week?.obsessionTrack?.artist ?? 'Cuando haya más plays, esta tarjeta se vuelve tu obsesión semanal.',
+      image: topTrack?.imageUrl ?? null,
+      icon: Music,
+      color: C.pink,
+      href: topTrack ? `/dashboard/song/${topTrack.id}` : undefined,
+    },
+    {
+      eyebrow: 'Historia 3',
+      title: topArtist?.name ?? week?.topArtist?.name ?? 'Tu artista guía',
+      body: topArtist ? `${topArtist.plays} reproducciones esta semana.` : 'El artista que más coloreó tu semana aparecerá aquí.',
+      image: topArtist?.imageUrl ?? null,
+      icon: Mic2,
+      color: C.cyan,
+      href: topArtist ? `/dashboard/artist/${topArtist.id}` : undefined,
+    },
+    {
+      eyebrow: 'Historia 4',
+      title: topGame?.name ?? 'Tu lado gaming',
+      body: topGame
+        ? `${topGame.hours2Weeks || topGame.hoursForever} horas para mezclar tu semana musical con Steam.`
+        : 'Con Steam conectado, esta historia mezcla juegos y música en el mismo resumen.',
+      image: topGame?.headerUrl ?? null,
+      icon: Gamepad2,
+      color: C.violet,
+      href: topGame ? `/dashboard/steam/game/${topGame.appId}` : undefined,
+    },
+  ];
+
+  return (
+    <section className="mb-6">
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <h1 className="text-sm font-semibold uppercase tracking-widest text-[var(--color-muted)]">Resumen semanal · historias</h1>
+        <span className="rounded-full border px-3 py-1 text-xs text-[var(--color-muted)]">primero lo importante</span>
+      </div>
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
+        {cards.map((card) => (
+          <StoryCard key={card.eyebrow} {...card} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function StoryCard({
+  eyebrow,
+  title,
+  body,
+  image,
+  icon: Icon,
+  color,
+  href,
+}: {
+  eyebrow: string;
+  title: string;
+  body: string;
+  image: string | null;
+  icon: LucideIcon;
+  color: string;
+  href?: string;
+}) {
+  const inner = (
+    <div
+      className="group relative flex min-h-[420px] overflow-hidden rounded-3xl border p-5 transition hover:border-[var(--color-accent)]/50"
+      style={{ background: `linear-gradient(180deg, ${color}22, rgba(8,9,14,0.98))` }}
+    >
+      {image && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={image} alt="" className="absolute inset-0 h-full w-full object-cover opacity-45 transition duration-500 group-hover:scale-105" />
+      )}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/35 to-black/90" />
+      <div className="relative mt-auto min-w-0">
+        <span className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-black/55 px-3 py-1 text-[10px] font-black uppercase tracking-widest" style={{ color }}>
+          <Icon className="h-3.5 w-3.5" /> {eyebrow}
+        </span>
+        <h2 className="text-3xl font-black leading-none text-white">{title}</h2>
+        <p className="mt-3 line-clamp-4 text-sm leading-relaxed text-white/78">{body}</p>
+      </div>
+    </div>
+  );
+  return href ? <Link href={href}>{inner}</Link> : inner;
 }
 
 function WeekHero({

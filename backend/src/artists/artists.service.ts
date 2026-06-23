@@ -91,7 +91,7 @@ export class ArtistsService {
         SELECT al.id, al.name, COUNT(*)::int AS plays, al."imageUrl" AS image
         FROM listening_history lh JOIN tracks t ON t.id = lh."trackId" JOIN albums al ON al.id = t."albumId"
         WHERE lh."userId" = ${userId} AND lh."artistId" = ${artistId}
-        GROUP BY al.id, al.name, al."imageUrl" ORDER BY plays DESC LIMIT 6
+        GROUP BY al.id, al.name, al."imageUrl" ORDER BY plays DESC LIMIT 50
       `,
       this.prisma.$queryRaw<Array<{ artistId: string; name: string; plays: number; image: string | null }>>`
         WITH artist_months AS (

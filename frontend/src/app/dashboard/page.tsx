@@ -10,6 +10,7 @@ import { IdentityCard } from '@/components/IdentityCard';
 import { SmartStat } from '@/components/SmartStat';
 import { UniverseCard } from '@/components/UniverseCard';
 import { RankCard } from '@/components/RankCard';
+import { RecentFeed } from '@/components/RecentFeed';
 import { EventsFeed } from '@/components/EventsFeed';
 import { AdnDual } from '@/components/AdnDual';
 import { EvolutionAdn } from '@/components/EvolutionAdn';
@@ -212,6 +213,11 @@ export default function DashboardPage() {
           isRecord={weekly.data?.isRecordWeek ?? false}
           roseGame={momentum.data?.rose?.[0]?.name ?? null}
         />
+      </section>
+
+      {/* Historial reciente */}
+      <section className="mb-6">
+        <RecentFeed data={(recent.data ?? []).slice(0, 12)} />
       </section>
 
       {/* Changelog musical */}

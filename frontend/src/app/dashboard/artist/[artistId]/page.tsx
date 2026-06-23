@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { useState } from 'react';
 import useSWR from 'swr';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Clock, Crown, CalendarClock, Hourglass, Music2, Disc3, TrendingUp, Mic2, Users, ChevronRight } from 'lucide-react';
@@ -201,6 +202,10 @@ function ArtistExplore({
   artists: { artistId: string; name: string; plays: number; imageUrl: string | null }[];
   accent: string;
 }) {
+  const [showAllAlbums, setShowAllAlbums] = useState(false);
+  const visibleAlbums = showAllAlbums ? albums : albums.slice(0, 5);
+  const hiddenAlbumCount = Math.max(albums.length - visibleAlbums.length, 0);
+
   if (albums.length === 0 && artists.length === 0) return null;
   return (
     <section className="mt-6 space-y-4">
@@ -211,12 +216,15 @@ function ArtistExplore({
 
       {albums.length > 0 && (
         <div className="rounded-3xl border bg-[var(--color-surface)] p-4">
-          <h3 className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-[var(--color-muted)]">
-            <Disc3 className="h-4 w-4" style={{ color: accent }} /> Álbumes para seguir
-          </h3>
-          <div className="flex gap-3 overflow-x-auto pb-1">
-            {albums.map((al) => (
-              <Link key={al.id} href={`/dashboard/album/${al.id}`} className="group w-36 shrink-0 rounded-2xl border border-transparent p-2 transition hover:border-white/10 hover:bg-[var(--color-surface-2)]/40">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <h3 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-[var(--color-muted)]">
+              <Disc3 className="h-4 w-4" style={{ color: accent }} /> Álbumes que escuchaste
+            </h3>
+            <span className="text-[11px] text-[var(--color-muted)]">{albums.length} en tu historial</span>
+          </div>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+            {visibleAlbums.map((al) => (
+              <Link key={al.id} href={`/dashboard/album/${al.id}`} className="group min-w-0 rounded-2xl border border-transparent p-2 transition hover:border-white/10 hover:bg-[var(--color-surface-2)]/40">
                 {al.imageUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={al.imageUrl} alt="" className="mb-2 aspect-square w-full rounded-xl object-cover transition group-hover:scale-[1.02]" />
@@ -230,6 +238,16 @@ function ArtistExplore({
               </Link>
             ))}
           </div>
+          {albums.length > 5 && (
+            <button
+              onClick={() => setShowAllAlbums((v) => !v)}
+              className="mt-4 inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-semibold transition hover:bg-[var(--color-surface-2)]"
+              style={{ color: accent }}
+            >
+              {showAllAlbums ? 'Ver menos álbumes' : `Ver ${hiddenAlbumCount} álbumes más`}
+              <ChevronRight className={`h-4 w-4 transition ${showAllAlbums ? '-rotate-90' : ''}`} />
+            </button>
+          )}
         </div>
       )}
 
