@@ -146,6 +146,7 @@ function SettingsHubSection() {
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Link
           href="/dashboard/settings/import"
+          aria-label="Abrir importar historial"
           className="group rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-2)]/30 p-4 transition hover:border-[var(--color-accent)]/45"
         >
           <span className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-accent)]/12 text-[var(--color-accent)]">
@@ -156,6 +157,7 @@ function SettingsHubSection() {
         </Link>
         <Link
           href="/dashboard/settings/plans"
+          aria-label="Abrir planes"
           className="group rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-2)]/30 p-4 transition hover:border-[var(--color-accent)]/45"
         >
           <span className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-accent)]/12 text-[var(--color-accent)]">
