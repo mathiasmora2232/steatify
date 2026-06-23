@@ -538,6 +538,8 @@ export interface SongProfile {
   trackId: string;
   name: string;
   artist: string | null;
+  artistId: string | null;
+  album: { id: string; name: string; imageUrl: string | null } | null;
   imageUrl: string | null;
   firstListenAt: string;
   lastListenAt: string;
@@ -558,6 +560,19 @@ export interface SongProfile {
   longestStreakDays: number;
   maxGapDays: number;
   states: string[];
+  explore: {
+    sameArtist: ExploreTrack[];
+    sameAlbum: ExploreTrack[];
+    nearby: ExploreTrack[];
+  };
+}
+
+export interface ExploreTrack {
+  trackId: string;
+  name: string;
+  artist: string | null;
+  plays: number;
+  imageUrl: string | null;
 }
 
 export interface DnaArchetype {

@@ -5,6 +5,8 @@ export interface SongProfile {
   trackId: string;
   name: string;
   artist: string | null;
+  artistId: string | null;
+  album: { id: string; name: string; imageUrl: string | null } | null;
   imageUrl: string | null;
   firstListenAt: string;
   lastListenAt: string;
@@ -25,6 +27,19 @@ export interface SongProfile {
   longestStreakDays: number;
   maxGapDays: number;
   states: string[];
+  explore: {
+    sameArtist: ExploreTrack[];
+    sameAlbum: ExploreTrack[];
+    nearby: ExploreTrack[];
+  };
+}
+
+export interface ExploreTrack {
+  trackId: string;
+  name: string;
+  artist: string | null;
+  plays: number;
+  imageUrl: string | null;
 }
 
 /**
@@ -70,10 +85,12 @@ export class SongsService {
       where: { id: trackId },
       select: {
         name: true,
-        album: { select: { imageUrl: true } },
-        artists: { include: { artist: { select: { name: true } } }, orderBy: { position: 'asc' }, take: 1 },
+        album: { select: { id: true, name: true, imageUrl: true } },
+        artists: { include: { artist: { select: { id: true, name: true } } }, orderBy: { position: 'asc' }, take: 1 },
       },
     });
+    const primaryArtistId = track?.artists[0]?.artist.id ?? null;
+    const albumId = track?.album?.id ?? null;
 
     const [byYear, peak, favHour, days] = await Promise.all([
       this.prisma.$queryRaw<Array<{ y: number; plays: number }>>`
@@ -114,10 +131,18 @@ export class SongsService {
     if (summary.recent30 >= 10) states.push('obsession');
     if (states.length === 0) states.push('steady');
 
+    const [sameArtist, sameAlbum, nearby] = await Promise.all([
+      primaryArtistId ? this.sameArtist(userId, primaryArtistId, trackId) : Promise.resolve([]),
+      albumId ? this.sameAlbum(userId, albumId, trackId) : Promise.resolve([]),
+      this.nearbyTracks(userId, trackId),
+    ]);
+
     return {
       trackId,
       name: track?.name ?? 'Desconocida',
       artist: track?.artists[0]?.artist.name ?? null,
+      artistId: primaryArtistId,
+      album: track?.album ? { id: track.album.id, name: track.album.name, imageUrl: track.album.imageUrl } : null,
       imageUrl: track?.album?.imageUrl ?? null,
       firstListenAt: new Date(summary.first).toISOString(),
       lastListenAt: new Date(summary.last).toISOString(),
@@ -138,8 +163,78 @@ export class SongsService {
       longestStreakDays,
       maxGapDays,
       states,
+      explore: { sameArtist, sameAlbum, nearby },
     };
   }
+
+  private async sameArtist(userId: string, artistId: string, currentTrackId: string): Promise<ExploreTrack[]> {
+    const rows = await this.prisma.$queryRaw<Array<{ trackId: string; name: string; artist: string | null; plays: number; image: string | null }>>`
+      SELECT lh."trackId", t.name, a.name AS artist, COUNT(*)::int AS plays, al."imageUrl" AS image
+      FROM listening_history lh
+      JOIN tracks t ON t.id = lh."trackId"
+      LEFT JOIN track_artists ta ON ta."trackId" = t.id AND ta.position = 0
+      LEFT JOIN artists a ON a.id = ta."artistId"
+      LEFT JOIN albums al ON al.id = t."albumId"
+      WHERE lh."userId" = ${userId}
+        AND lh."artistId" = ${artistId}
+        AND lh."trackId" <> ${currentTrackId}
+      GROUP BY lh."trackId", t.name, a.name, al."imageUrl"
+      ORDER BY plays DESC, t.name ASC
+      LIMIT 6
+    `;
+    return rows.map(rowToExplore);
+  }
+
+  private async sameAlbum(userId: string, albumId: string, currentTrackId: string): Promise<ExploreTrack[]> {
+    const rows = await this.prisma.$queryRaw<Array<{ trackId: string; name: string; artist: string | null; plays: number; image: string | null }>>`
+      SELECT t.id AS "trackId", t.name, a.name AS artist,
+             COUNT(lh.id)::int AS plays,
+             al."imageUrl" AS image
+      FROM tracks t
+      JOIN albums al ON al.id = t."albumId"
+      LEFT JOIN listening_history lh ON lh."trackId" = t.id AND lh."userId" = ${userId}
+      LEFT JOIN track_artists ta ON ta."trackId" = t.id AND ta.position = 0
+      LEFT JOIN artists a ON a.id = ta."artistId"
+      WHERE t."albumId" = ${albumId}
+        AND t.id <> ${currentTrackId}
+      GROUP BY t.id, t.name, a.name, al."imageUrl"
+      ORDER BY plays DESC, t.name ASC
+      LIMIT 6
+    `;
+    return rows.map(rowToExplore).filter((t) => t.plays > 0);
+  }
+
+  private async nearbyTracks(userId: string, currentTrackId: string): Promise<ExploreTrack[]> {
+    const rows = await this.prisma.$queryRaw<Array<{ trackId: string; name: string; artist: string | null; plays: number; image: string | null }>>`
+      WITH ordered AS (
+        SELECT "trackId",
+               LAG("trackId") OVER (ORDER BY "playedAt") AS prev,
+               LEAD("trackId") OVER (ORDER BY "playedAt") AS next
+        FROM listening_history
+        WHERE "userId" = ${userId}
+      ),
+      neighbors AS (
+        SELECT prev AS id FROM ordered WHERE "trackId" = ${currentTrackId} AND prev IS NOT NULL
+        UNION ALL
+        SELECT next AS id FROM ordered WHERE "trackId" = ${currentTrackId} AND next IS NOT NULL
+      )
+      SELECT n.id AS "trackId", t.name, a.name AS artist, COUNT(*)::int AS plays, al."imageUrl" AS image
+      FROM neighbors n
+      JOIN tracks t ON t.id = n.id
+      LEFT JOIN track_artists ta ON ta."trackId" = t.id AND ta.position = 0
+      LEFT JOIN artists a ON a.id = ta."artistId"
+      LEFT JOIN albums al ON al.id = t."albumId"
+      WHERE n.id <> ${currentTrackId}
+      GROUP BY n.id, t.name, a.name, al."imageUrl"
+      ORDER BY plays DESC, t.name ASC
+      LIMIT 6
+    `;
+    return rows.map(rowToExplore);
+  }
+}
+
+function rowToExplore(r: { trackId: string; name: string; artist: string | null; plays: number; image: string | null }): ExploreTrack {
+  return { trackId: r.trackId, name: r.name, artist: r.artist, plays: r.plays, imageUrl: r.image };
 }
 
 /** Longest run of consecutive days + biggest gap (in days) from sorted day timestamps. */
