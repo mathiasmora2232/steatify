@@ -13,6 +13,7 @@ import {
   Database,
   RefreshCw,
   Download,
+  CreditCard,
   Trash2,
   ExternalLink,
   Palette,
@@ -44,6 +45,7 @@ export default function SettingsPage() {
       {user && (
         <div className="space-y-5">
           <ProfileSection user={user} onSaved={me.mutate} />
+          <SettingsHubSection />
           <ShowcaseSection user={user} onSaved={me.mutate} />
           <TitlesSection user={user} onSaved={me.mutate} />
           <BuilderSection user={user} onSaved={me.mutate} />
@@ -135,6 +137,35 @@ function Section({ icon: Icon2, title, desc, children }: { icon: LucideIcon; tit
       </div>
       {children}
     </section>
+  );
+}
+
+function SettingsHubSection() {
+  return (
+    <Section icon={SlidersHorizontal} title="Cuenta y plan" desc="Accesos menos frecuentes, guardados dentro de ajustes.">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <Link
+          href="/dashboard/settings/import"
+          className="group rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-2)]/30 p-4 transition hover:border-[var(--color-accent)]/45"
+        >
+          <span className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-accent)]/12 text-[var(--color-accent)]">
+            <Download className="h-4.5 w-4.5" />
+          </span>
+          <p className="text-sm font-semibold text-white">Importar historial</p>
+          <p className="mt-1 text-xs text-[var(--color-muted)]">Sube exports de Spotify cuando quieras completar tus datos.</p>
+        </Link>
+        <Link
+          href="/dashboard/settings/plans"
+          className="group rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-2)]/30 p-4 transition hover:border-[var(--color-accent)]/45"
+        >
+          <span className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-accent)]/12 text-[var(--color-accent)]">
+            <CreditCard className="h-4.5 w-4.5" />
+          </span>
+          <p className="text-sm font-semibold text-white">Planes</p>
+          <p className="mt-1 text-xs text-[var(--color-muted)]">Revisa tu plan actual y las opciones futuras sin llenar el menú.</p>
+        </Link>
+      </div>
+    </Section>
   );
 }
 

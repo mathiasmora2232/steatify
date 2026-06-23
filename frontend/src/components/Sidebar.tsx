@@ -15,7 +15,6 @@ import { GlobalSearch } from './GlobalSearch';
 
 const NAV = [
   { href: '/dashboard', label: 'Resumen' },
-  { href: '/dashboard/profile', label: 'Mi Perfil' },
   { href: '/dashboard/wrapped', label: 'Wrapped' },
   { href: '/dashboard/dna', label: 'ADN Musical' },
   { href: '/dashboard/rankings', label: 'Rankings' },
@@ -28,8 +27,6 @@ const NAV = [
   { href: '/dashboard/achievements', label: 'Logros' },
   { href: '/dashboard/insights', label: 'Insights IA' },
   { href: '/dashboard/steam', label: 'Steam' },
-  { href: '/dashboard/import', label: 'Importar' },
-  { href: '/dashboard/plans', label: 'Planes' },
   { href: '/dashboard/settings', label: 'Ajustes' },
   { href: '/dashboard/admin', label: 'Admin', adminOnly: true },
 ];
