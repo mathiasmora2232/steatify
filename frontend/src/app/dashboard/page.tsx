@@ -9,18 +9,14 @@ import { HomeHero } from '@/components/HomeHero';
 import { IdentityCard } from '@/components/IdentityCard';
 import { SmartStat } from '@/components/SmartStat';
 import { UniverseCard } from '@/components/UniverseCard';
-import { DayTimeline } from '@/components/DayTimeline';
 import { RankCard } from '@/components/RankCard';
-import { EnergyChart } from '@/components/EnergyChart';
-import { RecentFeed } from '@/components/RecentFeed';
 import { EventsFeed } from '@/components/EventsFeed';
-import { WeeklyRecap } from '@/components/WeeklyRecap';
 import { AdnDual } from '@/components/AdnDual';
 import { EvolutionAdn } from '@/components/EvolutionAdn';
 import { SonoraBrain } from '@/components/SonoraBrain';
 import { HighlightCard } from '@/components/HighlightCard';
 import { gamerType } from '@/lib/steam-derive';
-import { Clock, Users, Disc3, Gamepad2, Mic2, Flame, GitCompareArrows, ArrowRight } from 'lucide-react';
+import { Clock, Users, Disc3, Gamepad2, Mic2, Flame, GitCompareArrows, ArrowRight, CalendarDays, Trophy } from 'lucide-react';
 import { I } from '@/lib/icons';
 
 const C = { music: '#1db954', violet: '#7c5cff', pink: '#ff5d8f', cyan: '#38bdf8', gaming: '#7c5cff' };
@@ -206,24 +202,16 @@ export default function DashboardPage() {
         <SmartStat icon={Gamepad2} label="Gaming hoy" value={`${activity.data?.signals.gamingHours ?? 0} h`} sub="en Steam (24h)" color={C.gaming} delay={0.15} />
       </section>
 
-      {/* Resumen de la semana (#7) */}
-      {weekly.data && (
-        <section className="mb-6">
-          <WeeklyRecap data={weekly.data} rose={momentum.data?.rose?.[0] ?? null} resumed={momentum.data?.resumed?.[0] ?? null} />
-        </section>
-      )}
-
-      {/* ROW 3 — Tu día | Energía | Recientes */}
-      <section className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-4">
-        <div className="lg:col-span-1">
-          <DayTimeline recent={recent.data ?? []} gamingTop={recentGame?.name ?? null} />
-        </div>
-        <div className="lg:col-span-2">
-          <EnergyChart />
-        </div>
-        <div className="lg:col-span-1">
-          <RecentFeed data={(recent.data ?? []).slice(0, 10)} />
-        </div>
+      <section className="mb-6">
+        <WeekSummaryEntry
+          minutes={weekly.data?.thisWeek.minutes ?? 0}
+          plays={weekly.data?.thisWeek.plays ?? 0}
+          gamingHours={weekly.data?.thisWeek.gamingHours ?? 0}
+          topArtist={weekly.data?.topArtist?.name ?? null}
+          obsession={weekly.data?.obsessionTrack?.name ?? topTrack0?.name ?? null}
+          isRecord={weekly.data?.isRecordWeek ?? false}
+          roseGame={momentum.data?.rose?.[0]?.name ?? null}
+        />
       </section>
 
       {/* Changelog musical */}
@@ -262,6 +250,80 @@ export default function DashboardPage() {
         {(dna.data?.type || gType) && <AdnDual musical={dna.data?.type ?? null} gamer={gType} />}
         <EvolutionAdn />
       </div>
+    </div>
+  );
+}
+
+function WeekSummaryEntry({
+  minutes,
+  plays,
+  gamingHours,
+  topArtist,
+  obsession,
+  isRecord,
+  roseGame,
+}: {
+  minutes: number;
+  plays: number;
+  gamingHours: number;
+  topArtist: string | null;
+  obsession: string | null;
+  isRecord: boolean;
+  roseGame: string | null;
+}) {
+  return (
+    <Link
+      href="/dashboard/week"
+      className="group block overflow-hidden rounded-3xl border bg-[var(--color-surface)] p-5 transition hover:border-[var(--color-accent)]/50"
+      style={{
+        background:
+          'radial-gradient(480px 180px at 0% 0%, rgba(29,185,84,0.12), transparent), radial-gradient(420px 180px at 100% 0%, rgba(124,92,255,0.14), transparent), var(--color-surface)',
+      }}
+    >
+      <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+        <div className="min-w-0">
+          <p className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-[var(--color-accent)]">
+            <CalendarDays className="h-4 w-4" /> Resumen semanal
+          </p>
+          <h2 className="text-2xl font-black text-white">
+            Tu semana en música + gaming
+          </h2>
+          <p className="mt-1 line-clamp-2 text-sm text-[var(--color-muted)]">
+            Wrapped semanal, insights, tu día, energía y recientes agrupados sin llenar la portada.
+          </p>
+        </div>
+        <div className="grid shrink-0 grid-cols-2 gap-2 sm:grid-cols-4 lg:w-[560px]">
+          <MiniWeekStat icon={Clock} label="Música" value={`${(minutes / 60).toFixed(1)} h`} sub={`${plays.toLocaleString()} plays`} />
+          <MiniWeekStat icon={Gamepad2} label="Gaming" value={`${gamingHours} h`} sub={roseGame ?? 'Steam'} />
+          <MiniWeekStat icon={Mic2} label="Top artista" value={topArtist ?? '—'} sub={isRecord ? 'récord' : 'semana'} />
+          <MiniWeekStat icon={Trophy} label="Obsesión" value={obsession ?? '—'} sub="top #1" />
+        </div>
+        <span className="inline-flex w-fit shrink-0 items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-semibold text-[var(--color-accent)] transition group-hover:gap-2">
+          Ver resumen <ArrowRight className="h-4 w-4" />
+        </span>
+      </div>
+    </Link>
+  );
+}
+
+function MiniWeekStat({
+  icon: Icon,
+  label,
+  value,
+  sub,
+}: {
+  icon: typeof Clock;
+  label: string;
+  value: string;
+  sub: string;
+}) {
+  return (
+    <div className="min-w-0 rounded-2xl border bg-black/15 p-3">
+      <p className="mb-1 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide text-[var(--color-muted)]">
+        <Icon className="h-3.5 w-3.5 text-[var(--color-accent)]" /> {label}
+      </p>
+      <p className="truncate text-sm font-black text-white" title={value}>{value}</p>
+      <p className="truncate text-[11px] text-[var(--color-muted)]" title={sub}>{sub}</p>
     </div>
   );
 }
