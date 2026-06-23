@@ -24,7 +24,7 @@ export const viewport: Viewport = {
 };
 
 // Applies the saved accent theme before first paint (no flash of default green).
-const THEME_INIT = `(function(){try{var m={sonora:['#1db954','#7c5cff'],cyber:['#ff2bd6','#00e5ff'],steam:['#66c0f4','#1b9e8f'],midnight:['#a855f7','#6366f1'],rose:['#ff5d8f','#ff9472'],sunset:['#ff8a00','#ff2e63'],aqua:['#2dd4bf','#38bdf8']};var c=m[localStorage.getItem('sonora-theme')];if(c){var r=document.documentElement;r.style.setProperty('--color-accent',c[0]);r.style.setProperty('--color-accent-2',c[1]);}}catch(e){}})();`;
+const THEME_INIT = `(function(){try{var m={sonora:['#1db954','#7c5cff','rgba(124,92,255,0.12)','rgba(29,185,84,0.10)'],cyber:['#ff2bd6','#00e5ff','rgba(255,43,214,0.16)','rgba(0,229,255,0.13)'],steam:['#66c0f4','#22d3a6','rgba(102,192,244,0.15)','rgba(34,211,166,0.10)'],midnight:['#a855f7','#6366f1','rgba(168,85,247,0.18)','rgba(99,102,241,0.12)'],rose:['#ff5d8f','#ff9472','rgba(255,93,143,0.16)','rgba(255,148,114,0.11)'],sunset:['#ff8a00','#ff2e63','rgba(255,138,0,0.15)','rgba(255,46,99,0.12)'],aqua:['#2dd4bf','#38bdf8','rgba(45,212,191,0.15)','rgba(56,189,248,0.12)'],mono:['#e5e7eb','#9ca3af','rgba(255,255,255,0.06)','rgba(148,163,184,0.05)']};var c=m[localStorage.getItem('sonora-theme')];if(c){var r=document.documentElement.style;r.setProperty('--color-accent',c[0]);r.setProperty('--color-accent-2',c[1]);r.setProperty('--glow-1',c[2]);r.setProperty('--glow-2',c[3]);}}catch(e){}})();`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

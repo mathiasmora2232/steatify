@@ -14,6 +14,10 @@
   --color-accent-2: #7c5cff; /* violet for charts/eras */
   --color-rose: #ff5d8f;
 
+  /* Ambient glow behind the whole app — driven by the chosen theme. */
+  --glow-1: rgba(124, 92, 255, 0.10);
+  --glow-2: rgba(29, 185, 84, 0.08);
+
   --radius-card: 16px;
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
 }
@@ -30,11 +34,14 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Subtle radial glow behind the app shell. */
+/* Theme-driven radial glow behind the app shell — changes with the chosen
+   appearance theme so the whole app's mood shifts, not just buttons. */
 body {
   background-image:
-    radial-gradient(1200px 600px at 80% -10%, rgba(124, 92, 255, 0.08), transparent),
-    radial-gradient(900px 500px at -10% 10%, rgba(29, 185, 84, 0.06), transparent);
+    radial-gradient(1200px 640px at 82% -12%, var(--glow-1), transparent),
+    radial-gradient(1000px 560px at -12% 8%, var(--glow-2), transparent),
+    radial-gradient(900px 520px at 50% 120%, var(--glow-1), transparent);
+  background-attachment: fixed;
 }
 
 ::selection {

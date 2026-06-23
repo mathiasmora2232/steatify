@@ -530,13 +530,42 @@ function AppearanceSection() {
   const [theme, setTheme] = useState<ThemeKey>('sonora');
   useEffect(() => setTheme(getSavedTheme()), []);
 
+  const current = THEMES.find((t) => t.key === theme) ?? THEMES[0];
+
   function pick(key: ThemeKey) {
     setTheme(key);
-    saveTheme(key);
+    saveTheme(key); // applies live across the whole app
   }
 
   return (
-    <Section icon={Palette} title="Apariencia" desc="Elige el color de acento de tu Sonora (se guarda en este dispositivo).">
+    <Section icon={Palette} title="Apariencia" desc="Cambia el ambiente de toda la app. Se aplica al instante y se guarda en este dispositivo.">
+      {/* Live preview — reflects the selected theme's accents + ambient glow */}
+      <div
+        className="mb-4 overflow-hidden rounded-2xl border p-5"
+        style={{
+          backgroundImage: `radial-gradient(420px 200px at 15% -20%, ${current.glow1}, transparent), radial-gradient(420px 220px at 95% 130%, ${current.glow2}, transparent)`,
+          backgroundColor: 'var(--color-bg)',
+        }}
+      >
+        <p className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-[var(--color-muted)]">Vista previa · {current.name}</p>
+        <div className="flex items-center justify-between gap-4">
+          <div className="min-w-0">
+            <p className="text-lg font-black" style={{ backgroundImage: `linear-gradient(90deg, ${current.accent}, ${current.accent2})`, backgroundClip: 'text', WebkitBackgroundClip: 'text', color: 'transparent' }}>
+              Tu universo Sonora
+            </p>
+            <div className="mt-2 space-y-1.5">
+              <div className="h-2 w-40 overflow-hidden rounded-full bg-white/5"><div className="h-full w-3/4 rounded-full" style={{ background: current.accent }} /></div>
+              <div className="h-2 w-40 overflow-hidden rounded-full bg-white/5"><div className="h-full w-1/2 rounded-full" style={{ background: current.accent2 }} /></div>
+            </div>
+          </div>
+          <div className="flex shrink-0 flex-col items-end gap-2">
+            <span className="rounded-full px-4 py-1.5 text-xs font-bold text-black" style={{ background: current.accent }}>Botón</span>
+            <span className="rounded-full border px-3 py-1 text-[11px] font-semibold" style={{ borderColor: current.accent2, color: current.accent2 }}>chip</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Theme grid */}
       <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
         {THEMES.map((t) => {
           const active = theme === t.key;
@@ -544,13 +573,18 @@ function AppearanceSection() {
             <button
               key={t.key}
               onClick={() => pick(t.key)}
-              className={`flex items-center gap-2.5 rounded-2xl border px-3 py-2.5 text-left transition ${
-                active ? 'border-white/40 bg-white/[0.06]' : 'border-[var(--color-border)] hover:border-white/20'
+              className={`relative flex flex-col gap-2 overflow-hidden rounded-2xl border p-3 text-left transition ${
+                active ? 'border-white/50 ring-1 ring-white/20' : 'border-[var(--color-border)] hover:border-white/25'
               }`}
             >
-              <span className="h-7 w-7 shrink-0 rounded-full ring-2 ring-white/10" style={{ background: `linear-gradient(135deg, ${t.accent}, ${t.accent2})` }} />
-              <span className="min-w-0 flex-1 truncate text-sm font-medium text-white">{t.name}</span>
-              {active && <Check className="h-4 w-4 shrink-0 text-white" />}
+              <div className="h-10 w-full rounded-lg" style={{ background: `linear-gradient(120deg, ${t.accent}, ${t.accent2})` }} />
+              <div className="flex items-center justify-between">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold text-white">{t.name}</p>
+                  <p className="truncate text-[10px] text-[var(--color-muted)]">{t.desc}</p>
+                </div>
+                {active && <Check className="h-4 w-4 shrink-0 text-white" />}
+              </div>
             </button>
           );
         })}
