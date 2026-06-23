@@ -830,6 +830,7 @@ export interface UserProfile {
   showMusic?: boolean;
   aiAuto?: boolean;
   showcase?: Showcase | null;
+  theme?: string | null;
   country: string | null;
   product: string | null;
   createdAt: string;

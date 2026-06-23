@@ -44,7 +44,7 @@ export default function SettingsPage() {
           <SecuritySection user={user} onSaved={me.mutate} />
           <SessionsSection />
           <PrivacySection user={user} onSaved={me.mutate} />
-          <AppearanceSection />
+          <AppearanceSection user={user} onSaved={me.mutate} />
           <PreferencesSection user={user} />
           <AiSection user={user} onSaved={me.mutate} />
           <DataSection />
@@ -526,19 +526,27 @@ function ShowcaseSlot({
   );
 }
 
-function AppearanceSection() {
-  const [theme, setTheme] = useState<ThemeKey>('sonora');
-  useEffect(() => setTheme(getSavedTheme()), []);
+function AppearanceSection({ user, onSaved }: { user: UserProfile; onSaved: () => void }) {
+  const initial = (user.theme && THEMES.some((t) => t.key === user.theme) ? (user.theme as ThemeKey) : null) ?? getSavedTheme();
+  const [theme, setTheme] = useState<ThemeKey>(initial);
+  useEffect(() => {
+    // Account theme is the source of truth; sync it to this device on load.
+    if (user.theme && THEMES.some((t) => t.key === user.theme)) {
+      setTheme(user.theme as ThemeKey);
+      saveTheme(user.theme as ThemeKey);
+    }
+  }, [user.theme]);
 
   const current = THEMES.find((t) => t.key === theme) ?? THEMES[0];
 
   function pick(key: ThemeKey) {
     setTheme(key);
-    saveTheme(key); // applies live across the whole app
+    saveTheme(key); // applies live across the whole app + this device
+    void api.updateProfile({ theme: key }).then(onSaved).catch(() => {}); // sync to account
   }
 
   return (
-    <Section icon={Palette} title="Apariencia" desc="Cambia el ambiente de toda la app. Se aplica al instante y se guarda en este dispositivo.">
+    <Section icon={Palette} title="Apariencia" desc="Cambia el ambiente de toda la app. Se aplica al instante y se guarda en tu cuenta (sincroniza entre dispositivos).">
       {/* Live preview — reflects the selected theme's accents + ambient glow */}
       <div
         className="mb-4 overflow-hidden rounded-2xl border p-5"

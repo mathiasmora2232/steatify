@@ -44,6 +44,7 @@ model User {
   showMusic     Boolean  @default(true) // show music on the public profile
   aiAuto        Boolean  @default(true) // auto-generate weekly insights
   showcase      Json? // user-curated profile vitrinas { song?, game?, artist? } (denormalized display data)
+  theme         String? // chosen appearance theme key (syncs across devices)
   // ── Spotify connection details (kept here for convenience) ──
   spotifyId     String?  @unique // a CONNECTION now, not the identity
   country       String? // ISO 3166-1 alpha-2

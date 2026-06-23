@@ -1,9 +1,11 @@
 import { Sidebar, MobileNav } from '@/components/Sidebar';
 import { Providers } from '@/components/Providers';
+import { ThemeSync } from '@/components/ThemeSync';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <Providers>
+      <ThemeSync />
       <div className="flex min-h-screen">
         <Sidebar />
         <div className="flex min-w-0 flex-1 flex-col">

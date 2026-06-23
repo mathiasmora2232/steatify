@@ -51,6 +51,7 @@ class UpdateProfileDto {
   @IsOptional() @IsBoolean() showMusic?: boolean;
   @IsOptional() @IsBoolean() aiAuto?: boolean;
   @IsOptional() @IsObject() showcase?: Record<string, unknown>;
+  @IsOptional() @IsString() @MaxLength(20) theme?: string;
 }
 
 const PROFILE_SELECT = {
@@ -68,6 +69,7 @@ const PROFILE_SELECT = {
   showMusic: true,
   aiAuto: true,
   showcase: true,
+  theme: true,
   country: true,
   product: true,
   createdAt: true,
@@ -138,6 +140,7 @@ export class UsersController {
         showMusic: dto.showMusic,
         aiAuto: dto.aiAuto,
         showcase: dto.showcase === undefined ? undefined : (dto.showcase as object),
+        theme: dto.theme,
       },
       select: PROFILE_SELECT,
     });
