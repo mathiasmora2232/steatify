@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import {
   Headphones, Gamepad2, Compass, Flame, Trophy, Skull, Disc3, Music2, Star, Clock, Sparkles, MapPin, Globe,
 } from 'lucide-react';
-import type { PublicProfile } from '@/lib/api';
+import type { PublicProfile, ShowcaseItem } from '@/lib/api';
 import { computeLevel } from '@/lib/level';
 import { titleById, RARITY_COLOR } from '@/lib/titles';
 import { useImageColor } from '@/lib/useImageColor';
@@ -30,63 +30,72 @@ export function ProfileBody({ data, actions }: { data: PublicProfile; actions?: 
   return (
     <div className="space-y-6">
       {/* ── HERO — fondo derivado de tus datos ── */}
-      <section
-        className="relative overflow-hidden rounded-3xl border"
-        style={{ background: `radial-gradient(700px 280px at 25% -10%, ${accent}40, transparent), radial-gradient(600px 260px at 90% 30%, ${accent}22, transparent), linear-gradient(160deg,#0c0e14,#08090c)` }}
-      >
-        {topImg && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={topImg} alt="" aria-hidden className="pointer-events-none absolute -right-10 -top-16 h-72 w-72 rounded-full object-cover opacity-25 blur-3xl" />
-        )}
-        <div className="relative flex flex-col items-center gap-4 p-8 text-center sm:flex-row sm:items-end sm:text-left">
-          <div className="rounded-full p-[3px]" style={{ background: `linear-gradient(135deg, ${accent}, var(--color-accent))` }}>
-            {data.avatarUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={data.avatarUrl} alt="" className="h-28 w-28 rounded-full border-4 border-[var(--color-bg)] object-cover" />
-            ) : (
-              <div className="grid h-28 w-28 place-items-center rounded-full border-4 border-[var(--color-bg)] bg-[var(--color-surface-2)] text-4xl font-black text-white">
-                {(data.displayName ?? data.username ?? '?').charAt(0).toUpperCase()}
-              </div>
-            )}
-          </div>
-          <div className="min-w-0 flex-1">
-            <h1 className="text-4xl font-black tracking-tight text-white">{data.displayName ?? data.username}</h1>
-            {(() => {
-              const t = titleById(data.showcase?.title);
-              return t ? (
-                <p className="text-sm font-bold italic" style={{ color: RARITY_COLOR[t.rarity] }}>« {t.label} »</p>
-              ) : null;
-            })()}
-            <p className="text-sm text-[var(--color-muted)]">@{data.username}</p>
-            <div className="mt-2 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
-              <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide" style={{ background: `${accent}26`, color: accent }}>
-                <Star className="h-3.5 w-3.5" /> Lv {level.level} · {level.rarity}
-              </span>
-              {data.personality && (
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-sm font-bold text-white">
-                  {data.personality.emoji} {data.personality.label}
-                </span>
-              )}
-            </div>
-            <p className="mt-2 text-xs text-[var(--color-muted)]">Miembro desde {sinceYear}</p>
-          </div>
-          {actions && <div className="flex shrink-0 items-center gap-2 self-center sm:self-end">{actions}</div>}
+      <section className="relative overflow-hidden rounded-3xl border bg-[var(--color-surface)]">
+        {/* Banner — tu portada, o un fondo derivado de tu artista #1 */}
+        <div
+          className="relative h-32 w-full sm:h-48"
+          style={
+            data.bannerUrl
+              ? { backgroundImage: `url(${data.bannerUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+              : { background: `radial-gradient(700px 300px at 20% -30%, ${accent}66, transparent), radial-gradient(620px 280px at 95% 140%, var(--color-accent-2), transparent), linear-gradient(160deg,#10131b,#0a0b0f)` }
+          }
+        >
+          {!data.bannerUrl && topImg && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={topImg} alt="" aria-hidden className="pointer-events-none absolute right-8 top-1/2 h-44 w-44 -translate-y-1/2 rounded-full object-cover opacity-30 blur-2xl" />
+          )}
+          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[var(--color-surface)] to-transparent" />
         </div>
-        {(data.bio || data.location || data.website) && (
-          <div className="relative -mt-2 px-8 pb-6 text-center sm:text-left">
-            {data.bio && <p className="max-w-xl text-[15px] leading-relaxed text-[var(--color-text)]">{data.bio}</p>}
-            {(data.location || data.website) && (
-              <div className="mt-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-[var(--color-muted)] sm:justify-start">
-                {data.location && <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" /> {data.location}</span>}
-                {data.website && (
-                  <a href={/^https?:\/\//.test(data.website) ? data.website : `https://${data.website}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 transition hover:text-[var(--color-accent-2)]">
-                    <Globe className="h-3.5 w-3.5" /> {data.website.replace(/^https?:\/\//, '')}
-                  </a>
+
+        {/* Identidad — avatar sobrepuesto al banner (estilo Discord/Steam) */}
+        <div className="relative -mt-12 px-5 pb-5 sm:-mt-14 sm:px-8">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div className="flex flex-col items-center gap-3 text-center sm:flex-row sm:items-end sm:text-left">
+              <div className="shrink-0 rounded-full p-[3px] shadow-2xl" style={{ background: `linear-gradient(135deg, ${accent}, var(--color-accent-2))` }}>
+                {data.avatarUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={data.avatarUrl} alt="" className="h-28 w-28 rounded-full border-4 border-[var(--color-surface)] object-cover" />
+                ) : (
+                  <div className="grid h-28 w-28 place-items-center rounded-full border-4 border-[var(--color-surface)] bg-[var(--color-surface-2)] text-4xl font-black text-white">
+                    {(data.displayName ?? data.username ?? '?').charAt(0).toUpperCase()}
+                  </div>
                 )}
               </div>
-            )}
+              <div className="min-w-0 pb-1">
+                <h1 className="text-3xl font-black tracking-tight text-white sm:text-4xl">{data.displayName ?? data.username}</h1>
+                {(() => {
+                  const t = titleById(data.showcase?.title);
+                  return t ? <p className="text-sm font-bold italic" style={{ color: RARITY_COLOR[t.rarity] }}>« {t.label} »</p> : null;
+                })()}
+                <p className="text-sm text-[var(--color-muted)]">@{data.username}</p>
+                <div className="mt-2 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+                  <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide" style={{ background: `${accent}26`, color: accent }}>
+                    <Star className="h-3.5 w-3.5" /> Lv {level.level} · {level.rarity}
+                  </span>
+                  {data.personality && (
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-sm font-bold text-white">
+                      {data.personality.emoji} {data.personality.label}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+            {actions && <div className="flex shrink-0 items-center gap-2 self-center sm:self-end sm:pb-1">{actions}</div>}
           </div>
-        )}
+
+          <div className="mt-3 text-center sm:text-left">
+            {data.bio && <p className="max-w-2xl text-[15px] leading-relaxed text-[var(--color-text)]">{data.bio}</p>}
+            <div className="mt-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-[var(--color-muted)] sm:justify-start">
+              <span>Miembro desde {sinceYear}</span>
+              {data.location && <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" /> {data.location}</span>}
+              {data.website && (
+                <a href={/^https?:\/\//.test(data.website) ? data.website : `https://${data.website}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 transition hover:text-[var(--color-accent-2)]">
+                  <Globe className="h-3.5 w-3.5" /> {data.website.replace(/^https?:\/\//, '')}
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* ── ESTADO ACTUAL (perfil dinámico) ── */}
@@ -142,28 +151,36 @@ export function ProfileBody({ data, actions }: { data: PublicProfile; actions?: 
             </Section>
           )}
 
-          {/* ── VITRINAS (editables: usa la elección del usuario, si la hay) ── */}
+          {/* ── VITRINAS estilo Steam (multi-ítem) o, si no curó, las automáticas ── */}
           {(() => {
+            const items = data.showcase?.items ?? [];
+            if (items.length > 0) {
+              return (
+                <div>
+                  <H2 icon={Trophy} accent={accent}>Mi vitrina</H2>
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                    {items.map((it, i) => <ShowcaseCard key={`${it.type}:${it.id}:${i}`} item={it} accent={accent} />)}
+                  </div>
+                </div>
+              );
+            }
             const sc = data.showcase ?? {};
-            const song = sc.song;
-            const game = sc.game;
-            const artist = sc.artist;
             return (
               <div>
                 <H2 icon={Trophy} accent={accent}>Mis vitrinas</H2>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                   <Vitrina kicker="Canción inmortal" icon={Flame} color="#ff5d8f"
-                    img={song?.image ?? music?.songOfPeriod?.imageUrl ?? data.hallOfFame?.[0]?.imageUrl ?? null}
-                    name={song?.name ?? music?.songOfPeriod?.name ?? data.hallOfFame?.[0]?.name ?? '—'}
-                    sub={song?.sub ?? (music?.songOfPeriod?.plays ? `${music.songOfPeriod.plays} reproducciones` : null)} />
+                    img={sc.song?.image ?? music?.songOfPeriod?.imageUrl ?? data.hallOfFame?.[0]?.imageUrl ?? null}
+                    name={sc.song?.name ?? music?.songOfPeriod?.name ?? data.hallOfFame?.[0]?.name ?? '—'}
+                    sub={sc.song?.sub ?? (music?.songOfPeriod?.plays ? `${music.songOfPeriod.plays} reproducciones` : null)} />
                   <Vitrina kicker="Juego legendario" icon={Gamepad2} color="#7c5cff"
-                    img={game?.image ?? gaming?.topGame?.headerUrl ?? null}
-                    name={game?.name ?? gaming?.topGame?.name ?? '—'}
-                    sub={game?.sub ?? (gaming?.topGame?.hours ? `${gaming.topGame.hours.toLocaleString()} horas` : null)} wide />
+                    img={sc.game?.image ?? gaming?.topGame?.headerUrl ?? null}
+                    name={sc.game?.name ?? gaming?.topGame?.name ?? '—'}
+                    sub={sc.game?.sub ?? (gaming?.topGame?.hours ? `${gaming.topGame.hours.toLocaleString()} horas` : null)} wide />
                   <Vitrina kicker="Artista histórico" icon={Music2} color="#1db954"
-                    img={artist?.image ?? music?.topArtist?.imageUrl ?? null}
-                    name={artist?.name ?? music?.topArtist?.name ?? '—'}
-                    sub={artist?.sub ?? (music?.minutes ? `${music.minutes.toLocaleString()} minutos` : null)} round />
+                    img={sc.artist?.image ?? music?.topArtist?.imageUrl ?? null}
+                    name={sc.artist?.name ?? music?.topArtist?.name ?? '—'}
+                    sub={sc.artist?.sub ?? (music?.minutes ? `${music.minutes.toLocaleString()} minutos` : null)} round />
                 </div>
               </div>
             );
@@ -231,6 +248,32 @@ function H2({ icon: Icon, accent, children }: { icon: typeof Star; accent: strin
     <h2 className="mb-4 flex items-center gap-1.5 text-sm font-semibold uppercase tracking-widest text-[var(--color-muted)]">
       <Icon className="h-4 w-4" style={{ color: accent }} /> {children}
     </h2>
+  );
+}
+const SHOWCASE_META: Record<ShowcaseItem['type'], { icon: typeof Star; color: string; label: string; round?: boolean }> = {
+  song: { icon: Flame, color: '#ff5d8f', label: 'Canción' },
+  artist: { icon: Music2, color: '#1db954', label: 'Artista', round: true },
+  album: { icon: Disc3, color: '#a855f7', label: 'Álbum' },
+  game: { icon: Gamepad2, color: '#7c5cff', label: 'Juego' },
+};
+function ShowcaseCard({ item, accent }: { item: ShowcaseItem; accent: string }) {
+  const m = SHOWCASE_META[item.type] ?? SHOWCASE_META.song;
+  const Icon = m.icon;
+  return (
+    <div className="group relative overflow-hidden rounded-2xl border bg-[var(--color-surface)] p-3" style={{ boxShadow: `inset 0 0 50px -34px ${m.color}` }}>
+      <span className="absolute inset-x-0 top-0 h-0.5" style={{ background: `linear-gradient(90deg, ${m.color}, transparent)` }} />
+      <div className="relative mb-2 aspect-square w-full overflow-hidden rounded-xl bg-[var(--color-surface-2)]">
+        {item.image ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={item.image} alt="" className={`h-full w-full object-cover transition duration-300 group-hover:scale-105 ${m.round ? 'rounded-full' : ''}`} />
+        ) : (
+          <div className="grid h-full w-full place-items-center"><Icon className="h-7 w-7 text-[var(--color-muted)]" /></div>
+        )}
+      </div>
+      <p className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide" style={{ color: m.color }}><Icon className="h-3 w-3" /> {m.label}</p>
+      <p className="truncate text-sm font-bold text-white">{item.name}</p>
+      {item.sub && <p className="truncate text-[11px] text-[var(--color-muted)]">{item.sub}</p>}
+    </div>
   );
 }
 function Vitrina({ kicker, icon: Icon, color, img, name, sub, round, wide }: { kicker: string; icon: typeof Star; color: string; img: string | null; name: string; sub?: string | null; round?: boolean; wide?: boolean }) {

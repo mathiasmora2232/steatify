@@ -809,11 +809,21 @@ export interface ShowcasePick {
   image: string | null;
   sub: string | null;
 }
+export type ShowcaseType = 'song' | 'artist' | 'album' | 'game';
+export interface ShowcaseItem {
+  type: ShowcaseType;
+  id: string;
+  name: string;
+  image: string | null;
+  sub: string | null;
+}
 export interface Showcase {
+  items?: ShowcaseItem[]; // Steam-style curated showcase (multiple items, mixed types)
+  title?: string; // equipped title id (e.g. "loop_master")
+  // legacy single picks — still rendered when `items` is empty
   song?: ShowcasePick;
   game?: ShowcasePick;
   artist?: ShowcasePick;
-  title?: string; // equipped title id (e.g. "loop_master")
 }
 
 export interface UserProfile {
