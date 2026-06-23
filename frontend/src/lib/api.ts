@@ -860,6 +860,7 @@ export interface PublicProfile {
   showcase?: Showcase | null;
   personalityName?: string;
   personality?: { key: string; label: string; emoji: string; tagline: string };
+  mood?: { key: string; label: string; emoji: string; detail: string } | null;
   mix?: PersonalityMix[];
   music?: Wrapped['music'];
   gaming?: Wrapped['gaming'];

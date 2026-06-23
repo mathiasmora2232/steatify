@@ -89,6 +89,24 @@ export function ProfileBody({ data, actions }: { data: PublicProfile; actions?: 
         )}
       </section>
 
+      {/* ── ESTADO ACTUAL (perfil dinámico) ── */}
+      {!data.private && data.mood && (
+        <motion.div
+          initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+          className="flex items-center gap-4 overflow-hidden rounded-3xl border bg-[var(--color-surface)] px-5 py-4"
+          style={{ boxShadow: `inset 0 0 60px -40px ${accent}` }}
+        >
+          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl text-2xl" style={{ background: `${accent}1f` }}>
+            {data.mood.emoji}
+          </span>
+          <div className="min-w-0">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--color-muted)]">Ahora mismo está en</p>
+            <p className="text-lg font-black text-white">{data.mood.label}</p>
+            <p className="truncate text-xs text-[var(--color-muted)]">{data.mood.detail}</p>
+          </div>
+        </motion.div>
+      )}
+
       {data.private ? (
         <div className="rounded-3xl border bg-[var(--color-surface)] px-6 py-12 text-center text-[var(--color-muted)]">
           Este perfil es privado.

@@ -53,11 +53,12 @@ export class ProfileController {
     };
     if (!u.isPublic) return { ...base, private: true };
 
-    const [wrapped, dna, charts, extras] = await Promise.all([
+    const [wrapped, dna, charts, extras, mood] = await Promise.all([
       this.wrapped.generate(u.id, 'month', { narrative: false }), // public profile doesn't show it — skip the GPT call
       this.dna.compute(u.id),
       this.charts.records(u.id),
       this.profileExtras(u.id),
+      this.currentMood(u.id),
     ]);
     // Respect the user's privacy toggles — hide music or gaming if turned off.
     return {
@@ -65,6 +66,7 @@ export class ProfileController {
       personalityName: wrapped.personalityName,
       personality: wrapped.personality, // archetype { key,label,emoji,tagline } → passport class
       mix: wrapped.mix, // the blend for the passport bars
+      mood: u.showMusic || u.showSteam ? mood : null,
       music: u.showMusic ? wrapped.music : null,
       gaming: u.showSteam ? wrapped.gaming : null,
       dna: u.showMusic ? { archetypes: dna.archetypes, personality: dna.personality } : null,
@@ -74,6 +76,32 @@ export class ProfileController {
       timeline: u.showMusic ? extras.timeline : [],
       exploration: u.showSteam ? extras.exploration : null,
     };
+  }
+
+  /**
+   * The user's CURRENT vibe, from the last ~2 weeks of activity. Makes the
+   * profile feel alive ("Modo Nostalgia" because they revived old songs).
+   */
+  private async currentMood(userId: string) {
+    const [recent, repeat, revived, fresh, gaming] = await Promise.all([
+      this.prisma.$queryRaw<Array<{ plays: number }>>`SELECT COUNT(*)::int AS plays FROM listening_history WHERE "userId" = ${userId} AND "playedAt" > now() - interval '14 days'`,
+      this.prisma.$queryRaw<Array<{ c: number }>>`SELECT COALESCE(MAX(c),0)::int AS c FROM (SELECT COUNT(*) AS c FROM listening_history WHERE "userId" = ${userId} AND "playedAt" > now() - interval '14 days' GROUP BY "trackId") x`,
+      this.prisma.$queryRaw<Array<{ c: number }>>`SELECT COUNT(DISTINCT lh."trackId")::int AS c FROM listening_history lh JOIN (SELECT "trackId", MIN("playedAt") AS fp FROM listening_history WHERE "userId" = ${userId} GROUP BY "trackId") f ON f."trackId" = lh."trackId" WHERE lh."userId" = ${userId} AND lh."playedAt" > now() - interval '14 days' AND f.fp < now() - interval '365 days'`,
+      this.prisma.$queryRaw<Array<{ c: number }>>`SELECT COUNT(DISTINCT lh."artistId")::int AS c FROM listening_history lh JOIN (SELECT "artistId", MIN("playedAt") AS fp FROM listening_history WHERE "userId" = ${userId} GROUP BY "artistId") f ON f."artistId" = lh."artistId" WHERE lh."userId" = ${userId} AND lh."playedAt" > now() - interval '14 days' AND f.fp > now() - interval '14 days'`,
+      this.prisma.$queryRaw<Array<{ h: number }>>`SELECT COALESCE(SUM("playtime2Weeks"),0)::float / 60 AS h FROM user_games WHERE "userId" = ${userId}`,
+    ]);
+    const plays = recent[0]?.plays ?? 0;
+    const topRepeat = repeat[0]?.c ?? 0;
+    const revivedOld = revived[0]?.c ?? 0;
+    const newArtists = fresh[0]?.c ?? 0;
+    const gamerHours = Math.round(gaming[0]?.h ?? 0);
+
+    if (plays === 0 && gamerHours === 0) return null;
+    if (topRepeat >= 18) return { key: 'obsesion', label: 'Modo Obsesión', emoji: '🔥', detail: `Una canción en repeat ${topRepeat} veces estas 2 semanas` };
+    if (revivedOld >= 10) return { key: 'nostalgia', label: 'Modo Nostalgia', emoji: '🌙', detail: `Reviviste ${revivedOld} canciones de tu pasado` };
+    if (newArtists >= 12) return { key: 'explorador', label: 'Modo Explorador', emoji: '🧭', detail: `Descubriste ${newArtists} artistas nuevos` };
+    if (gamerHours >= 10 && plays < 60) return { key: 'gamer', label: 'Modo Gamer', emoji: '🎮', detail: `${gamerHours}h de juego estas 2 semanas` };
+    return { key: 'inmersion', label: 'Modo Inmersión', emoji: '🎧', detail: `${plays} reproducciones estas 2 semanas` };
   }
 
   /** Collections counts, a life timeline (eras) and gaming exploration %. */
