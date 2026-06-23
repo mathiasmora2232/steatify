@@ -21,6 +21,8 @@ export interface ArtistProfile {
   favoriteHour: number | null;
   topTracks: { trackId: string; name: string; plays: number; imageUrl: string | null }[];
   topAlbum: { id: string; name: string; plays: number; imageUrl: string | null } | null;
+  topAlbums: { id: string; name: string; plays: number; imageUrl: string | null }[];
+  relatedArtists: { artistId: string; name: string; plays: number; imageUrl: string | null }[];
   status: string; // 'principal' | 'activo' | 'dormido' | 'nuevo' | 'leyenda'
 }
 
@@ -62,7 +64,7 @@ export class ArtistsService {
         (SELECT COUNT(*)::int FROM listening_history WHERE "userId" = ${userId}) AS total_plays
     `;
 
-    const [byYear, peak, favHour, topTracks, topAlbum] = await Promise.all([
+    const [byYear, peak, favHour, topTracks, topAlbums, relatedArtists] = await Promise.all([
       this.prisma.$queryRaw<Array<{ y: number; plays: number }>>`
         SELECT EXTRACT(YEAR FROM "playedAt")::int AS y, COUNT(*)::int AS plays
         FROM listening_history WHERE "userId" = ${userId} AND "artistId" = ${artistId}
@@ -89,7 +91,24 @@ export class ArtistsService {
         SELECT al.id, al.name, COUNT(*)::int AS plays, al."imageUrl" AS image
         FROM listening_history lh JOIN tracks t ON t.id = lh."trackId" JOIN albums al ON al.id = t."albumId"
         WHERE lh."userId" = ${userId} AND lh."artistId" = ${artistId}
-        GROUP BY al.id, al.name, al."imageUrl" ORDER BY plays DESC LIMIT 1
+        GROUP BY al.id, al.name, al."imageUrl" ORDER BY plays DESC LIMIT 6
+      `,
+      this.prisma.$queryRaw<Array<{ artistId: string; name: string; plays: number; image: string | null }>>`
+        WITH artist_months AS (
+          SELECT DISTINCT date_trunc('month', "playedAt") AS month
+          FROM listening_history
+          WHERE "userId" = ${userId} AND "artistId" = ${artistId}
+        )
+        SELECT lh."artistId", a.name, COUNT(*)::int AS plays, a."imageUrl" AS image
+        FROM listening_history lh
+        JOIN artist_months am ON am.month = date_trunc('month', lh."playedAt")
+        JOIN artists a ON a.id = lh."artistId"
+        WHERE lh."userId" = ${userId}
+          AND lh."artistId" IS NOT NULL
+          AND lh."artistId" <> ${artistId}
+        GROUP BY lh."artistId", a.name, a."imageUrl"
+        ORDER BY plays DESC, a.name ASC
+        LIMIT 8
       `,
     ]);
 
@@ -125,7 +144,9 @@ export class ArtistsService {
       peakMonth: peak[0] ? { ym: peak[0].ym, plays: peak[0].plays } : null,
       favoriteHour: favHour[0]?.h ?? null,
       topTracks: topTracks.map((t) => ({ trackId: t.trackId, name: t.name, plays: t.plays, imageUrl: t.image })),
-      topAlbum: topAlbum[0] ? { id: topAlbum[0].id, name: topAlbum[0].name, plays: topAlbum[0].plays, imageUrl: topAlbum[0].image } : null,
+      topAlbum: topAlbums[0] ? { id: topAlbums[0].id, name: topAlbums[0].name, plays: topAlbums[0].plays, imageUrl: topAlbums[0].image } : null,
+      topAlbums: topAlbums.map((al) => ({ id: al.id, name: al.name, plays: al.plays, imageUrl: al.image })),
+      relatedArtists: relatedArtists.map((r) => ({ artistId: r.artistId, name: r.name, plays: r.plays, imageUrl: r.image })),
       status,
     };
   }

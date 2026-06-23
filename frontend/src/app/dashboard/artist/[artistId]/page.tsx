@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import useSWR from 'swr';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Clock, Crown, CalendarClock, Hourglass, Music2, Disc3, TrendingUp, Mic2 } from 'lucide-react';
+import { ArrowLeft, Clock, Crown, CalendarClock, Hourglass, Music2, Disc3, TrendingUp, Mic2, Users, ChevronRight } from 'lucide-react';
 import { api } from '@/lib/api';
 import { CountUp } from '@/components/CountUp';
 import { fecha, relativo } from '@/lib/format';
@@ -158,6 +158,12 @@ export default function ArtistPage() {
           </Link>
         )}
       </section>
+
+      <ArtistExplore
+        albums={a.topAlbums}
+        artists={a.relatedArtists}
+        accent={accent}
+      />
     </div>
   );
 }
@@ -183,5 +189,76 @@ function Stat({ icon: Icon, color, label, value, sub }: { icon: typeof Clock; co
       <p className="mt-1 truncate text-sm font-bold text-white">{value}</p>
       {sub && <p className="truncate text-[10px] text-[var(--color-muted)]">{sub}</p>}
     </div>
+  );
+}
+
+function ArtistExplore({
+  albums,
+  artists,
+  accent,
+}: {
+  albums: { id: string; name: string; plays: number; imageUrl: string | null }[];
+  artists: { artistId: string; name: string; plays: number; imageUrl: string | null }[];
+  accent: string;
+}) {
+  if (albums.length === 0 && artists.length === 0) return null;
+  return (
+    <section className="mt-6 space-y-4">
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-xs font-semibold uppercase tracking-widest text-[var(--color-muted)]">Sigue explorando</h2>
+        <span className="text-[11px] text-[var(--color-muted)]">otro salto</span>
+      </div>
+
+      {albums.length > 0 && (
+        <div className="rounded-3xl border bg-[var(--color-surface)] p-4">
+          <h3 className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-[var(--color-muted)]">
+            <Disc3 className="h-4 w-4" style={{ color: accent }} /> Álbumes para seguir
+          </h3>
+          <div className="flex gap-3 overflow-x-auto pb-1">
+            {albums.map((al) => (
+              <Link key={al.id} href={`/dashboard/album/${al.id}`} className="group w-36 shrink-0 rounded-2xl border border-transparent p-2 transition hover:border-white/10 hover:bg-[var(--color-surface-2)]/40">
+                {al.imageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={al.imageUrl} alt="" className="mb-2 aspect-square w-full rounded-xl object-cover transition group-hover:scale-[1.02]" />
+                ) : (
+                  <div className="mb-2 flex aspect-square w-full items-center justify-center rounded-xl bg-[var(--color-surface-2)]">
+                    <Disc3 className="h-7 w-7 text-[var(--color-muted)]" />
+                  </div>
+                )}
+                <p className="line-clamp-2 min-h-9 text-sm font-semibold leading-tight text-white">{al.name}</p>
+                <p className="mt-1 text-[10px] font-bold uppercase tracking-wide" style={{ color: accent }}>{al.plays} plays</p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {artists.length > 0 && (
+        <div className="rounded-3xl border bg-[var(--color-surface)] p-4">
+          <h3 className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-[var(--color-muted)]">
+            <Users className="h-4 w-4" style={{ color: accent }} /> Artistas cercanos
+          </h3>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {artists.map((a) => (
+              <Link key={a.artistId} href={`/dashboard/artist/${a.artistId}`} className="group flex items-center gap-3 rounded-2xl p-2 transition hover:bg-[var(--color-surface-2)]/50">
+                {a.imageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={a.imageUrl} alt="" className="h-11 w-11 shrink-0 rounded-full object-cover" />
+                ) : (
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--color-surface-2)]">
+                    <Mic2 className="h-5 w-5 text-[var(--color-muted)]" />
+                  </span>
+                )}
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold text-white">{a.name}</p>
+                  <p className="text-[11px] text-[var(--color-muted)]">{a.plays} plays en tus mismas eras</p>
+                </div>
+                <ChevronRight className="h-4 w-4 shrink-0 text-[var(--color-muted)] transition group-hover:text-white" />
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+    </section>
   );
 }

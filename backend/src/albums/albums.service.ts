@@ -29,6 +29,10 @@ export interface AlbumJourney {
   peakMonth: { ym: string; plays: number } | null;
   byMonth: { ym: string; plays: number }[];
   tracks: AlbumTrack[];
+  explore: {
+    artistAlbums: { id: string; name: string; plays: number; imageUrl: string | null }[];
+    artistTracks: { trackId: string; name: string; plays: number; imageUrl: string | null }[];
+  };
   status: string; // 'completo' | 'explorando' | 'iniciado' | 'dormido' | 'nuevo'
 }
 
@@ -77,7 +81,7 @@ export class AlbumsService {
          WHERE lh."userId" = ${userId} AND t."albumId" IS NOT NULL) AS total_albums
     `;
 
-    const [peak, byMonth, tracks] = await Promise.all([
+    const [peak, byMonth, tracks, artistAlbums, artistTracks] = await Promise.all([
       this.prisma.$queryRaw<Array<{ ym: string; plays: number }>>`
         SELECT to_char(date_trunc('month', lh."playedAt"), 'YYYY-MM') AS ym, COUNT(*)::int AS plays
         FROM listening_history lh JOIN tracks t ON t.id = lh."trackId"
@@ -100,6 +104,31 @@ export class AlbumsService {
         GROUP BY t.id, t.name, t."durationMs"
         ORDER BY plays DESC, t.name ASC
       `,
+      artist ? this.prisma.$queryRaw<Array<{ id: string; name: string; plays: number; image: string | null }>>`
+        SELECT al.id, al.name, COUNT(lh.id)::int AS plays, al."imageUrl" AS image
+        FROM albums al
+        JOIN album_artists aa ON aa."albumId" = al.id
+        LEFT JOIN tracks t ON t."albumId" = al.id
+        LEFT JOIN listening_history lh ON lh."trackId" = t.id AND lh."userId" = ${userId}
+        WHERE aa."artistId" = ${artist.id}
+          AND al.id <> ${albumId}
+        GROUP BY al.id, al.name, al."imageUrl"
+        HAVING COUNT(lh.id) > 0
+        ORDER BY plays DESC, al.name ASC
+        LIMIT 6
+      ` : Promise.resolve([]),
+      artist ? this.prisma.$queryRaw<Array<{ trackId: string; name: string; plays: number; image: string | null }>>`
+        SELECT lh."trackId", t.name, COUNT(*)::int AS plays, al."imageUrl" AS image
+        FROM listening_history lh
+        JOIN tracks t ON t.id = lh."trackId"
+        LEFT JOIN albums al ON al.id = t."albumId"
+        WHERE lh."userId" = ${userId}
+          AND lh."artistId" = ${artist.id}
+          AND t."albumId" <> ${albumId}
+        GROUP BY lh."trackId", t.name, al."imageUrl"
+        ORDER BY plays DESC, t.name ASC
+        LIMIT 8
+      ` : Promise.resolve([]),
     ]);
 
     const now = Date.now();
@@ -144,6 +173,10 @@ export class AlbumsService {
         plays: t.plays,
         heard: t.plays > 0,
       })),
+      explore: {
+        artistAlbums: artistAlbums.map((al) => ({ id: al.id, name: al.name, plays: al.plays, imageUrl: al.image })),
+        artistTracks: artistTracks.map((t) => ({ trackId: t.trackId, name: t.name, plays: t.plays, imageUrl: t.image })),
+      },
       status,
     };
   }

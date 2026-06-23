@@ -451,6 +451,8 @@ export interface ArtistProfile {
   favoriteHour: number | null;
   topTracks: { trackId: string; name: string; plays: number; imageUrl: string | null }[];
   topAlbum: { id: string; name: string; plays: number; imageUrl: string | null } | null;
+  topAlbums: { id: string; name: string; plays: number; imageUrl: string | null }[];
+  relatedArtists: { artistId: string; name: string; plays: number; imageUrl: string | null }[];
   status: string;
 }
 
@@ -481,6 +483,10 @@ export interface AlbumJourney {
   peakMonth: { ym: string; plays: number } | null;
   byMonth: { ym: string; plays: number }[];
   tracks: AlbumTrack[];
+  explore: {
+    artistAlbums: { id: string; name: string; plays: number; imageUrl: string | null }[];
+    artistTracks: { trackId: string; name: string; plays: number; imageUrl: string | null }[];
+  };
   status: string;
 }
 
