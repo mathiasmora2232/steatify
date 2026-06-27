@@ -46,6 +46,9 @@ export default function LandingPage() {
           <Link href="/register" className="inline-flex items-center gap-2 rounded-full bg-[var(--color-accent)] px-7 py-3.5 font-semibold text-black transition hover:brightness-110">
             Crear mi Space <ArrowRight className="h-4 w-4" />
           </Link>
+          <Link href="/demo" className="inline-flex items-center gap-2 rounded-full border px-7 py-3.5 font-medium transition hover:border-[var(--color-accent)]">
+            Ver demo
+          </Link>
           <GuestButton />
         </motion.div>
         <motion.div variants={fade} initial="hidden" animate="show" transition={{ delay: 0.28 }} className="mt-4 flex items-center gap-4 text-sm">

@@ -5,6 +5,7 @@ const BASE = 'https://codecanvas3d.com';
 export default function sitemap(): MetadataRoute.Sitemap {
   const routes = [
     '',
+    '/demo',
     '/que-es-sonora',
     '/spotify-wrapped-permanente',
     '/adn-musical',
