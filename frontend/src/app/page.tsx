@@ -7,15 +7,44 @@ import { loginUrl } from '@/lib/api';
 import { GuestButton } from '@/components/GuestButton';
 import { Logo } from '@/components/Logo';
 import { Waitlist } from '@/components/Waitlist';
+import { CountUp } from '@/components/CountUp';
 
 const fade = { hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } } };
+
+const ROW_A = [
+  { e: '🎵', t: 'Bad Bunny', c: '#1db954' },
+  { e: '🎮', t: 'Terraria · 158h', c: '#7c5cff' },
+  { e: '🔁', t: '240 veces en repeat', c: '#ff5d8f' },
+  { e: '🌙', t: 'Era Nocturna', c: '#a78bfa' },
+  { e: '🎵', t: 'Mac Miller', c: '#1db954' },
+  { e: '🏆', t: 'Nuevo récord', c: '#fbbf24' },
+  { e: '🎮', t: 'Hades', c: '#38bdf8' },
+  { e: '🎧', t: '124.500 min', c: '#34e0a1' },
+];
+const ROW_B = [
+  { e: '🧭', t: 'Modo Explorador', c: '#38bdf8' },
+  { e: '🎮', t: 'Elden Ring · 96h', c: '#7c5cff' },
+  { e: '🎵', t: 'TV Girl', c: '#1db954' },
+  { e: '🕰️', t: 'Aniversario', c: '#ff5d8f' },
+  { e: '📦', t: '740 obsesiones', c: '#fbbf24' },
+  { e: '🎵', t: 'Feid', c: '#1db954' },
+  { e: '🎮', t: 'Stardew Valley', c: '#7c5cff' },
+  { e: '👻', t: 'Un fantasma volvió', c: '#a78bfa' },
+];
 
 export default function LandingPage() {
   return (
     <main className="relative overflow-hidden">
-      {/* ambient glow */}
-      <div aria-hidden className="pointer-events-none fixed inset-0 -z-10"
-        style={{ backgroundImage: 'radial-gradient(900px 480px at 15% -10%, rgba(52,224,161,0.18), transparent), radial-gradient(900px 480px at 90% 10%, rgba(168,85,247,0.18), transparent), radial-gradient(700px 400px at 50% 120%, rgba(59,130,246,0.16), transparent)' }} />
+      {/* ambient glow + floating orbs */}
+      <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+        <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(900px 480px at 15% -10%, rgba(52,224,161,0.16), transparent), radial-gradient(900px 480px at 90% 10%, rgba(168,85,247,0.16), transparent), radial-gradient(700px 400px at 50% 120%, rgba(59,130,246,0.14), transparent)' }} />
+        <motion.div className="absolute left-[8%] top-[12%] h-72 w-72 rounded-full blur-3xl" style={{ background: 'radial-gradient(circle, rgba(52,224,161,0.35), transparent 70%)' }}
+          animate={{ y: [0, 40, 0], x: [0, 20, 0] }} transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }} />
+        <motion.div className="absolute right-[10%] top-[20%] h-80 w-80 rounded-full blur-3xl" style={{ background: 'radial-gradient(circle, rgba(168,85,247,0.32), transparent 70%)' }}
+          animate={{ y: [0, -50, 0], x: [0, -25, 0] }} transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }} />
+        <motion.div className="absolute bottom-[8%] left-1/2 h-72 w-72 rounded-full blur-3xl" style={{ background: 'radial-gradient(circle, rgba(59,130,246,0.30), transparent 70%)' }}
+          animate={{ y: [0, -30, 0], scale: [1, 1.15, 1] }} transition={{ duration: 16, repeat: Infinity, ease: 'easeInOut' }} />
+      </div>
 
       {/* Nav */}
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
@@ -36,7 +65,7 @@ export default function LandingPage() {
         <motion.h1 variants={fade} initial="hidden" animate="show" transition={{ delay: 0.05 }}
           className="text-5xl font-black leading-[1.05] tracking-tight sm:text-7xl">
           Tu universo digital,<br />
-          <span className="bg-gradient-to-r from-[#34e0a1] via-[#3b82f6] to-[#a855f7] bg-clip-text text-transparent">contado por tus datos.</span>
+          <span className="animate-gradient bg-gradient-to-r from-[#34e0a1] via-[#3b82f6] to-[#a855f7] bg-clip-text text-transparent">contado por tus datos.</span>
         </motion.h1>
         <motion.p variants={fade} initial="hidden" animate="show" transition={{ delay: 0.12 }}
           className="mt-6 max-w-xl text-lg text-[var(--color-muted)]">
@@ -77,14 +106,22 @@ export default function LandingPage() {
             <span className="rounded-full border border-white/10 px-2.5 py-0.5 text-[10px] font-bold text-white">📦 Coleccionista</span>
           </div>
           <div className="mt-4 grid grid-cols-3 gap-2 text-center">
-            {[['124k', 'min música', '#1db954'], ['1.480', 'h gaming', '#a855f7'], ['612', 'artistas', '#3b82f6']].map(([v, l, c]) => (
+            {([[124500, 'min música', '#1db954'], [1480, 'h gaming', '#a855f7'], [612, 'artistas', '#3b82f6']] as const).map(([v, l, c]) => (
               <div key={l} className="rounded-xl bg-black/20 p-2">
-                <p className="text-lg font-black tabular-nums" style={{ color: c }}>{v}</p>
+                <p className="text-lg font-black tabular-nums" style={{ color: c }}><CountUp value={v} /></p>
                 <p className="text-[9px] uppercase tracking-wide text-[var(--color-muted)]">{l}</p>
               </div>
             ))}
           </div>
         </motion.div>
+      </section>
+
+      {/* Marquee — música + gaming en movimiento */}
+      <section className="relative -mt-2 mb-4 space-y-3 py-4" aria-hidden>
+        <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-24 bg-gradient-to-r from-[var(--color-bg)] to-transparent" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-24 bg-gradient-to-l from-[var(--color-bg)] to-transparent" />
+        <MarqueeRow items={ROW_A} />
+        <MarqueeRow items={ROW_B} reverse />
       </section>
 
       {/* Música + Gaming band */}
@@ -165,6 +202,22 @@ export default function LandingPage() {
   );
 }
 
+function MarqueeRow({ items, reverse }: { items: { e: string; t: string; c: string }[]; reverse?: boolean }) {
+  const row = [...items, ...items];
+  return (
+    <div className="flex overflow-hidden">
+      <div className={`flex w-max shrink-0 gap-3 pr-3 ${reverse ? 'animate-marquee-rev' : 'animate-marquee'}`}>
+        {row.map((it, i) => (
+          <span key={i} className="flex shrink-0 items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm backdrop-blur">
+            <span style={{ color: it.c }}>{it.e}</span>
+            <span className="font-medium text-white/90">{it.t}</span>
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function Band({ children }: { children: React.ReactNode }) {
   return (
     <section className="border-y border-[var(--color-border)] bg-[var(--color-surface)]/30">
@@ -186,7 +239,9 @@ function World({ icon: Icon, color, title, desc }: { icon: typeof Dna; color: st
 function Feature({ icon: Icon, color, title, desc }: { icon: typeof Dna; color: string; title: string; desc: string }) {
   return (
     <motion.div variants={fade} initial="hidden" whileInView="show" viewport={{ once: true }}
-      className="rounded-3xl border bg-[var(--color-surface)] p-6 transition hover:border-white/15">
+      whileHover={{ y: -6 }} transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+      className="group rounded-3xl border bg-[var(--color-surface)] p-6 transition-colors hover:border-white/20"
+      style={{ boxShadow: `inset 0 0 90px -70px ${color}` }}>
       <span className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl" style={{ background: `${color}1f`, color }}><Icon className="h-5 w-5" /></span>
       <p className="text-xl font-bold text-white">{title}</p>
       <p className="mt-1 text-[15px] leading-relaxed text-[var(--color-muted)]">{desc}</p>

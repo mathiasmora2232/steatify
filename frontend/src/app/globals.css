@@ -48,6 +48,27 @@ body {
   background: color-mix(in oklab, var(--color-accent) 40%, transparent);
 }
 
+/* Landing: flowing gradient text */
+@keyframes sonora-gradient {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+.animate-gradient {
+  background-size: 220% 220%;
+  animation: sonora-gradient 7s ease infinite;
+}
+
+/* Landing: infinite marquee */
+@keyframes sonora-marquee {
+  to { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: sonora-marquee var(--marquee-dur, 36s) linear infinite;
+}
+.animate-marquee-rev {
+  animation: sonora-marquee var(--marquee-dur, 36s) linear infinite reverse;
+}
+
 /* Now-playing waveform bars — floor varies per bar via --wmin */
 @keyframes sonora-wave {
   from {
