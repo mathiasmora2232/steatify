@@ -34,7 +34,7 @@ export function QuizRunner({ quiz }: { quiz: Quiz }) {
   }
   async function share() {
     const text = result ? `Soy ${result.emoji} ${result.title} en Sonora. ¿Y tú?` : 'Sonora';
-    const url = typeof window !== 'undefined' ? window.location.href : '';
+    const url = result && typeof window !== 'undefined' ? `${window.location.origin}/tools/r/${quiz.slug}/${result.key}` : '';
     try {
       if (navigator.share) await navigator.share({ title: 'Sonora', text, url });
       else { await navigator.clipboard.writeText(`${text} ${url}`); setCopied(true); setTimeout(() => setCopied(false), 1600); }
