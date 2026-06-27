@@ -5,20 +5,28 @@ export function Input({
   onChange,
   type = 'text',
   placeholder,
+  label,
+  autoComplete,
 }: {
   value: string;
   onChange: (v: string) => void;
   type?: string;
   placeholder?: string;
+  label?: string;
+  autoComplete?: string;
 }) {
   return (
-    <input
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      type={type}
-      placeholder={placeholder}
-      className="w-full rounded-xl border bg-[var(--color-surface)] px-4 py-3 text-sm outline-none focus:border-[var(--color-accent)]"
-    />
+    <label className="block">
+      {label && <span className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-[var(--color-muted)]">{label}</span>}
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        type={type}
+        placeholder={placeholder}
+        autoComplete={autoComplete}
+        className="w-full rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg)]/50 px-4 py-3.5 text-[15px] text-white outline-none transition placeholder:text-[var(--color-muted)] focus:border-[var(--color-accent)] focus:ring-4 focus:ring-[var(--color-accent)]/15"
+      />
+    </label>
   );
 }
 

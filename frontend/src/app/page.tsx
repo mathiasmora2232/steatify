@@ -57,6 +57,34 @@ export default function LandingPage() {
           <span className="text-[var(--color-muted)]">·</span>
           <span className="text-[var(--color-muted)]">No vendemos tus datos.</span>
         </motion.div>
+
+        {/* Floating identity card preview */}
+        <motion.div initial={{ opacity: 0, y: 30, rotate: 2 }} animate={{ opacity: 1, y: 0, rotate: 0 }} transition={{ delay: 0.35, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          className="mt-14 w-full max-w-sm rounded-3xl border border-white/10 bg-white/[0.04] p-5 text-left backdrop-blur-xl"
+          style={{ boxShadow: '0 40px 100px -50px rgba(124,92,255,0.7)' }}>
+          <div className="flex items-center gap-3">
+            <div className="h-14 w-14 rounded-full p-[2px]" style={{ background: 'linear-gradient(135deg,#34e0a1,#a855f7)' }}>
+              <div className="grid h-full w-full place-items-center rounded-full bg-[var(--color-bg)] text-lg font-black">E</div>
+            </div>
+            <div>
+              <p className="font-black text-white">Echo</p>
+              <p className="text-xs italic text-[#fbbf24]">« The Loop Master »</p>
+            </div>
+            <Link href="/demo" className="ml-auto rounded-full bg-white/5 px-3 py-1 text-[11px] text-[var(--color-muted)] transition hover:text-white">Ver demo →</Link>
+          </div>
+          <div className="mt-3 flex gap-2">
+            <span className="rounded-full bg-[#7c5cff]/20 px-2.5 py-0.5 text-[10px] font-bold uppercase text-[#a78bfa]">LV 71 · Mítico</span>
+            <span className="rounded-full border border-white/10 px-2.5 py-0.5 text-[10px] font-bold text-white">📦 Coleccionista</span>
+          </div>
+          <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+            {[['124k', 'min música', '#1db954'], ['1.480', 'h gaming', '#a855f7'], ['612', 'artistas', '#3b82f6']].map(([v, l, c]) => (
+              <div key={l} className="rounded-xl bg-black/20 p-2">
+                <p className="text-lg font-black tabular-nums" style={{ color: c }}>{v}</p>
+                <p className="text-[9px] uppercase tracking-wide text-[var(--color-muted)]">{l}</p>
+              </div>
+            ))}
+          </div>
+        </motion.div>
       </section>
 
       {/* Música + Gaming band */}

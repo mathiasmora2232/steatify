@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { api, loginUrl } from '@/lib/api';
 import { GuestButton } from '@/components/GuestButton';
 import { Input, parseErr } from '@/components/form';
-import { Logo } from '@/components/Logo';
+import { AuthShell } from '@/components/AuthShell';
 
 const SPOTIFY_ERRORS: Record<string, string> = {
   spotify_access:
@@ -42,22 +42,14 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-6">
-      <Logo size={44} className="mb-3" />
-      <h1 className="mb-6 text-3xl font-bold">Entra a Sonora</h1>
-
+    <AuthShell title="Bienvenido de vuelta" subtitle="Entra a tu universo Sonora.">
       <form onSubmit={submit} className="space-y-3">
-        <Input value={identifier} onChange={setIdentifier} placeholder="Email o usuario" />
-        <Input value={password} onChange={setPassword} type="password" placeholder="Contraseña" />
+        <Input value={identifier} onChange={setIdentifier} placeholder="Email o usuario" autoComplete="username" />
+        <Input value={password} onChange={setPassword} type="password" placeholder="Contraseña" autoComplete="current-password" />
         {error && (
-          <p className="rounded-lg border border-[var(--color-rose)]/40 bg-[var(--color-rose)]/10 px-4 py-2 text-sm text-[var(--color-rose)]">
-            {error}
-          </p>
+          <p className="rounded-xl border border-[var(--color-rose)]/40 bg-[var(--color-rose)]/10 px-4 py-2.5 text-sm text-[var(--color-rose)]">{error}</p>
         )}
-        <button
-          disabled={busy}
-          className="w-full rounded-full bg-[var(--color-accent)] px-5 py-3 font-semibold text-black transition hover:brightness-110 disabled:opacity-50"
-        >
+        <button disabled={busy} className="w-full rounded-full bg-[var(--color-accent)] px-5 py-3.5 font-semibold text-black transition hover:brightness-110 disabled:opacity-50">
           {busy ? 'Entrando…' : 'Iniciar sesión'}
         </button>
       </form>
@@ -66,26 +58,18 @@ export default function LoginPage() {
         <span className="h-px flex-1 bg-[var(--color-border)]" /> o <span className="h-px flex-1 bg-[var(--color-border)]" />
       </div>
 
-      <a
-        href={loginUrl}
-        className="block rounded-full border px-5 py-3 text-center text-sm font-medium transition hover:border-[var(--color-accent)]"
-      >
+      <a href={loginUrl} className="flex items-center justify-center gap-2 rounded-full border px-5 py-3.5 text-center text-sm font-medium transition hover:border-[var(--color-accent)] hover:bg-[var(--color-surface)]">
         Continuar con Spotify
       </a>
-      <div className="mt-4 text-center">
-        <GuestButton />
-      </div>
+      <div className="mt-3 text-center"><GuestButton /></div>
 
       <p className="mt-6 text-center text-sm text-[var(--color-muted)]">
-        ¿No tienes cuenta?{' '}
-        <Link href="/register" className="text-[var(--color-accent)]">
-          Regístrate
-        </Link>
+        ¿No tienes cuenta? <Link href="/register" className="font-semibold text-[var(--color-accent)] hover:underline">Regístrate</Link>
       </p>
-      <p className="mt-4 text-center text-[11px] text-[var(--color-muted)]">
-        Al continuar aceptas los <Link href="/terms" className="hover:text-[var(--color-text)] hover:underline">Términos</Link> y la{' '}
-        <Link href="/privacy" className="hover:text-[var(--color-text)] hover:underline">Privacidad</Link>.
+      <p className="mt-3 text-center text-[11px] text-[var(--color-muted)]">
+        Al continuar aceptas los <Link href="/terms" className="underline-offset-2 hover:text-[var(--color-text)] hover:underline">Términos</Link> y la{' '}
+        <Link href="/privacy" className="underline-offset-2 hover:text-[var(--color-text)] hover:underline">Privacidad</Link>.
       </p>
-    </main>
+    </AuthShell>
   );
 }

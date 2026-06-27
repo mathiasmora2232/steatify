@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { LegalShell } from '@/components/LegalShell';
 
 export const metadata = {
   title: 'Términos de Servicio · Sonora',
@@ -9,12 +10,7 @@ const EMAIL = 'codecanvas3dstudio@codecanvas3d.com';
 
 export default function TermsPage() {
   return (
-    <main className="mx-auto max-w-2xl px-6 py-16">
-      <Link href="/" className="text-sm text-[var(--color-accent)] hover:underline">← Sonora</Link>
-      <h1 className="mt-6 text-3xl font-bold tracking-tight">Términos de Servicio</h1>
-      <p className="mt-1 text-sm text-[var(--color-muted)]">Última actualización: 21 de junio de 2026 · Versión 2.0</p>
-
-      <div className="mt-8 space-y-7 text-[15px] leading-relaxed">
+    <LegalShell title="Términos de Servicio" updated="Última actualización: 21 de junio de 2026 · Versión 2.0">
         <p className="text-[var(--color-muted)]">
           Estos Términos de Servicio ("Términos") regulan el acceso y uso de <strong className="text-[var(--color-text)]">Sonora</strong>{' '}
           ("Sonora Space", "el servicio", "nosotros"), operado por CodeCanvas 3D Studio. Al crear una cuenta, conectar
@@ -172,12 +168,7 @@ export default function TermsPage() {
             <a href={`mailto:${EMAIL}`} className="text-[var(--color-accent)] hover:underline">{EMAIL}</a>.
           </p>
         </Section>
-      </div>
-
-      <p className="mt-10 text-sm text-[var(--color-muted)]">
-        Ver también la <Link href="/privacy" className="text-[var(--color-accent)] hover:underline">Política de Privacidad</Link>.
-      </p>
-    </main>
+    </LegalShell>
   );
 }
 
