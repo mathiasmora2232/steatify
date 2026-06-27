@@ -31,6 +31,7 @@ import { Icon, I } from '@/lib/icons';
 import { THEMES, getSavedTheme, saveTheme, type ThemeKey } from '@/lib/themes';
 import { TITLES, RARITY_COLOR } from '@/lib/titles';
 import { computeLevel } from '@/lib/level';
+import { entitlements } from '@/lib/entitlements';
 
 export default function SettingsPage() {
   const me = useSWR('me', api.me);
@@ -572,9 +573,8 @@ const SHOWCASE_TABS: { key: ShowcaseType; label: string }[] = [
   { key: 'album', label: 'Álbumes' },
   { key: 'game', label: 'Juegos' },
 ];
-const MAX_SHOWCASE = 8;
-
 function ShowcaseSection({ user, onSaved }: { user: UserProfile; onSaved: () => void }) {
+  const MAX_SHOWCASE = entitlements(user).maxVitrinas;
   const tracks = useSWR('top:tracks:all', () => api.top('tracks', 'all', 16));
   const artists = useSWR('top:artists:all', () => api.top('artists', 'all', 16));
   const albums = useSWR('top:albums:all', () => api.top('albums', 'all', 16));
@@ -613,7 +613,12 @@ function ShowcaseSection({ user, onSaved }: { user: UserProfile; onSaved: () => 
   return (
     <Section icon={Trophy} title="Vitrina" desc={`Arma tu vitrina estilo Steam: hasta ${MAX_SHOWCASE} ítems (canciones, artistas, álbumes, juegos). Vacía = vitrinas automáticas.`}>
       {/* Tu vitrina actual */}
-      <p className="mb-2 text-xs text-[var(--color-muted)]">Tu vitrina · {items.length}/{MAX_SHOWCASE}</p>
+      <p className="mb-2 flex flex-wrap items-center gap-2 text-xs text-[var(--color-muted)]">
+        Tu vitrina · {items.length}/{MAX_SHOWCASE === 99 ? '∞' : MAX_SHOWCASE}
+        {full && MAX_SHOWCASE < 99 && (
+          <Link href="/dashboard/settings/plans" className="text-[var(--color-accent-2)] hover:underline">· Mejora tu plan para más</Link>
+        )}
+      </p>
       {items.length === 0 ? (
         <p className="mb-4 rounded-xl border border-dashed px-3 py-4 text-center text-xs text-[var(--color-muted)]">Vacía — añade ítems abajo.</p>
       ) : (

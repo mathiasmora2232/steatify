@@ -1,7 +1,10 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import useSWR from 'swr';
 import { api, type ImportStatus } from '@/lib/api';
+import { entitlements } from '@/lib/entitlements';
+import { UpgradeCard } from '@/components/UpgradeCard';
 
 type Phase = 'idle' | 'uploading' | 'processing' | 'done' | 'error';
 
@@ -81,6 +84,22 @@ export function ImportHistoryPanel() {
   }
 
   const busy = phase === 'uploading' || phase === 'processing';
+
+  const me = useSWR('me', api.me);
+  const canImport = entitlements(me.data).canImport;
+
+  if (me.data && !canImport) {
+    return (
+      <div className="mx-auto max-w-2xl">
+        <h1 className="mb-2 text-2xl font-bold">Importar historial</h1>
+        <p className="mb-6 text-sm text-[var(--color-muted)]">Trae años de datos de Spotify al instante.</p>
+        <UpgradeCard
+          title="Importa toda tu historia musical"
+          desc="Sube tu Extended Streaming History de Spotify (todos tus años) y revive tu vida musical completa. Disponible en Sonora Plus."
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-2xl">

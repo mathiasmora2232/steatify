@@ -15,6 +15,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { IsBoolean, IsEmail, IsInt, IsObject, IsOptional, IsString, Max, MaxLength, Min, MinLength } from 'class-validator';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { entitlements } from '../common/entitlements';
 import { CurrentUser } from '../auth/current-user.decorator';
 import type { AuthUser } from '../auth/jwt.strategy';
 import { PrismaService } from '../prisma/prisma.service';
@@ -127,6 +128,13 @@ export class UsersController {
       });
       if (taken) throw new ConflictException('Ese usuario ya existe.');
       dto.username = username;
+    }
+    // Plan gate: cap the number of showcase vitrinas by tier.
+    if (dto.showcase && Array.isArray((dto.showcase as { items?: unknown[] }).items)) {
+      const u = await this.prisma.user.findUnique({ where: { id: user.id }, select: { plan: true, role: true } });
+      const max = entitlements(u?.plan ?? 'FREE', u?.role ?? 'USER').maxVitrinas;
+      const sc = dto.showcase as { items: unknown[] };
+      sc.items = sc.items.slice(0, max);
     }
     return this.prisma.user.update({
       where: { id: user.id },
