@@ -20,6 +20,7 @@ export default function LandingPage() {
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
         <Link href="/" className="flex items-center gap-2"><Logo size={30} /><span className="text-lg font-bold tracking-tight">Sonora</span></Link>
         <div className="flex items-center gap-2 sm:gap-4">
+          <Link href="/tools" className="hidden text-sm text-[var(--color-muted)] transition hover:text-white sm:block">Herramientas</Link>
           <Link href="/changelog" className="hidden text-sm text-[var(--color-muted)] transition hover:text-white sm:block">Novedades</Link>
           <Link href="/login" className="text-sm text-[var(--color-muted)] transition hover:text-white">Entrar</Link>
           <Link href="/register" className="rounded-full bg-[var(--color-accent)] px-4 py-1.5 text-sm font-semibold text-black transition hover:brightness-110">Crear Space</Link>
@@ -108,6 +109,7 @@ export default function LandingPage() {
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 px-6 py-8 text-xs text-[var(--color-muted)]">
           <div className="flex items-center gap-2"><Logo size={20} /> <span>Sonora · {new Date().getFullYear()}</span></div>
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+            <Link href="/tools" className="transition hover:text-white">Herramientas</Link>
             <Link href="/changelog" className="transition hover:text-white">Novedades</Link>
             <Link href="/privacy" className="transition hover:text-white">Privacidad</Link>
             <Link href="/terms" className="transition hover:text-white">Términos</Link>
