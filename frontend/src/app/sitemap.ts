@@ -14,6 +14,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/tools/jugador',
     '/tools/costo-por-hora',
     '/changelog',
+    '/roadmap',
     '/register',
     '/login',
     '/privacy',

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import useSWR from 'swr';
-import { Users as UsersIcon, Activity, Music2, Gamepad2, Sparkles, Server, ShieldAlert } from 'lucide-react';
+import { Users as UsersIcon, Activity, Music2, Gamepad2, Sparkles } from 'lucide-react';
 import { api, type AdminMetrics, type AdminUser } from '@/lib/api';
 
 export default function AdminPage() {
@@ -47,7 +47,7 @@ function Metrics({ m }: { m: AdminMetrics }) {
         <Stat icon={Music2} color="#1db954" value={m.connections.spotify} label="Spotify" />
         <Stat icon={Gamepad2} color="#7c5cff" value={m.connections.steam} label="Steam" />
         <Stat icon={Sparkles} color="#fbbf24" value={m.ai.insightsTotal} label="Insights IA" />
-        <Stat icon={ShieldAlert} color="#ff5d8f" value={m.users.suspended} label="Suspendidos" />
+        <Stat icon={UsersIcon} color="#34d399" value={m.waitlist ?? 0} label="Lista de espera" />
       </section>
 
       <section className="mb-5 grid grid-cols-1 gap-4 lg:grid-cols-3">

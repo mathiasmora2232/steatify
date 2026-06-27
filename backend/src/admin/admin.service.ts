@@ -75,7 +75,7 @@ export class AdminService {
       totalUsers, newToday, new7d, withPassword, suspended,
       spotify, steam,
       synced1d, synced7d, synced30d, loggedIn,
-      insights, plans, sync, importc, db, redis, plays, games,
+      insights, plans, sync, importc, db, redis, plays, games, waitlist,
     ] = await Promise.all([
       this.prisma.user.count(),
       this.prisma.user.count({ where: { createdAt: { gte: d1 } } }),
@@ -96,6 +96,7 @@ export class AdminService {
       this.redisStatus(),
       this.prisma.listeningHistory.count(),
       this.prisma.userGame.count(),
+      this.prisma.waitlistEntry.count(),
     ]);
     const planMap = Object.fromEntries(plans.map((p) => [p.plan, p._count])) as Record<string, number>;
     return {
@@ -104,6 +105,7 @@ export class AdminService {
       activity: { syncedToday: synced1d, synced7d, synced30d, loggedIn: loggedIn[0]?.c ?? 0 },
       plans: { FREE: planMap.FREE ?? 0, PLUS: planMap.PLUS ?? 0, PRO: planMap.PRO ?? 0 },
       ai: { insightsTotal: insights },
+      waitlist,
       system: { db, redis, queues: { sync, import: importc } },
       data: { plays, games },
       timestamp: new Date().toISOString(),

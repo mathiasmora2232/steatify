@@ -98,6 +98,16 @@ model User {
   @@map("users")
 }
 
+// Email capture for the waitlist / newsletter (public, no account needed).
+model WaitlistEntry {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  source    String? // where they signed up (landing, tools, roadmap…)
+  createdAt DateTime @default(now())
+
+  @@map("waitlist")
+}
+
 // Directed follow (like Letterboxd/Twitter). follower follows following.
 model Follow {
   id          String   @id @default(cuid())

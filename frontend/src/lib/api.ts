@@ -151,6 +151,7 @@ export const api = {
 
   // ── Admin / salud ──
   adminOverview: () => request<AdminOverview>('/admin/overview'),
+  joinWaitlist: (email: string, source?: string) => request<{ ok: boolean }>('/waitlist', { method: 'POST', body: JSON.stringify({ email, source }) }),
   adminMetrics: () => request<AdminMetrics>('/admin/metrics'),
   adminUsers: () => request<AdminUser[]>('/admin/users'),
   adminSuspend: (id: string, suspended: boolean) => request<{ ok: boolean }>(`/admin/users/${id}/suspend`, { method: 'POST', body: JSON.stringify({ suspended }) }),
@@ -669,6 +670,7 @@ export interface AdminMetrics {
   activity: { syncedToday: number; synced7d: number; synced30d: number; loggedIn: number };
   plans: { FREE: number; PLUS: number; PRO: number };
   ai: { insightsTotal: number };
+  waitlist?: number;
   system: { db: 'up' | 'down'; redis: 'up' | 'down'; queues: { sync: Record<string, number> | null; import: Record<string, number> | null } };
   data: { plays: number; games: number };
   timestamp: string;

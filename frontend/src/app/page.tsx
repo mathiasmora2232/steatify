@@ -6,6 +6,7 @@ import { Dna, Layers, IdCard, Sparkles, Headphones, Gamepad2, ArrowRight } from 
 import { loginUrl } from '@/lib/api';
 import { GuestButton } from '@/components/GuestButton';
 import { Logo } from '@/components/Logo';
+import { Waitlist } from '@/components/Waitlist';
 
 const fade = { hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } } };
 
@@ -98,6 +99,17 @@ export default function LandingPage() {
         </div>
       </Band>
 
+      {/* Waitlist */}
+      <Band>
+        <div className="flex flex-col items-center text-center">
+          <h2 className="text-2xl font-bold">Mantente al día</h2>
+          <p className="mt-1 mb-5 max-w-md text-sm text-[var(--color-muted)]">
+            Novedades, acceso anticipado y cuando se abra el cupo. Sin spam, lo prometemos.
+          </p>
+          <Waitlist source="landing" />
+        </div>
+      </Band>
+
       {/* Final CTA */}
       <section className="mx-auto max-w-3xl px-6 py-20 text-center">
         <h2 className="text-4xl font-black tracking-tight sm:text-5xl">Crea tu universo.</h2>
@@ -113,6 +125,7 @@ export default function LandingPage() {
           <div className="flex items-center gap-2"><Logo size={20} /> <span>Sonora · {new Date().getFullYear()}</span></div>
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
             <Link href="/tools" className="transition hover:text-white">Herramientas</Link>
+            <Link href="/roadmap" className="transition hover:text-white">Roadmap</Link>
             <Link href="/changelog" className="transition hover:text-white">Novedades</Link>
             <Link href="/privacy" className="transition hover:text-white">Privacidad</Link>
             <Link href="/terms" className="transition hover:text-white">Términos</Link>
