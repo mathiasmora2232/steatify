@@ -1,13 +1,15 @@
 'use client';
 
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { useRef } from 'react';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { Dna, Layers, IdCard, Sparkles, Headphones, Gamepad2, ArrowRight } from 'lucide-react';
 import { loginUrl } from '@/lib/api';
 import { GuestButton } from '@/components/GuestButton';
 import { Logo } from '@/components/Logo';
 import { Waitlist } from '@/components/Waitlist';
 import { CountUp } from '@/components/CountUp';
+import { Waveform } from '@/components/Waveform';
 
 const fade = { hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } } };
 
@@ -105,7 +107,19 @@ export default function LandingPage() {
             <span className="rounded-full bg-[#7c5cff]/20 px-2.5 py-0.5 text-[10px] font-bold uppercase text-[#a78bfa]">LV 71 · Mítico</span>
             <span className="rounded-full border border-white/10 px-2.5 py-0.5 text-[10px] font-bold text-white">📦 Coleccionista</span>
           </div>
-          <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+          {/* Sonando ahora */}
+          <div className="mt-4 flex items-center gap-3 rounded-2xl border border-white/5 bg-black/20 p-3">
+            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-[#1db954]/30 to-[#7c5cff]/30 text-base">🎧</div>
+            <div className="min-w-0 flex-1">
+              <p className="flex items-center gap-1.5 text-[10px] uppercase tracking-wide text-[var(--color-accent)]">
+                <span className="relative flex h-1.5 w-1.5"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--color-accent)] opacity-75" /><span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[var(--color-accent)]" /></span>
+                Sonando ahora
+              </p>
+              <p className="truncate text-sm font-semibold text-white">Self Care — Mac Miller</p>
+            </div>
+            <div className="h-8 w-16 shrink-0"><Waveform active bars={16} /></div>
+          </div>
+          <div className="mt-3 grid grid-cols-3 gap-2 text-center">
             {([[124500, 'min música', '#1db954'], [1480, 'h gaming', '#a855f7'], [612, 'artistas', '#3b82f6']] as const).map(([v, l, c]) => (
               <div key={l} className="rounded-xl bg-black/20 p-2">
                 <p className="text-lg font-black tabular-nums" style={{ color: c }}><CountUp value={v} /></p>
@@ -144,6 +158,9 @@ export default function LandingPage() {
           <Feature icon={Sparkles} color="#fbbf24" title="Tu universo" desc="Insights con IA, comparaciones de compatibilidad con amigos y un perfil que cambia solo según tu actividad." />
         </div>
       </section>
+
+      {/* Preview del producto (parallax) */}
+      <ProductPreview />
 
       {/* Cómo funciona */}
       <Band>
@@ -199,6 +216,50 @@ export default function LandingPage() {
         </div>
       </footer>
     </main>
+  );
+}
+
+function ProductPreview() {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] });
+  const y1 = useTransform(scrollYProgress, [0, 1], [50, -50]);
+  const y2 = useTransform(scrollYProgress, [0, 1], [10, -90]);
+  const y3 = useTransform(scrollYProgress, [0, 1], [90, -20]);
+  const dna: [string, number, string][] = [['🔁 Looper', 42, '#1db954'], ['🌙 Nocturno', 28, '#7c5cff'], ['📦 Coleccionista', 18, '#ff5d8f']];
+
+  return (
+    <section ref={ref} className="mx-auto max-w-5xl px-6 py-14">
+      <div className="mb-8 text-center">
+        <h2 className="text-3xl font-black tracking-tight">Mira tu vida en datos</h2>
+        <p className="mt-1 text-sm text-[var(--color-muted)]">Una probada de lo que Sonora arma contigo.</p>
+      </div>
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
+        <motion.div style={{ y: y1 }} className="rounded-3xl border bg-[var(--color-surface)] p-5" >
+          <p className="mb-3 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide text-[var(--color-accent)]">
+            <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-accent)]" /> Sonando ahora
+          </p>
+          <p className="font-bold text-white">Self Care</p>
+          <p className="text-xs text-[var(--color-muted)]">Mac Miller</p>
+          <div className="mt-3 h-10"><Waveform active bars={28} /></div>
+        </motion.div>
+
+        <motion.div style={{ y: y2 }} className="rounded-3xl border bg-[var(--color-surface)] p-5">
+          <p className="mb-3 text-[10px] font-semibold uppercase tracking-wide text-[var(--color-muted)]">Tu ADN</p>
+          {dna.map(([l, p, c]) => (
+            <div key={l} className="mb-2.5">
+              <div className="mb-1 flex justify-between text-xs"><span className="text-white">{l}</span><span style={{ color: c }}>{p}%</span></div>
+              <div className="h-2 overflow-hidden rounded-full bg-white/5"><div className="h-full rounded-full" style={{ width: `${p}%`, background: c }} /></div>
+            </div>
+          ))}
+        </motion.div>
+
+        <motion.div style={{ y: y3 }} className="flex flex-col justify-center rounded-3xl border bg-[var(--color-surface)] p-5 text-center">
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--color-muted)]">Este año</p>
+          <p className="my-1 text-5xl font-black text-[var(--color-accent)]"><CountUp value={124500} /></p>
+          <p className="text-xs text-[var(--color-muted)]">min de música · 612 artistas · 1.480 h de juego</p>
+        </motion.div>
+      </div>
+    </section>
   );
 }
 
