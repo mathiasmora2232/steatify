@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRef } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, useMotionValue } from 'framer-motion';
 import { Dna, Layers, IdCard, Sparkles, Headphones, Gamepad2, ArrowRight } from 'lucide-react';
 import { loginUrl } from '@/lib/api';
 import { GuestButton } from '@/components/GuestButton';
@@ -35,6 +35,11 @@ const ROW_B = [
 ];
 
 export default function LandingPage() {
+  const tiltX = useMotionValue(0);
+  const tiltY = useMotionValue(0);
+  const rotateX = useTransform(tiltY, [-0.5, 0.5], [9, -9]);
+  const rotateY = useTransform(tiltX, [-0.5, 0.5], [-9, 9]);
+
   return (
     <main className="relative overflow-hidden">
       {/* ambient glow + floating orbs */}
@@ -89,10 +94,13 @@ export default function LandingPage() {
           <span className="text-[var(--color-muted)]">No vendemos tus datos.</span>
         </motion.div>
 
-        {/* Floating identity card preview */}
-        <motion.div initial={{ opacity: 0, y: 30, rotate: 2 }} animate={{ opacity: 1, y: 0, rotate: 0 }} transition={{ delay: 0.35, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        {/* Floating identity card — 3D tilt on hover */}
+        <motion.div
+          onMouseMove={(e) => { const r = e.currentTarget.getBoundingClientRect(); tiltX.set((e.clientX - r.left) / r.width - 0.5); tiltY.set((e.clientY - r.top) / r.height - 0.5); }}
+          onMouseLeave={() => { tiltX.set(0); tiltY.set(0); }}
+          initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           className="mt-14 w-full max-w-sm rounded-3xl border border-white/10 bg-white/[0.04] p-5 text-left backdrop-blur-xl"
-          style={{ boxShadow: '0 40px 100px -50px rgba(124,92,255,0.7)' }}>
+          style={{ rotateX, rotateY, transformPerspective: 1000, boxShadow: '0 40px 100px -50px rgba(124,92,255,0.7)' }}>
           <div className="flex items-center gap-3">
             <div className="h-14 w-14 rounded-full p-[2px]" style={{ background: 'linear-gradient(135deg,#34e0a1,#a855f7)' }}>
               <div className="grid h-full w-full place-items-center rounded-full bg-[var(--color-bg)] text-lg font-black">E</div>
@@ -193,13 +201,15 @@ export default function LandingPage() {
       </Band>
 
       {/* Final CTA */}
-      <section className="mx-auto max-w-3xl px-6 py-20 text-center">
-        <h2 className="text-4xl font-black tracking-tight sm:text-5xl">Crea tu universo.</h2>
+      <motion.section variants={fade} initial="hidden" whileInView="show" viewport={{ once: true }} className="mx-auto max-w-3xl px-6 py-20 text-center">
+        <h2 className="bg-gradient-to-b from-white to-[#9aa0ad] bg-clip-text text-4xl font-black tracking-tight text-transparent sm:text-5xl">Crea tu universo.</h2>
         <p className="mt-3 text-[var(--color-muted)]">Gratis para empezar. Tu perfil para compartir, siempre gratis.</p>
-        <Link href="/register" className="mt-7 inline-flex items-center gap-2 rounded-full bg-[var(--color-accent)] px-8 py-3.5 font-semibold text-black transition hover:brightness-110">
-          Crear mi Space <ArrowRight className="h-4 w-4" />
-        </Link>
-      </section>
+        <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.98 }} className="mt-7 inline-block">
+          <Link href="/register" className="inline-flex items-center gap-2 rounded-full bg-[var(--color-accent)] px-8 py-3.5 font-semibold text-black shadow-[0_10px_40px_-10px_rgba(29,185,84,0.6)] transition hover:brightness-110">
+            Crear mi Space <ArrowRight className="h-4 w-4" />
+          </Link>
+        </motion.div>
+      </motion.section>
 
       {/* Footer */}
       <footer className="border-t border-[var(--color-border)]">
