@@ -1,0 +1,54 @@
+# Production stack. PostgreSQL and Redis are provided by the existing VPS infrastructure.
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: docker/backend.Dockerfile
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      POSTGRES_HOST: shopdb-postgres
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_HOST: shopdb-redis
+      REDIS_URL: ${REDIS_URL}
+      ML_SERVICE_URL: http://ml-service:8000
+    ports:
+      - "127.0.0.1:4000:4000"
+    networks:
+      - default
+      - sonora-infra
+    depends_on:
+      ml-service:
+        condition: service_started
+
+  ml-service:
+    build:
+      context: .
+      dockerfile: docker/ml.Dockerfile
+    restart: unless-stopped
+    env_file: .env
+    networks:
+      - default
+
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend.Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+        BACKEND_INTERNAL_URL: ${BACKEND_INTERNAL_URL:-http://backend:4000}
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      BACKEND_INTERNAL_URL: ${BACKEND_INTERNAL_URL:-http://backend:4000}
+    ports:
+      - "127.0.0.1:3000:3000"
+    networks:
+      - default
+    depends_on:
+      - backend
+
+networks:
+  sonora-infra:
+    external: true
+    name: sonora-infra
