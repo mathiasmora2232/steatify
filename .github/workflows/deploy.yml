@@ -9,6 +9,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: sonora-production-deploy
+  cancel-in-progress: false
+
 jobs:
   test:
     name: Tests
@@ -38,20 +42,95 @@ jobs:
     runs-on: ubuntu-latest
     environment: Production
     steps:
-      - name: Deploy over SSH
+      - name: Checkout release source
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Package source without secrets or caches
+        run: |
+          set -euo pipefail
+          tar \
+            --exclude-vcs \
+            --exclude='node_modules' --exclude='*/node_modules' --exclude='**/node_modules' \
+            --exclude='.next' --exclude='*/.next' --exclude='**/.next' \
+            --exclude='dist' --exclude='*/dist' --exclude='**/dist' \
+            --exclude='coverage' --exclude='*/coverage' --exclude='**/coverage' \
+            --exclude='.env*' --exclude='*/.env*' --exclude='**/.env*' \
+            --exclude='*.pem' --exclude='**/*.pem' \
+            --exclude='*.key' --exclude='**/*.key' \
+            --exclude='id_rsa*' --exclude='**/id_rsa*' \
+            --exclude='id_ed25519*' --exclude='**/id_ed25519*' \
+            --exclude='*.p12' --exclude='**/*.p12' \
+            --exclude='*.pfx' --exclude='**/*.pfx' \
+            --exclude='.ssh' --exclude='*/.ssh' --exclude='**/.ssh' \
+            --exclude='backups' --exclude='*/backups' --exclude='**/backups' \
+            -czf "$RUNNER_TEMP/sonora-deploy.tar.gz" .
+          if tar -tzf "$RUNNER_TEMP/sonora-deploy.tar.gz" | grep -E '(^|/)(\.env[^/]*|node_modules|\.git)(/|$)'; then
+            echo "Deployment package unexpectedly includes secrets or local dependencies" >&2
+            exit 1
+          fi
+
+      - name: Verify production directory and environment
         uses: appleboy/ssh-action@v1.1.0
+        env:
+          VPS_APP_DIR: ${{ secrets.VPS_APP_DIR }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           port: ${{ secrets.VPS_PORT || '22022' }}
+          envs: VPS_APP_DIR
           script: |
             set -eu
-            cd "${{ secrets.VPS_APP_DIR }}"
+            if [ "$VPS_APP_DIR" != "/opt/sonora" ]; then
+              echo "VPS_APP_DIR must be /opt/sonora; refusing an unexpected deployment target" >&2
+              exit 1
+            fi
+            if [ ! -d "$VPS_APP_DIR" ]; then
+              echo "Deployment directory does not exist: $VPS_APP_DIR" >&2
+              exit 1
+            fi
+            if [ ! -f "$VPS_APP_DIR/.env" ]; then
+              echo "Missing $VPS_APP_DIR/.env; no source files were changed" >&2
+              exit 1
+            fi
+            mkdir -p /tmp/sonora-deploy-upload
 
-            git fetch origin main
-            git checkout main
-            git pull --ff-only origin main
+      - name: Upload release package
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || '22022' }}
+          source: ${{ runner.temp }}/sonora-deploy.tar.gz
+          target: /tmp/sonora-deploy-upload
+          overwrite: true
+
+      - name: Extract and deploy
+        uses: appleboy/ssh-action@v1.1.0
+        env:
+          VPS_APP_DIR: ${{ secrets.VPS_APP_DIR }}
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || '22022' }}
+          envs: VPS_APP_DIR
+          command_timeout: 30m
+          script: |
+            set -eu
+            ARCHIVE=/tmp/sonora-deploy-upload/sonora-deploy.tar.gz
+            trap 'rm -f "$ARCHIVE"' EXIT
+            APP_DIR="$VPS_APP_DIR"
+
+            test -f "$APP_DIR/.env" || { echo "Missing production .env; refusing deployment" >&2; exit 1; }
+            test -s "$ARCHIVE" || { echo "Release archive was not uploaded" >&2; exit 1; }
+            tar -xzf "$ARCHIVE" -C "$APP_DIR"
+            cd "$APP_DIR"
+            test -f docker-compose.prod.yml
+            test -f scripts/vps-init-sonora-db.sh
 
             docker network inspect sonora-infra >/dev/null 2>&1 || docker network create sonora-infra
             docker network connect sonora-infra shopdb-postgres >/dev/null 2>&1 || true
