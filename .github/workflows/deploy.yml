@@ -71,28 +71,53 @@ jobs:
             exit 1
           fi
 
-      - name: Verify production directory and environment
+      - name: Initialize server Git checkout and verify configuration
         uses: appleboy/ssh-action@v1.1.0
         env:
           VPS_APP_DIR: ${{ secrets.VPS_APP_DIR }}
+          REPO_TOKEN: ${{ github.token }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           port: ${{ secrets.VPS_PORT || '22022' }}
-          envs: VPS_APP_DIR
+          envs: VPS_APP_DIR,REPO_TOKEN
           script: |
             set -eu
-            if [ "$VPS_APP_DIR" != "/opt/sonora" ]; then
+            APP_DIR="$VPS_APP_DIR"
+            ORIGIN=https://github.com/mathiasmora2232/sonora.git
+            if [ "$APP_DIR" != "/opt/sonora" ]; then
               echo "VPS_APP_DIR must be /opt/sonora; refusing an unexpected deployment target" >&2
               exit 1
             fi
-            if [ ! -d "$VPS_APP_DIR" ]; then
-              echo "Deployment directory does not exist: $VPS_APP_DIR" >&2
+            if [ ! -d "$APP_DIR" ]; then
+              echo "Deployment directory does not exist: $APP_DIR" >&2
               exit 1
             fi
-            if [ ! -f "$VPS_APP_DIR/.env" ]; then
-              echo "Missing $VPS_APP_DIR/.env; no source files were changed" >&2
+            if [ -e "$APP_DIR/.git" ]; then
+              TOP="$(git -C "$APP_DIR" rev-parse --show-toplevel 2>/dev/null || true)"
+              CURRENT_ORIGIN="$(git -C "$APP_DIR" remote get-url origin 2>/dev/null || true)"
+              if [ "$TOP" != "$APP_DIR" ] || [ "$CURRENT_ORIGIN" != "$ORIGIN" ]; then
+                echo "Existing Git metadata does not match the Sonora repository; refusing to alter it" >&2
+                exit 1
+              fi
+            else
+              git -C "$APP_DIR" init -b main
+              git -C "$APP_DIR" remote add origin "$ORIGIN"
+            fi
+            if [ -z "${REPO_TOKEN:-}" ]; then
+              echo "GitHub Actions token is unavailable; cannot clone the private repository" >&2
+              exit 1
+            fi
+            ASKPASS_DIR="$(mktemp -d)"
+            trap 'rm -f "$ASKPASS_DIR/askpass"; rmdir "$ASKPASS_DIR"' EXIT
+            ASKPASS="$ASKPASS_DIR/askpass"
+            printf '%s\\n' '#!/bin/sh' 'case "$1" in *Username*) printf "%s\\n" x-access-token ;; *Password*) printf "%s\\n" "$GITHUB_REPO_TOKEN" ;; *) exit 1 ;; esac' > "$ASKPASS"
+            chmod 700 "$ASKPASS"
+            GITHUB_REPO_TOKEN="$REPO_TOKEN" GIT_ASKPASS="$ASKPASS" GIT_TERMINAL_PROMPT=0 git -C "$APP_DIR" fetch --depth=1 origin main
+            git -C "$APP_DIR" checkout -B main FETCH_HEAD
+            if [ ! -f "$APP_DIR/.env" ]; then
+              echo "Git checkout is ready, but $APP_DIR/.env is missing; deploy stopped before Docker changes" >&2
               exit 1
             fi
             mkdir -p /tmp/sonora-deploy-upload
