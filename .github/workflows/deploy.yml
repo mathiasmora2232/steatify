@@ -57,6 +57,7 @@ jobs:
             docker network inspect sonora-infra >/dev/null 2>&1 || docker network create sonora-infra
             docker network connect sonora-infra shopdb-postgres >/dev/null 2>&1 || true
             docker network connect sonora-infra shopdb-redis >/dev/null 2>&1 || true
+            bash scripts/vps-init-sonora-db.sh
             docker compose -f docker-compose.prod.yml config >/dev/null
             docker compose -f docker-compose.prod.yml up -d --build --remove-orphans
 
