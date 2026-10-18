@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import useSWR from 'swr';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Menu, X, LogOut } from 'lucide-react';
+import { Activity, Gamepad2, Home, Menu, Trophy, UserRound, X, LogOut } from 'lucide-react';
 import { api } from '@/lib/api';
 import { computeLevel } from '@/lib/level';
 import { navIcon } from '@/lib/icons';
@@ -29,6 +29,13 @@ const NAV = [
   { href: '/dashboard/steam', label: 'Steam' },
   { href: '/dashboard/settings', label: 'Ajustes' },
   { href: '/dashboard/admin', label: 'Admin', adminOnly: true },
+];
+
+const MOBILE_TABS = [
+  { href: '/dashboard', label: 'Inicio', icon: Home },
+  { href: '/dashboard/steam', label: 'Steam', icon: Gamepad2 },
+  { href: '/dashboard/rankings', label: 'Rankings', icon: Trophy },
+  { href: '/dashboard/activity', label: 'Actividad', icon: Activity },
 ];
 
 function NavLinks({ pathname, onNavigate, isAdmin }: { pathname: string; onNavigate?: () => void; isAdmin?: boolean }) {
@@ -149,7 +156,7 @@ export function Sidebar() {
   );
 }
 
-/** Mobile top bar + slide-in drawer. Visible only below the md breakpoint. */
+/** Mobile top bar, bottom tabs and slide-in drawer. Hidden on desktop. */
 export function MobileNav() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
@@ -169,21 +176,58 @@ export function MobileNav() {
 
   return (
     <>
-      <div className="sticky top-0 z-30 flex items-center justify-between border-b bg-[var(--color-surface)]/80 px-4 py-3 backdrop-blur md:hidden">
+      <div className="sticky top-0 z-30 flex items-center justify-between border-b bg-[var(--color-surface)]/80 px-4 pb-3 pt-[calc(0.75rem+env(safe-area-inset-top))] backdrop-blur md:hidden">
         <Link href="/dashboard">
           <LogoWordmark size={24} />
         </Link>
         <div className="flex items-center gap-1">
-        <NotificationBell />
-        <button
-          onClick={() => setOpen(true)}
-          aria-label="Abrir menú"
-          className="flex h-9 w-9 items-center justify-center rounded-xl border text-[var(--color-muted)] transition hover:text-white"
-        >
-          <Menu className="h-5 w-5" />
-        </button>
+          <NotificationBell />
+          <Link
+            href="/dashboard/profile"
+            aria-label="Ir a tu perfil"
+            aria-current={pathname === '/dashboard/profile' ? 'page' : undefined}
+            className="order-last ml-1 flex h-11 w-11 items-center justify-center overflow-hidden rounded-full border bg-[var(--color-surface-2)] text-sm font-semibold text-[var(--color-accent)] transition hover:border-[var(--color-accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]"
+          >
+            {me?.avatarUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={me.avatarUrl} alt="" className="h-full w-full object-cover" />
+            ) : (
+              (me?.displayName?.trim() || me?.username)?.charAt(0).toUpperCase() || <UserRound className="h-5 w-5" aria-hidden />
+            )}
+          </Link>
+          <button
+            onClick={() => setOpen(true)}
+            aria-label="Abrir menú"
+            aria-expanded={open}
+            aria-controls="mobile-navigation-menu"
+            className="flex h-11 w-11 items-center justify-center rounded-xl border text-[var(--color-muted)] transition hover:text-white"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
         </div>
       </div>
+
+      <nav
+        aria-label="Navegación principal"
+        className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-4 border-t bg-[var(--color-surface)]/95 px-2 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur-lg md:hidden"
+      >
+        {MOBILE_TABS.map(({ href, label, icon: IconCmp }) => {
+          const active = href === '/dashboard' ? pathname === href : pathname === href || pathname.startsWith(`${href}/`);
+          return (
+            <Link
+              key={href}
+              href={href}
+              aria-current={active ? 'page' : undefined}
+              className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl text-xs font-medium transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)] ${
+                active ? 'bg-[var(--color-accent)]/10 text-[var(--color-accent)]' : 'text-[var(--color-muted)] hover:text-white'
+              }`}
+            >
+              <IconCmp className="h-5 w-5" strokeWidth={active ? 2.4 : 1.8} aria-hidden />
+              <span>{label}</span>
+            </Link>
+          );
+        })}
+      </nav>
 
       <AnimatePresence>
         {open && (
@@ -196,6 +240,7 @@ export function MobileNav() {
               className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden"
             />
             <motion.aside
+              id="mobile-navigation-menu"
               initial={{ x: '-100%' }}
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}

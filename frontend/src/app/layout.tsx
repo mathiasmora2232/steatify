@@ -25,6 +25,7 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: '#0a0a0f',
+  viewportFit: 'cover',
 };
 
 // Applies the saved accent theme before first paint (no flash of default green).
