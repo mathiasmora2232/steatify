@@ -151,7 +151,7 @@ export default function DashboardPage() {
       </div>
 
       {/* DESTACADOS — datos vivos con imágenes */}
-      <section className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <section className="mb-6 grid grid-cols-3 gap-2 sm:gap-4">
         {topArtist0 && (
           <HighlightCard
             icon={Mic2} kicker="Artista del momento" color={C.music}

@@ -9,7 +9,7 @@ import { SYNC_QUEUE, SyncJob, RecentPlaysJobData } from './ingestion.constants';
 /**
  * Fans out per-user sync jobs on a schedule. Because Spotify only returns the
  * last ~24h / 50 plays, frequent polling is how we build a complete history.
- * Every 30 min is a safe cadence for typical listening volume.
+ * Every 10 min is a safe cadence for typical listening volume.
  *
  * Jobs are deduped by jobId so overlapping ticks don't double-enqueue a user.
  */
@@ -23,7 +23,7 @@ export class SyncScheduler {
     @InjectQueue(SYNC_QUEUE) private readonly queue: Queue<RecentPlaysJobData>,
   ) {}
 
-  @Cron(CronExpression.EVERY_30_MINUTES)
+  @Cron(CronExpression.EVERY_10_MINUTES)
   async enqueueAll(): Promise<void> {
     const users = await this.prisma.user.findMany({
       where: { syncEnabled: true, spotifyAccount: { isNot: null } },
@@ -66,8 +66,8 @@ export class SyncScheduler {
     return String(job.id);
   }
 
-  /** 30-minute time bucket for idempotent job ids, derived without Date.now drift concerns. */
+  /** 10-minute time bucket for idempotent job ids, derived without Date.now drift concerns. */
   private bucket(): number {
-    return Math.floor(Date.now() / (30 * 60 * 1000));
+    return Math.floor(Date.now() / (10 * 60 * 1000));
   }
 }

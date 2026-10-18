@@ -43,7 +43,7 @@ export function HighlightCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45, delay }}
       whileHover={{ y: -4 }}
-      className="group relative h-44 overflow-hidden rounded-3xl border bg-[var(--color-surface)]"
+      className="group relative h-28 overflow-hidden rounded-2xl border bg-[var(--color-surface)] sm:h-44 sm:rounded-3xl"
       style={{ boxShadow: `inset 0 0 60px -30px ${color}` }}
     >
       {/* Cover as blurred backdrop */}
@@ -57,36 +57,42 @@ export function HighlightCard({
         <div className="absolute inset-0" style={{ background: `radial-gradient(300px 160px at 100% 0%, ${color}22, transparent), var(--color-surface)` }} />
       )}
 
-      <div className="relative flex h-full flex-col justify-between p-5">
+      <div className="relative flex h-full flex-col justify-between p-2.5 sm:p-5">
         {/* top: kicker + rank */}
         <div className="flex items-start justify-between">
-          <span className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest" style={{ color }}>
-            <Icon className="h-3.5 w-3.5" strokeWidth={2.4} /> {kicker}
+          <span className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-widest sm:gap-1.5 sm:text-[11px]" style={{ color }}>
+            <Icon className="h-3 w-3 sm:h-3.5 sm:w-3.5" strokeWidth={2.4} /> {kicker}
           </span>
           {rank != null && (
-            <span className="rounded-full px-2.5 py-0.5 text-xs font-black tabular-nums" style={{ background: `${color}26`, color }}>
+            <span className="rounded-full px-1.5 py-0.5 text-[10px] font-black tabular-nums sm:px-2.5 sm:text-xs" style={{ background: `${color}26`, color }}>
               #{rank}
             </span>
           )}
         </div>
 
         {/* middle: cover thumb + name */}
-        <div className="flex items-end gap-3">
+        <div className="flex items-end gap-1.5 sm:gap-3">
           {image && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={image} alt="" className="h-16 w-16 shrink-0 rounded-2xl object-cover shadow-xl ring-2 ring-white/10" />
+            <img src={image} alt="" className="h-8 w-8 shrink-0 rounded-lg object-cover shadow-xl ring-2 ring-white/10 sm:h-16 sm:w-16 sm:rounded-2xl" />
           )}
           <div className="min-w-0">
-            <p className="truncate text-xl font-black leading-tight text-white">{name}</p>
-            {subtitle && <p className="truncate text-sm text-[var(--color-muted)]">{subtitle}</p>}
+            <p className="truncate text-xs font-black leading-tight text-white sm:text-xl">{name}</p>
+            {subtitle && <p className="truncate text-[10px] text-[var(--color-muted)] sm:text-sm">{subtitle}</p>}
           </div>
         </div>
 
         {/* bottom: stats */}
         {stats && stats.length > 0 && (
-          <div className="flex gap-5">
+          <div className="flex gap-2.5 sm:gap-5">
+            {stats.slice(0, 1).map((s) => (
+              <div key={s.label} className="sm:hidden">
+                <p className="text-xs font-bold tabular-nums" style={{ color }}>{s.value}</p>
+                <p className="text-[8px] uppercase tracking-wide text-[var(--color-muted)]">{s.label}</p>
+              </div>
+            ))}
             {stats.map((s) => (
-              <div key={s.label}>
+              <div key={s.label} className="hidden sm:block">
                 <p className="text-lg font-bold tabular-nums" style={{ color }}>{s.value}</p>
                 <p className="text-[10px] uppercase tracking-wide text-[var(--color-muted)]">{s.label}</p>
               </div>
