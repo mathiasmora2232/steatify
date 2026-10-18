@@ -59,7 +59,7 @@ export const PLANS: PlanDef[] = [
     accent: '#fbbf24',
     features: [
       'Todo lo de Plus',
-      'Sonora Brain — asistente IA de tu universo (500 créditos)',
+      'Steatify Brain — asistente IA de tu universo (500 créditos)',
       'Vitrinas ilimitadas + temas animados + efectos',
       'Reportes y alertas inteligentes',
       'Más apps conectadas (PSN, Xbox, Letterboxd…)',

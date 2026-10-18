@@ -55,7 +55,7 @@ export interface Attribute {
   value: number;
 }
 
-/** Radar attributes for the Sonora Passport. */
+/** Radar attributes for the Steatify Passport. */
 export function passportAttributes(dna: MusicDna | undefined): Attribute[] {
   const p = dna?.patterns;
   const t = dna?.totals;

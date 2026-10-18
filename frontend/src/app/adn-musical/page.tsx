@@ -15,7 +15,7 @@ export default function Page() {
     >
       <p>
         Dos personas pueden escuchar al mismo artista de formas completamente distintas: una lo pone en repeat cien veces,
-        otra lo escucha una vez y sigue explorando. El <strong>ADN musical</strong> de Sonora analiza <em>cómo</em> escuchas —
+        otra lo escucha una vez y sigue explorando. El <strong>ADN musical</strong> de Steatify analiza <em>cómo</em> escuchas —
         no solo <em>qué</em> — y lo traduce en una mezcla de arquetipos que te describen.
       </p>
 
@@ -30,7 +30,7 @@ export default function Page() {
 
       <h2>¿Cómo se calcula?</h2>
       <p>
-        Sonora mira señales reales de tu historial: cuánto repites una misma canción, a qué horas escuchas, cuántos
+        Steatify mira señales reales de tu historial: cuánto repites una misma canción, a qué horas escuchas, cuántos
         artistas nuevos descubres, qué tan seguido revives temas viejos. De ahí sale una <strong>mezcla</strong> — casi
         nadie es 100% un solo arquetipo — que forma tu ADN.
       </p>
@@ -39,7 +39,7 @@ export default function Page() {
       <p>
         ¿No tienes ganas de conectar Spotify todavía? Haz el quiz{' '}
         <Link href="/tools/oyente">¿Qué tipo de oyente eres?</Link> y obtén una primera versión de tu arquetipo en 6
-        preguntas. Cuando conectes tu cuenta, Sonora lo calcula <strong>de verdad</strong> con tu historial real.
+        preguntas. Cuando conectes tu cuenta, Steatify lo calcula <strong>de verdad</strong> con tu historial real.
       </p>
     </ArticleShell>
   );

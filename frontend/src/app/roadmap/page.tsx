@@ -4,8 +4,8 @@ import { Logo } from '@/components/Logo';
 import { Waitlist } from '@/components/Waitlist';
 
 export const metadata = {
-  title: 'Roadmap · Sonora',
-  description: 'En qué estamos trabajando en Sonora: lo hecho, lo que viene y lo planeado. Transparencia total.',
+  title: 'Roadmap · Steatify',
+  description: 'En qué estamos trabajando en Steatify: lo hecho, lo que viene y lo planeado. Transparencia total.',
 };
 
 type Status = 'done' | 'building' | 'planned';
@@ -37,7 +37,7 @@ const COLUMNS: { status: Status; title: string; items: string[] }[] = [
     items: [
       'Cuota extendida de Spotify (acceso para todos)',
       'Pasarela de pago',
-      'Sonora Brain — asistente IA de tu universo',
+      'Steatify Brain — asistente IA de tu universo',
       'Fondos vivos (collage de carátulas)',
       'Más conexiones: PSN, Xbox, Letterboxd',
       'App móvil',
@@ -57,7 +57,7 @@ export default function RoadmapPage() {
       <div aria-hidden className="pointer-events-none fixed inset-0 -z-10"
         style={{ backgroundImage: 'radial-gradient(800px 420px at 15% -10%, rgba(52,224,161,0.10), transparent), radial-gradient(800px 420px at 90% 8%, rgba(168,85,247,0.10), transparent)' }} />
       <nav className="mx-auto flex max-w-4xl items-center justify-between px-6 py-5">
-        <Link href="/" className="flex items-center gap-2"><Logo size={28} /><span className="font-bold tracking-tight">Sonora</span></Link>
+        <Link href="/" className="flex items-center gap-2"><Logo size={28} /><span className="font-bold tracking-tight">Steatify</span></Link>
         <div className="flex items-center gap-4 text-sm">
           <Link href="/changelog" className="text-[var(--color-muted)] transition hover:text-white">Novedades</Link>
           <Link href="/register" className="rounded-full bg-[var(--color-accent)] px-4 py-1.5 font-semibold text-black transition hover:brightness-110">Crear Space</Link>

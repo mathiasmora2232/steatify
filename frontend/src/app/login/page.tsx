@@ -9,8 +9,8 @@ import { AuthShell } from '@/components/AuthShell';
 
 const SPOTIFY_ERRORS: Record<string, string> = {
   spotify_access:
-    'Esa cuenta de Spotify no tiene acceso. La app está en modo desarrollo: solo cuentas agregadas a la lista pueden entrar. Usa tu cuenta Sonora o el modo invitado.',
-  spotify_taken: 'Esa cuenta de Spotify ya está conectada a otro usuario de Sonora.',
+    'Esa cuenta de Spotify no tiene acceso. La app está en modo desarrollo: solo cuentas agregadas a la lista pueden entrar. Usa tu cuenta Steatify o el modo invitado.',
+  spotify_taken: 'Esa cuenta de Spotify ya está conectada a otro usuario de Steatify.',
   spotify_failed: 'No se pudo conectar con Spotify. Intenta de nuevo.',
   server_error:
     'Spotify rechazó el inicio de sesión (server_error). Suele ser temporal o por sesión: vuelve a pulsar “Continuar con Spotify” y acepta de nuevo. Si sigue, revisa que en el dashboard tu cuenta esté en User Management.',
@@ -42,7 +42,7 @@ export default function LoginPage() {
   }
 
   return (
-    <AuthShell title="Bienvenido de vuelta" subtitle="Entra a tu universo Sonora.">
+    <AuthShell title="Bienvenido de vuelta" subtitle="Entra a tu universo Steatify.">
       <form onSubmit={submit} className="space-y-3">
         <Input value={identifier} onChange={setIdentifier} placeholder="Email o usuario" autoComplete="username" />
         <Input value={password} onChange={setPassword} type="password" placeholder="Contraseña" autoComplete="current-password" />

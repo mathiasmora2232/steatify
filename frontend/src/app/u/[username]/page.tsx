@@ -21,10 +21,10 @@ export default function PublicProfilePage() {
 
   async function share() {
     const url = typeof window !== 'undefined' ? window.location.href : '';
-    const title = data?.displayName ?? data?.username ?? 'Sonora';
+    const title = data?.displayName ?? data?.username ?? 'Steatify';
     try {
       if (typeof navigator !== 'undefined' && navigator.share) {
-        await navigator.share({ title: `${title} · Sonora`, url });
+        await navigator.share({ title: `${title} · Steatify`, url });
         return;
       }
       await navigator.clipboard.writeText(url);
@@ -60,7 +60,7 @@ export default function PublicProfilePage() {
       {/* Top bar — keeps the public profile connected to the app */}
       <div className="sticky top-0 z-20 border-b border-white/5 bg-[var(--color-bg)]/70 backdrop-blur">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-3">
-          <Link href="/dashboard" className="text-base font-bold tracking-tight text-white">Sonora</Link>
+          <Link href="/dashboard" className="text-base font-bold tracking-tight text-white">Steatify</Link>
           <Link href="/dashboard/settings" className="rounded-full bg-white/5 px-3 py-1 text-xs font-medium text-white/80 transition hover:text-white">Mi cuenta</Link>
         </div>
       </div>
@@ -83,7 +83,7 @@ export default function PublicProfilePage() {
         />
 
         <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="mt-10 text-center text-xs text-[var(--color-muted)]">
-          hecho con <span className="bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-2)] bg-clip-text font-bold text-transparent">Sonora</span>
+          hecho con <span className="bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-2)] bg-clip-text font-bold text-transparent">Steatify</span>
         </motion.p>
       </div>
     </main>

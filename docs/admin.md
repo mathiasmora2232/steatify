@@ -1,4 +1,4 @@
-Sí. Si Sonora ya va a tener usuarios reales, necesitas **Super Admin**. No para meterte en datos privados por morbo, sino para **operar, proteger y mantener el producto**.
+Sí. Si Steatify ya va a tener usuarios reales, necesitas **Super Admin**. No para meterte en datos privados por morbo, sino para **operar, proteger y mantener el producto**.
 
 ## Qué administraría el Super Admin
 
@@ -74,7 +74,7 @@ retención día 7
 retención día 30
 ```
 
-Ahí sabes si Sonora engancha o solo impresiona una vez.
+Ahí sabes si Steatify engancha o solo impresiona una vez.
 
 ---
 

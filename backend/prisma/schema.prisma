@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────
-// Sonora — Prisma schema
+// Steatify — Prisma schema
 //
 // Design principles
 //  - The catalog (Artist/Album/Track/Genre) is GLOBAL and shared across users.
@@ -43,7 +43,7 @@ enum Plan {
 
 model User {
   id            String   @id @default(cuid())
-  // ── Sonora account (primary identity) ──
+  // ── Steatify account (primary identity) ──
   email         String?  @unique
   username      String?  @unique // public handle → /u/:username
   passwordHash  String? // scrypt; null for OAuth-only / guest accounts

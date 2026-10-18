@@ -10,7 +10,7 @@ export interface SearchResults {
 }
 
 /**
- * Global Sonora search — scoped to what the user actually has (played tracks/
+ * Global Steatify search — scoped to what the user actually has (played tracks/
  * artists/albums + owned Steam games), ranked by relevance (plays / hours). The
  * premium "search everything" bar that ties artist/song/game detail pages.
  */

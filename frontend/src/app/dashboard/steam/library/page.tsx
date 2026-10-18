@@ -24,8 +24,8 @@ import {
   lovedSagaTokens,
   daysSince,
   playtimeLabel,
-  sonoraState,
-  SONORA_STATE,
+  steamGameState,
+  STEAM_GAME_STATE,
   STATE_ORDER,
 } from '@/lib/steam-derive';
 import { downloadCSV, downloadExcel, printRows, type Col } from '@/lib/exports';
@@ -35,7 +35,7 @@ import { ExportMenu } from '@/components/ExportMenu';
 const GAME_COLS: Col<SteamGame>[] = [
   { header: 'Juego', value: (g) => g.name },
   { header: 'Horas', value: (g) => g.hoursForever },
-  { header: 'Estado', value: (g) => SONORA_STATE[sonoraState(g)].label },
+  { header: 'Estado', value: (g) => STEAM_GAME_STATE[steamGameState(g)].label },
   { header: 'Nivel', value: (g) => playtimeLabel(g.hoursForever).label },
   { header: 'Metacritic', value: (g) => g.metacritic ?? '' },
   { header: 'Géneros', value: (g) => (g.genres ?? []).join(', ') },
@@ -231,9 +231,9 @@ export default function SteamLibraryPage() {
           {filtered.length > 0 && (
             <ExportMenu
               label={`Exportar ${filtered.length}`}
-              onCSV={() => downloadCSV('sonora-biblioteca', filtered, GAME_COLS)}
-              onExcel={() => downloadExcel('sonora-biblioteca', filtered, GAME_COLS)}
-              onPDF={() => printRows('Mi biblioteca · Sonora', filtered, GAME_COLS)}
+              onCSV={() => downloadCSV('steatify-biblioteca', filtered, GAME_COLS)}
+              onExcel={() => downloadExcel('steatify-biblioteca', filtered, GAME_COLS)}
+              onPDF={() => printRows('Mi biblioteca · Steatify', filtered, GAME_COLS)}
             />
           )}
         </div>
@@ -397,8 +397,8 @@ function LibraryCard({
   isTop?: boolean;
 }) {
   const pt = playtimeLabel(g.hoursForever);
-  const stateKey = sonoraState(g, { isTop });
-  const state = SONORA_STATE[stateKey];
+  const stateKey = steamGameState(g, { isTop });
+  const state = STEAM_GAME_STATE[stateKey];
   const StateIcon: LucideIcon = state.icon;
   const obsession = isObsession(g);
   const matched = showPending ? (g.genres ?? []).filter((x) => topGenres.has(x)).slice(0, 3) : [];
@@ -445,7 +445,7 @@ function LibraryCard({
         <div className="flex flex-1 flex-col p-3">
           <p className="truncate text-sm font-semibold text-[var(--color-text)]">{g.name}</p>
 
-          {/* Two badges: Sonora State + Playtime Label */}
+          {/* Two badges: Steatify State + Playtime Label */}
           <div className="mt-2 flex flex-wrap items-center gap-1.5">
             <span
               className="flex items-center gap-1 rounded-lg border px-2 py-1 text-[11px] font-semibold"

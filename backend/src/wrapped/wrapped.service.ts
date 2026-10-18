@@ -6,7 +6,7 @@ import { MlClientService } from '../ml/ml-client.service';
 import { RedisCacheService } from '../cache/redis-cache.service';
 
 const WRAPPED_SYSTEM =
-  'Eres el narrador de Sonora, el "diario de entretenimiento" de una persona. Escribe en ' +
+  'Eres el narrador de Steatify, el "diario de entretenimiento" de una persona. Escribe en ' +
   'español, segunda persona, cálido y celebratorio (es un recap tipo Wrapped). Convierte ' +
   'los datos en una historia emotiva de 2-4 frases. No menciones números técnicos crudos; ' +
   'usa los nombres reales de canciones, artistas y juegos. Sin markdown ni comillas, solo el párrafo.';
@@ -77,11 +77,11 @@ export interface Wrapped {
 }
 
 const PERIODS: Record<string, { days: number | null; label: string; word: string }> = {
-  week: { days: 7, label: 'Tu semana en Sonora', word: 'Semana' },
-  month: { days: 30, label: 'Tu mes en Sonora', word: 'Mes' },
-  season: { days: 90, label: 'Tu temporada en Sonora', word: 'Temporada' },
-  year: { days: 365, label: 'Tu año en Sonora', word: 'Año' },
-  all: { days: null, label: 'Tu vida en Sonora', word: 'Era' },
+  week: { days: 7, label: 'Tu semana en Steatify', word: 'Semana' },
+  month: { days: 30, label: 'Tu mes en Steatify', word: 'Mes' },
+  season: { days: 90, label: 'Tu temporada en Steatify', word: 'Temporada' },
+  year: { days: 365, label: 'Tu año en Steatify', word: 'Año' },
+  all: { days: null, label: 'Tu vida en Steatify', word: 'Era' },
 };
 
 /** The 12 archetypes. Each scores 0-1 from the period's signals; the top wins. */
@@ -175,7 +175,7 @@ function deriveEraName(
   const pick = (arr: string[]) => arr[seed % arr.length];
 
   if (sig.nightRatio >= 0.45 && genre) return pick([`Noches de ${genre} Real`, `${genre} a Medianoche`, `Madrugadas de ${genre}`]);
-  if (k1 === 'musicgamer' || (sig.gamingShare >= 0.4 && sig.plays > 50)) return pick(['Entre Beats y Partidas', `${word} entre Mundos`, 'Banda Sonora de tus Partidas']);
+  if (k1 === 'musicgamer' || (sig.gamingShare >= 0.4 && sig.plays > 50)) return pick(['Entre Beats y Partidas', `${word} entre Mundos`, 'Banda Steatify de tus Partidas']);
   if (k1 === 'loop' && v1 > 0.5) return pick([`El ${word} del Replay Infinito`, 'Loop Eterno', 'La Canción que No Soltaste']);
   if (k1 === 'explorer' && v1 > 0.5) return pick(['Explorador sin Mapa', `${word} de Mil Descubrimientos`, 'Sin Rumbo, con Ritmo']);
   if (k1 === 'specialist' && genre) return pick([`${word} 100% ${genre}`, `Devoto del ${genre}`, `Solo ${genre}`]);
@@ -183,7 +183,7 @@ function deriveEraName(
   if (k1 === 'marathoner') return pick(['Maratón sin Fin', `El ${word} que No Paraste`]);
   if (k1 === 'nocturnal') return pick(['Criatura de la Noche', 'Todo Suena Mejor de Madrugada']);
   if (genre) return pick([`${word} de ${genre}`, `Puro ${genre}`]);
-  return `Tu ${word} en Sonora`;
+  return `Tu ${word} en Steatify`;
 }
 
 /**

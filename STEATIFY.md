@@ -1,14 +1,14 @@
-# 🎵 Sonora — Documento Maestro
+# 🎵 Steatify — Documento Maestro
 
 > **"Tu universo. Tu historia. Tus datos."**
 > Spotify Wrapped permanente + Steam Replay + diario automático = tu **identidad digital generada por tus datos**.
 > En producción: **[codecanvas3d.com](https://codecanvas3d.com)** · Última actualización del doc: 21 jun 2026
 
-Este archivo es la **fuente de verdad** de qué tiene Sonora, cómo está implementado, todas las pantallas, lo pendiente y recomendaciones. Úsalo para consolidar y decidir qué agregar.
+Este archivo es la **fuente de verdad** de qué tiene Steatify, cómo está implementado, todas las pantallas, lo pendiente y recomendaciones. Úsalo para consolidar y decidir qué agregar.
 
 ---
 
-## 1. Qué es Sonora
+## 1. Qué es Steatify
 
 Una app que conecta **Spotify** (música) y **Steam** (gaming) y convierte tu actividad en estadísticas, eras, arquetipos, logros, un "Wrapped" permanente y un perfil público tipo carta de identidad. Además tiene una capa **social** (seguir, comparar, feed automático).
 
@@ -63,7 +63,7 @@ Usuario → codecanvas3d.com (Vercel, frontend)
 |---|---|
 | `/dashboard` | **Resumen**: hero (qué suena/juegas, tu era), ADN, destacados, mini-stats, rankings |
 | `/dashboard/profile` | **Mi Perfil 2.0** dentro del layout (hero data-color, pasaporte, vitrinas, universo, colecciones, timeline) |
-| `/dashboard/wrapped` | **Sonora Wrapped** — resumen por periodo (semana/mes/temporada/año), arquetipos, mezcla, eventos, premios |
+| `/dashboard/wrapped` | **Steatify Wrapped** — resumen por periodo (semana/mes/temporada/año), arquetipos, mezcla, eventos, premios |
 | `/dashboard/dna` | **ADN Musical** — arquetipos y rasgos |
 | `/dashboard/rankings` | Top canciones / artistas / álbumes / géneros (top 10) |
 | `/dashboard/eras` | **Eras** musicales (cada mes = un capítulo con nombre + narrativa IA) |
@@ -161,7 +161,7 @@ Narrativas (insights semanales, descripciones de eras, textos de Wrapped) genera
 
 ## 8. Cómo está hecho el Perfil 2.0 (referencia)
 
-`<ProfileBody>` (componente compartido) renderiza: **Hero** (fondo del color derivado de tu artista #1) → **Sonora Passport** (clase, barras de rasgos, rareza, miembro desde) → **Vitrinas** (canción/juego/artista) → **Mi Universo** (min, artistas, horas, juegos, % explorado) → **Colecciones** (obsesiones/mundos/leyendas/cementerio, conteos curados) → **Línea temporal** (eras). Usado por `/u/[username]` (standalone) y `/dashboard/profile` (in-app).
+`<ProfileBody>` (componente compartido) renderiza: **Hero** (fondo del color derivado de tu artista #1) → **Steatify Passport** (clase, barras de rasgos, rareza, miembro desde) → **Vitrinas** (canción/juego/artista) → **Mi Universo** (min, artistas, horas, juegos, % explorado) → **Colecciones** (obsesiones/mundos/leyendas/cementerio, conteos curados) → **Línea temporal** (eras). Usado por `/u/[username]` (standalone) y `/dashboard/profile` (in-app).
 
 ---
 

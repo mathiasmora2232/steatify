@@ -9,7 +9,7 @@ import { BrainService } from './brain.service';
 export class BrainController {
   constructor(private readonly brain: BrainService) {}
 
-  /** Lo que Sonora detectó: cambios de etapa en música y gaming. */
+  /** Lo que Steatify detectó: cambios de etapa en música y gaming. */
   @Get()
   detect(@CurrentUser() user: AuthUser) {
     return this.brain.brain(user.id);

@@ -57,7 +57,7 @@ const GAMER_ARCH: Record<string, { label: string; emoji: string; genres: string[
 };
 
 /**
- * "Sonora Brain" — the layer ON TOP that answers "¿qué está pasando contigo?".
+ * "Steatify Brain" — the layer ON TOP that answers "¿qué está pasando contigo?".
  * It detects STAGE CHANGES by comparing your recent self to your prior self
  * (music: last 30d vs the 30d before; gaming: recent genre mix vs all-time) and
  * narrates the shift with the real metric behind it. Also powers "Tú vs Tú".

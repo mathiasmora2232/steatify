@@ -55,7 +55,7 @@ export default function LandingPage() {
 
       {/* Nav */}
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
-        <Link href="/" className="flex items-center gap-2"><Logo size={30} /><span className="text-lg font-bold tracking-tight">Sonora</span></Link>
+        <Link href="/" className="flex items-center gap-2"><Logo size={30} /><span className="text-lg font-bold tracking-tight">Steatify</span></Link>
         <div className="flex items-center gap-2 sm:gap-4">
           <Link href="/tools" className="hidden text-sm text-[var(--color-muted)] transition hover:text-white sm:block">Herramientas</Link>
           <Link href="/changelog" className="hidden text-sm text-[var(--color-muted)] transition hover:text-white sm:block">Novedades</Link>
@@ -76,7 +76,7 @@ export default function LandingPage() {
         </motion.h1>
         <motion.p variants={fade} initial="hidden" animate="show" transition={{ delay: 0.12 }}
           className="mt-6 max-w-xl text-lg text-[var(--color-muted)]">
-          Sonora transforma tu música y tus juegos en una <strong className="text-[var(--color-text)]">identidad viva</strong>: eras, arquetipos, una carta de perfil para presumir y patrones que nunca habías visto.
+          Steatify transforma tu música y tus juegos en una <strong className="text-[var(--color-text)]">identidad viva</strong>: eras, arquetipos, una carta de perfil para presumir y patrones que nunca habías visto.
         </motion.p>
         <motion.div variants={fade} initial="hidden" animate="show" transition={{ delay: 0.2 }}
           className="mt-9 flex flex-wrap items-center justify-center gap-3">
@@ -161,7 +161,7 @@ export default function LandingPage() {
       <section className="mx-auto max-w-5xl px-6 py-16">
         <div className="grid gap-5 sm:grid-cols-2">
           <Feature icon={Dna} color="#1db954" title="Tu identidad" desc="Tu ADN musical y tus arquetipos: Looper, Nocturno, Explorador… descubre quién eres según lo que escuchas." />
-          <Feature icon={Layers} color="#a855f7" title="Tu historia" desc="Cada mes es un capítulo. Sonora detecta tus eras y les pone nombre — tu vida en una línea temporal." />
+          <Feature icon={Layers} color="#a855f7" title="Tu historia" desc="Cada mes es un capítulo. Steatify detecta tus eras y les pone nombre — tu vida en una línea temporal." />
           <Feature icon={IdCard} color="#3b82f6" title="Tu perfil" desc="Una carta de identidad para presumir: nivel, rareza, vitrinas, insignias y títulos equipables. Estilo Steam + carta Pokémon." />
           <Feature icon={Sparkles} color="#fbbf24" title="Tu universo" desc="Insights con IA, comparaciones de compatibilidad con amigos y un perfil que cambia solo según tu actividad." />
         </div>
@@ -177,7 +177,7 @@ export default function LandingPage() {
           {[
             ['1', 'Crea tu cuenta', 'Tu Space, en segundos.'],
             ['2', 'Conecta Spotify y/o Steam', 'Acceso solo de lectura.'],
-            ['3', 'Sonora analiza tus datos', 'Sin que tú hagas nada.'],
+            ['3', 'Steatify analiza tus datos', 'Sin que tú hagas nada.'],
             ['4', 'Descubre tu universo', 'Patrones que nunca viste.'],
           ].map(([n, t, d]) => (
             <div key={n} className="rounded-2xl border bg-[var(--color-surface)] p-4">
@@ -214,7 +214,7 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="border-t border-[var(--color-border)]">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 px-6 py-8 text-xs text-[var(--color-muted)]">
-          <div className="flex items-center gap-2"><Logo size={20} /> <span>Sonora · {new Date().getFullYear()}</span></div>
+          <div className="flex items-center gap-2"><Logo size={20} /> <span>Steatify · {new Date().getFullYear()}</span></div>
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
             <Link href="/tools" className="transition hover:text-white">Herramientas</Link>
             <Link href="/roadmap" className="transition hover:text-white">Roadmap</Link>
@@ -241,7 +241,7 @@ function ProductPreview() {
     <section ref={ref} className="mx-auto max-w-5xl px-6 py-14">
       <div className="mb-8 text-center">
         <h2 className="text-3xl font-black tracking-tight">Mira tu vida en datos</h2>
-        <p className="mt-1 text-sm text-[var(--color-muted)]">Una probada de lo que Sonora arma contigo.</p>
+        <p className="mt-1 text-sm text-[var(--color-muted)]">Una probada de lo que Steatify arma contigo.</p>
       </div>
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
         <motion.div style={{ y: y1 }} className="rounded-3xl border bg-[var(--color-surface)] p-5" >

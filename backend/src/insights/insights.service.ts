@@ -266,7 +266,7 @@ export class InsightsService {
   // ── 2. narration (IA only writes; fallback to templates) ─────────────────────
   private async narrate(signals: Signals): Promise<Narrative> {
     const system =
-      'Eres el narrador de Sonora. Recibes un JSON con datos YA calculados de música y gaming. ' +
+      'Eres el narrador de Steatify. Recibes un JSON con datos YA calculados de música y gaming. ' +
       'NO inventes ni añadas datos: solo redacta con lo que se te da. Responde ÚNICAMENTE con un JSON válido ' +
       'con esta forma exacta: {"summary": string, "music": [string,string,string], "gaming": [string,string,string], ' +
       '"predictions": [string,string], "recommendation": string}. Tono cálido, breve, en español. Sin markdown.';

@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Headphones, Gamepad2 } from 'lucide-react';
 import { CountUp } from './CountUp';
 
-/** Music + gaming fusion — "Tu universo". The crossover that's Sonora's edge. */
+/** Music + gaming fusion — "Tu universo". The crossover that's Steatify's edge. */
 export function UniverseCard({
   musicMinutes,
   gamingHours,

@@ -2,7 +2,7 @@
   "name": "backend",
   "version": "0.1.0",
   "private": true,
-  "description": "Sonora API — NestJS backend (auth, ingestion ETL, analytics)",
+  "description": "Steatify API — NestJS backend (auth, ingestion ETL, analytics)",
   "scripts": {
     "build": "nest build",
     "dev": "nest start --watch",

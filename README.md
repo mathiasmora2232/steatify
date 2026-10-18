@@ -2,7 +2,7 @@
 
 Dominio del proyecto: **https://steatify.lat**. Repositorio activo: [mathiasmora2232/steatify](https://github.com/mathiasmora2232/steatify).
 
-Steatify continúa la última versión de Sonora (`72c4096`), cuyo repositorio se conserva como archivo histórico. Se mantiene el historial Git completo y, por compatibilidad, los nombres internos de base de datos, migraciones y almacenamiento de Sonora. La configuración prevista para producción está en `.env.production.example`; DNS, HTTPS y OAuth requieren configurar el entorno de publicación.
+Steatify mantiene el historial completo del repositorio. Las instalaciones existentes deben migrar la base de datos antes de adoptar los nuevos valores de conexión; sigue los pasos de [DEPLOY.md](DEPLOY.md) y conserva un respaldo antes del cambio. La configuración prevista para producción está en `.env.production.example`; DNS, HTTPS y OAuth requieren configurar el entorno de publicación.
 
 **Tu diario digital de entretenimiento.** Un *Spotify Wrapped permanente* + *Google Analytics de música* + estadísticas de gaming — todo en una sola plataforma, construida sobre tu historial real de **Spotify** y **Steam**.
 

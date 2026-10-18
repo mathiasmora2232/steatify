@@ -16,7 +16,7 @@ const MIX_COLORS = ['#1db954', '#7c5cff', '#ff5d8f', '#38bdf8'];
 
 /**
  * Perfil 2.0 — the user's "digital identity card" (not a second dashboard).
- * Hero → Sonora Passport → Vitrinas → Universo → Colecciones → Timeline.
+ * Hero → Steatify Passport → Vitrinas → Universo → Colecciones → Timeline.
  * `actions` is the button row (Follow/Compare/Share or Edit), so the same body
  * works standalone (/@user) and inside the app (/dashboard/profile).
  */
@@ -124,9 +124,9 @@ export function ProfileBody({ data, actions }: { data: PublicProfile; actions?: 
         </div>
       ) : (
         <>
-          {/* ── SONORA PASSPORT ── */}
+          {/* ── STEATIFY PASSPORT ── */}
           {!hidden.has('passport') && data.mix && data.mix.length > 0 && (
-            <Section icon={Sparkles} title="Sonora Passport" accent={accent}>
+            <Section icon={Sparkles} title="Steatify Passport" accent={accent}>
               <div className="grid gap-5 sm:grid-cols-[1fr_1.4fr]">
                 <div className="rounded-2xl border border-white/5 bg-black/20 p-4 text-center">
                   <p className="text-[10px] uppercase tracking-widest text-[var(--color-muted)]">Clase</p>

@@ -29,7 +29,7 @@ PRO
 
 ---
 
-# 🟢 SONORA FREE — Explorador
+# 🟢 STEATIFY FREE — Explorador
 
 Precio:
 
@@ -134,7 +134,7 @@ Comparación básica
 
 ---
 
-# 🟣 SONORA PLUS — Personal
+# 🟣 STEATIFY PLUS — Personal
 
 El plan que quieres vender al 90%.
 
@@ -224,7 +224,7 @@ evolución
 Aquí metes lo fuerte:
 
 ```txt
-SteamDB + Sonora
+SteamDB + Steatify
 ```
 
 Desbloquea:
@@ -274,7 +274,7 @@ Badges
 
 ---
 
-# 🔥 SONORA PRO — Power User
+# 🔥 STEATIFY PRO — Power User
 
 Aquí estaba fallando.
 
@@ -298,7 +298,7 @@ Es PODER.
 
 ---
 
-# Sonora Brain completo
+# Steatify Brain completo
 
 Un asistente de tu universo:
 

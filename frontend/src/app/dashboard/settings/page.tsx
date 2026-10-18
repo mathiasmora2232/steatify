@@ -41,7 +41,7 @@ export default function SettingsPage() {
   return (
     <div className="mx-auto max-w-3xl pb-12">
       <h1 className="mb-1 text-3xl font-bold tracking-tight">Ajustes</h1>
-      <p className="mb-6 text-sm text-[var(--color-muted)]">El centro de tu cuenta Sonora.</p>
+      <p className="mb-6 text-sm text-[var(--color-muted)]">El centro de tu cuenta Steatify.</p>
 
       {user && (
         <div className="space-y-5">
@@ -242,7 +242,7 @@ function ProfileSection({ user, onSaved }: { user: UserProfile; onSaved: () => v
   }
 
   return (
-    <Section icon={UserIcon} title="Perfil" desc="Cómo te ven en Sonora.">
+    <Section icon={UserIcon} title="Perfil" desc="Cómo te ven en Steatify.">
       {/* Banner */}
       <button
         type="button"
@@ -471,7 +471,7 @@ function SessionsSection() {
 
 const PROFILE_SECTIONS: { key: string; label: string }[] = [
   { key: 'estado', label: 'Estado actual (Modo …)' },
-  { key: 'passport', label: 'Sonora Passport' },
+  { key: 'passport', label: 'Steatify Passport' },
   { key: 'insignias', label: 'Insignias' },
   { key: 'vitrinas', label: 'Vitrina' },
   { key: 'universo', label: 'Mi universo' },
@@ -718,7 +718,7 @@ function AppearanceSection({ user, onSaved }: { user: UserProfile; onSaved: () =
         <div className="flex items-center justify-between gap-4">
           <div className="min-w-0">
             <p className="text-lg font-black" style={{ backgroundImage: `linear-gradient(90deg, ${current.accent}, ${current.accent2})`, backgroundClip: 'text', WebkitBackgroundClip: 'text', color: 'transparent' }}>
-              Tu universo Sonora
+              Tu universo Steatify
             </p>
             <div className="mt-2 space-y-1.5">
               <div className="h-2 w-40 overflow-hidden rounded-full bg-white/5"><div className="h-full w-3/4 rounded-full" style={{ background: current.accent }} /></div>
@@ -769,7 +769,10 @@ function AppearanceSection({ user, onSaved }: { user: UserProfile; onSaved: () =
 function PreferencesSection({ user }: { user: UserProfile }) {
   const [hour24, setHour24] = useState(true);
   const [tzMsg, setTzMsg] = useState<string | null>(null);
-  useEffect(() => { setHour24(localStorage.getItem('sonora:hour24') !== 'false'); }, []);
+  useEffect(() => {
+    const saved = localStorage.getItem('steatify:hour24') ?? localStorage.getItem('sonora:hour24');
+    setHour24(saved !== 'false');
+  }, []);
 
   const localOffset = -new Date().getTimezoneOffset();
   const tzLabel = `UTC${localOffset >= 0 ? '+' : ''}${Math.round(localOffset / 60)}`;
@@ -791,7 +794,7 @@ function PreferencesSection({ user }: { user: UserProfile }) {
             {tzMsg ?? 'Usar esta'}
           </button>
         </div>
-        <Toggle label="Formato 24 horas" desc={hour24 ? '14:30' : '2:30 PM'} checked={hour24} onChange={(v) => { setHour24(v); localStorage.setItem('sonora:hour24', String(v)); }} />
+        <Toggle label="Formato 24 horas" desc={hour24 ? '14:30' : '2:30 PM'} checked={hour24} onChange={(v) => { setHour24(v); localStorage.setItem('steatify:hour24', String(v)); localStorage.removeItem('sonora:hour24'); }} />
       </div>
     </Section>
   );
@@ -841,7 +844,7 @@ function DataSection() {
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url; a.download = `sonora-export-${new Date().toISOString().slice(0, 10)}.json`; a.click();
+      a.href = url; a.download = `steatify-export-${new Date().toISOString().slice(0, 10)}.json`; a.click();
       URL.revokeObjectURL(url);
     } finally { setBusy(null); }
   }

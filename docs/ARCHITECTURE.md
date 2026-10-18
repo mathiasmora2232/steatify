@@ -1,4 +1,4 @@
-# Sonora — Decisiones de arquitectura
+# Steatify — Decisiones de arquitectura
 
 Documento vivo. Explica el *por qué* detrás de las decisiones técnicas
 importantes. El *qué* y el *cómo* están en el código.

@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og';
 import { computeLevel } from '@/lib/level';
 
-export const alt = 'Perfil de Sonora';
+export const alt = 'Perfil de Steatify';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -28,7 +28,7 @@ export default async function OgImage({ params }: { params: Promise<{ username: 
     const res = await fetch(`${base}/api/profiles/${encodeURIComponent(username)}`, { cache: 'no-store' });
     if (res.ok) d = (await res.json()) as ProfileLite;
   } catch {
-    /* fall through to a generic Sonora card */
+    /* fall through to a generic Steatify card */
   }
 
   const name = d?.displayName || d?.username || username;
@@ -98,7 +98,7 @@ export default async function OgImage({ params }: { params: Promise<{ username: 
 
         {/* Stats */}
         {isPrivate ? (
-          <div style={{ display: 'flex', fontSize: 44, color: '#8b8f9c' }}>Un universo Sonora 🔒</div>
+          <div style={{ display: 'flex', fontSize: 44, color: '#8b8f9c' }}>Un universo Steatify 🔒</div>
         ) : (
           <div style={{ display: 'flex' }}>
             <Stat value={fmt(minutes)} label="MIN DE MÚSICA" color="#34e0a1" />
@@ -111,7 +111,7 @@ export default async function OgImage({ params }: { params: Promise<{ username: 
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <div style={{ display: 'flex', fontSize: 48, fontWeight: 800, letterSpacing: 8, backgroundImage: GRAD, backgroundClip: 'text', WebkitBackgroundClip: 'text', color: 'transparent' }}>
-              SONORA
+              STEATIFY
             </div>
             <div style={{ display: 'flex', fontSize: 24, color: '#8b8f9c', marginTop: 6 }}>Tu universo. Tu historia. Tus datos.</div>
           </div>

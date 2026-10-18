@@ -2,7 +2,7 @@
 
 Repositorio activo: `https://github.com/mathiasmora2232/steatify.git`. Dominio del frontend: `https://steatify.lat`; backend previsto: `https://api.steatify.lat`. Ver `.env.production.example` para URLs y callback de Spotify. Registrar ese callback en Spotify y configurar DNS y HTTPS antes de publicar.
 
-El workflow ejecuta tests en cada push a `main`. El despliegue al VPS se inicia manualmente con `workflow_dispatch` y requiere los secretos del entorno `Production` en el nuevo repositorio, con `VPS_APP_DIR=/opt/steatify`. La carpeta debe prepararse en el servidor con su `.env` real; el cambio de repositorio no migra automáticamente el servidor. Los nombres internos de base de datos y red Docker se conservan por compatibilidad.
+El workflow ejecuta tests en cada push a `main`. El despliegue al VPS se inicia manualmente con `workflow_dispatch` y requiere los secretos del entorno `Production` en el nuevo repositorio, con `VPS_APP_DIR=/opt/steatify`. La carpeta debe prepararse en el servidor con su `.env` real; el cambio de repositorio no migra automáticamente el servidor. Las instalaciones existentes pueden seguir usando su conexión de base de datos actual; no cambies el nombre de la base ni `DATABASE_URL` hasta completar y respaldar una migración explícita.
 
 Dos caminos: **PaaS gestionado** (rápido, recomendado para MVP) o **VPS con Docker Compose** (más control). En ambos, lo crítico es: variables de entorno, migraciones, y que la **Redirect URI de Spotify coincida con tu dominio de producción**.
 
@@ -92,8 +92,34 @@ Con [Certbot](https://certbot.eff.org/) para SSL. Asegúrate de que `NEXT_PUBLIC
 ### Backups
 ```bash
 # Volcado diario de Postgres (cron)
-docker compose exec -T postgres pg_dump -U sonora sonora | gzip > backup-$(date +%F).sql.gz
+docker compose exec -T postgres pg_dump -U steatify steatify | gzip > backup-$(date +%F).sql.gz
 ```
+
+### Renombrar la base de datos existente
+
+En una instalación ya desplegada, no basta con cambiar `DATABASE_URL`: primero copia los datos a la base `steatify`. Detén el backend, crea un respaldo con la configuración actual y guárdalo fuera del contenedor:
+
+```bash
+docker compose -f docker-compose.prod.yml stop backend
+set -a && . ./.env && set +a
+BACKUP_DIR="${STEATIFY_BACKUP_DIR:-/root/steatify/backups/supabase}"
+mkdir -p "$BACKUP_DIR"
+docker exec -e PGPASSWORD="$POSTGRES_PASSWORD" "$SHOPDB_POSTGRES_CONTAINER" \
+pg_dump -U "$POSTGRES_USER" -Fc "$POSTGRES_DB" \
+> "$BACKUP_DIR/pre-steatify-rename.dump"
+```
+
+Después cambia `POSTGRES_DB`, `POSTGRES_USER` y `DATABASE_URL` en el `.env` real para apuntar a `steatify`, y ejecuta:
+
+```bash
+bash scripts/vps-init-steatify-db.sh
+docker exec -i -e PGPASSWORD="$POSTGRES_PASSWORD" "$SHOPDB_POSTGRES_CONTAINER" \
+pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" --no-owner --no-acl \
+< "$BACKUP_DIR/pre-steatify-rename.dump"
+docker compose -f docker-compose.prod.yml up -d backend
+```
+
+Verifica la salud de `/api/health` y los datos antes de retirar la base anterior o su respaldo. Las claves antiguas de apariencia se convierten con la migración de Prisma al desplegar.
 
 ---
 

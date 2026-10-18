@@ -3,7 +3,7 @@ import { QuizRunner } from '@/components/Quiz';
 import { LISTENER_QUIZ } from '@/lib/quizzes';
 
 export const metadata = {
-  title: '¿Qué tipo de oyente eres? · Sonora',
+  title: '¿Qué tipo de oyente eres? · Steatify',
   description: 'Descubre tu arquetipo musical: Looper, Explorador, Nocturno, Coleccionista o Nostálgico. Quiz gratis, sin registrarte.',
 };
 

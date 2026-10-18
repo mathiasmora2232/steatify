@@ -391,7 +391,7 @@ export default function SteamPage() {
             style={{ background: `radial-gradient(420px 200px at 85% 0%, ${gType.color}1f, transparent), var(--color-surface)` }}
           >
             <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-[var(--color-muted)]">
-              <Sparkles className="h-3.5 w-3.5 text-[var(--color-accent)]" /> Sonora ADN · ADN Gamer
+              <Sparkles className="h-3.5 w-3.5 text-[var(--color-accent)]" /> Steatify ADN · ADN Gamer
             </p>
             <div className="mt-3 flex items-center gap-5">
               <div className="relative flex h-24 w-24 shrink-0 items-center justify-center rounded-full border" style={{ borderColor: `${gType.color}55`, background: `${gType.color}12` }}>
@@ -442,7 +442,7 @@ export default function SteamPage() {
           </div>
           {!momentum.data.hasBaseline && (
             <p className="mb-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-2)]/30 px-3 py-2 text-[11px] text-[var(--color-muted)]">
-              Steam no da historial por juego — Sonora lo construye con cada sync. Las horas ganadas y los juegos que suben empiezan a contar desde tu próxima sincronización.
+              Steam no da historial por juego — Steatify lo construye con cada sync. Las horas ganadas y los juegos que suben empiezan a contar desde tu próxima sincronización.
             </p>
           )}
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -544,12 +544,12 @@ export default function SteamPage() {
         </section>
       )}
 
-      {/* ── Sonora te recomienda (empezar nuevos / retomar abandonados) ── */}
+      {/* ── Steatify te recomienda (empezar nuevos / retomar abandonados) ── */}
       {(recs.start.length > 0 || recs.revive.length > 0) && (
         <section className="mb-6">
           <div className="mb-1 flex items-center justify-between gap-2">
             <h2 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-[var(--color-muted)]">
-              <Sparkles className="h-4 w-4 text-[var(--color-accent)]" /> Sonora te recomienda
+              <Sparkles className="h-4 w-4 text-[var(--color-accent)]" /> Steatify te recomienda
             </h2>
             {(recsPool.start.length > 6 || recsPool.revive.length > 6) && (
               <button

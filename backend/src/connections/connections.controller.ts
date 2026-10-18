@@ -4,7 +4,7 @@ import { CurrentUser } from '../auth/current-user.decorator';
 import type { AuthUser } from '../auth/jwt.strategy';
 import { PrismaService } from '../prisma/prisma.service';
 
-/** External connections (Spotify, Steam) for the current Sonora account. */
+/** External connections (Spotify, Steam) for the current Steatify account. */
 @UseGuards(JwtAuthGuard)
 @Controller('connections')
 export class ConnectionsController {

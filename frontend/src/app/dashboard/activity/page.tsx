@@ -251,17 +251,17 @@ export default function ActivityPage() {
             {topTracks.data?.length ? (
               <ExportMenu
                 label="Canciones"
-                onCSV={() => downloadCSV(`sonora-top-canciones`, topTracks.data!, TRACK_COLS)}
-                onExcel={() => downloadExcel(`sonora-top-canciones`, topTracks.data!, TRACK_COLS)}
-                onPDF={() => printRows('Top canciones · Sonora', topTracks.data!, TRACK_COLS)}
+                onCSV={() => downloadCSV(`steatify-top-canciones`, topTracks.data!, TRACK_COLS)}
+                onExcel={() => downloadExcel(`steatify-top-canciones`, topTracks.data!, TRACK_COLS)}
+                onPDF={() => printRows('Top canciones · Steatify', topTracks.data!, TRACK_COLS)}
               />
             ) : null}
             {topArtists.data?.length ? (
               <ExportMenu
                 label="Artistas"
-                onCSV={() => downloadCSV(`sonora-top-artistas`, topArtists.data!, ARTIST_COLS)}
-                onExcel={() => downloadExcel(`sonora-top-artistas`, topArtists.data!, ARTIST_COLS)}
-                onPDF={() => printRows('Top artistas · Sonora', topArtists.data!, ARTIST_COLS)}
+                onCSV={() => downloadCSV(`steatify-top-artistas`, topArtists.data!, ARTIST_COLS)}
+                onExcel={() => downloadExcel(`steatify-top-artistas`, topArtists.data!, ARTIST_COLS)}
+                onPDF={() => printRows('Top artistas · Steatify', topArtists.data!, ARTIST_COLS)}
               />
             ) : null}
           </div>

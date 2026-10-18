@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { CountUp } from '@/components/CountUp';
-import { playtimeLabel, sonoraState, SONORA_STATE, stateReason, daysSince } from '@/lib/steam-derive';
+import { playtimeLabel, steamGameState, STEAM_GAME_STATE, stateReason, daysSince } from '@/lib/steam-derive';
 import { gameInsight } from '@/lib/game-insight';
 import { fecha } from '@/lib/format';
 
@@ -71,8 +71,8 @@ export default function SteamGamePage() {
     );
 
   const pt = playtimeLabel(g.hoursForever);
-  const stateKey = sonoraState(g);
-  const state = SONORA_STATE[stateKey];
+  const stateKey = steamGameState(g);
+  const state = STEAM_GAME_STATE[stateKey];
   const accent = state.color;
   const message = gameInsight(g);
   const reason = stateReason(g, stateKey);
@@ -129,7 +129,7 @@ export default function SteamGamePage() {
         {g.hours2Weeks > 0 && <Big value={g.hours2Weeks} suffix="h" label="últimas 2 semanas" accent={accent} />}
       </section>
 
-      {/* Recomendación Sonora */}
+      {/* Recomendación Steatify */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -139,7 +139,7 @@ export default function SteamGamePage() {
       >
         <Sparkles className="mt-0.5 h-5 w-5 shrink-0" style={{ color: accent }} />
         <div>
-          <p className="text-xs font-semibold uppercase tracking-widest text-[var(--color-muted)]">Veredicto Sonora</p>
+          <p className="text-xs font-semibold uppercase tracking-widest text-[var(--color-muted)]">Veredicto Steatify</p>
           <p className="mt-1 text-sm font-medium text-[var(--color-text)]">{message}</p>
           <p className="mt-1.5 flex items-center gap-1.5 text-xs text-[var(--color-muted)]">
             <Info className="h-3.5 w-3.5 shrink-0" style={{ color: accent }} />

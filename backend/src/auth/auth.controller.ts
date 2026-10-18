@@ -62,7 +62,7 @@ export class AuthController {
     private readonly prisma: PrismaService,
   ) {}
 
-  // ── Sonora account ──
+  // ── Steatify account ──
   @Throttle({ default: { limit: 15, ttl: 60_000 } })
   @Post('register')
   async register(
@@ -120,7 +120,7 @@ export class AuthController {
     }
     res.clearCookie(STATE_COOKIE);
 
-    // If they're already logged into a Sonora account, connect Spotify to it.
+    // If they're already logged into a Steatify account, connect Spotify to it.
     const currentUserId = await this.auth.userIdFromAccessToken(
       (req.cookies as Record<string, string>)?.access_token,
     );

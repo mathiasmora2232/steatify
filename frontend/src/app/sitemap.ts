@@ -6,7 +6,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const routes = [
     '',
     '/demo',
-    '/que-es-sonora',
+    '/que-es-steatify',
     '/spotify-wrapped-permanente',
     '/adn-musical',
     '/tools',
@@ -23,6 +23,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return routes.map((r) => ({
     url: `${BASE}${r}`,
     changeFrequency: 'weekly',
-    priority: r === '' ? 1 : r.startsWith('/tools') || r === '/que-es-sonora' ? 0.8 : 0.6,
+    priority: r === '' ? 1 : r.startsWith('/tools') || r === '/que-es-steatify' ? 0.8 : 0.6,
   }));
 }

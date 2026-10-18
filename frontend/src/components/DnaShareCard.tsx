@@ -5,7 +5,7 @@ import { archetypeIcon } from '@/lib/icons';
 import type { Attribute } from '@/lib/dna-derive';
 
 /**
- * The collectible "SONORA DNA" card captured to PNG for sharing. Fixed pixel
+ * The collectible "STEATIFY DNA" card captured to PNG for sharing. Fixed pixel
  * size so html-to-image renders it consistently regardless of viewport. Kept
  * visually self-contained (Tailwind + inline styles) — no external fonts. Shows
  * the identity, rarity/level, real headline stats and the top-3 attributes.
@@ -61,7 +61,7 @@ export const DnaShareCard = forwardRef<
 
       {/* Header */}
       <div className="relative flex items-center justify-between">
-        <span className="text-sm font-bold uppercase tracking-[0.3em] text-white/60">Sonora DNA</span>
+        <span className="text-sm font-bold uppercase tracking-[0.3em] text-white/60">Steatify DNA</span>
         <span
           className="flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-widest"
           style={{ background: `${color}22`, color }}
@@ -116,7 +116,7 @@ export const DnaShareCard = forwardRef<
         ))}
       </div>
 
-      <p className="relative mt-6 text-center text-xs tracking-[0.35em] text-white/30">SONORA.APP</p>
+      <p className="relative mt-6 text-center text-xs tracking-[0.35em] text-white/30">STEATIFY.APP</p>
     </div>
   );
 });

@@ -21,10 +21,10 @@ export async function generateMetadata({ params }: { params: Promise<{ username:
   }
   const name = d?.displayName || d?.username || username;
   const klass = d?.personalityName || d?.personality?.label;
-  const title = `${name} · Sonora`;
+  const title = `${name} · Steatify`;
   const description = klass
-    ? `${klass} — mira mi universo de música y gaming en Sonora.`
-    : 'Mi universo de música y gaming en Sonora.';
+    ? `${klass} — mira mi universo de música y gaming en Steatify.`
+    : 'Mi universo de música y gaming en Steatify.';
   return {
     title,
     description,

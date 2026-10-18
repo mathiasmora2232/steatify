@@ -5,7 +5,7 @@
  * inline script in the root layout mirrors this list (keep them in sync).
  */
 export type ThemeKey =
-  | 'sonora' | 'cyber' | 'steam' | 'midnight' | 'rose' | 'sunset' | 'aqua' | 'mono'
+  | 'steatify' | 'cyber' | 'steam' | 'midnight' | 'rose' | 'sunset' | 'aqua' | 'mono'
   | 'aurora' | 'inferno' | 'void';
 
 export interface ThemeUnlockCtx {
@@ -28,7 +28,7 @@ export interface Theme {
 }
 
 export const THEMES: Theme[] = [
-  { key: 'sonora', name: 'Sonora', desc: 'El original', accent: '#1db954', accent2: '#7c5cff', glow1: 'rgba(124,92,255,0.12)', glow2: 'rgba(29,185,84,0.10)' },
+  { key: 'steatify', name: 'Steatify', desc: 'El original', accent: '#1db954', accent2: '#7c5cff', glow1: 'rgba(124,92,255,0.12)', glow2: 'rgba(29,185,84,0.10)' },
   { key: 'cyber', name: 'Cyberpunk', desc: 'Neón eléctrico', accent: '#ff2bd6', accent2: '#00e5ff', glow1: 'rgba(255,43,214,0.16)', glow2: 'rgba(0,229,255,0.13)' },
   { key: 'steam', name: 'Steam', desc: 'Azul gamer', accent: '#66c0f4', accent2: '#22d3a6', glow1: 'rgba(102,192,244,0.15)', glow2: 'rgba(34,211,166,0.10)' },
   { key: 'midnight', name: 'Midnight', desc: 'Morado profundo', accent: '#a855f7', accent2: '#6366f1', glow1: 'rgba(168,85,247,0.18)', glow2: 'rgba(99,102,241,0.12)' },
@@ -42,7 +42,8 @@ export const THEMES: Theme[] = [
   { key: 'void', name: 'Void', desc: '100.000 min de música', accent: '#8b5cf6', accent2: '#ec4899', glow1: 'rgba(139,92,246,0.20)', glow2: 'rgba(236,72,153,0.14)', unlock: (c) => c.minutes >= 100000, req: '100.000 min de música' },
 ];
 
-export const THEME_KEY = 'sonora-theme';
+export const THEME_KEY = 'steatify-theme';
+const LEGACY_THEME_KEY = 'sonora-theme';
 
 export function applyTheme(key: ThemeKey): void {
   if (typeof document === 'undefined') return;
@@ -55,14 +56,16 @@ export function applyTheme(key: ThemeKey): void {
 }
 
 export function getSavedTheme(): ThemeKey {
-  if (typeof localStorage === 'undefined') return 'sonora';
-  const v = localStorage.getItem(THEME_KEY) as ThemeKey | null;
-  return THEMES.some((t) => t.key === v) ? (v as ThemeKey) : 'sonora';
+  if (typeof localStorage === 'undefined') return 'steatify';
+  const v = localStorage.getItem(THEME_KEY) ?? localStorage.getItem(LEGACY_THEME_KEY);
+  if (v === 'sonora') return 'steatify';
+  return THEMES.some((t) => t.key === v) ? (v as ThemeKey) : 'steatify';
 }
 
 export function saveTheme(key: ThemeKey): void {
   try {
     localStorage.setItem(THEME_KEY, key);
+    localStorage.removeItem(LEGACY_THEME_KEY);
   } catch {
     /* storage unavailable */
   }

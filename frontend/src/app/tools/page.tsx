@@ -3,7 +3,7 @@ import { Headphones, Gamepad2, Calculator, ArrowRight } from 'lucide-react';
 import { ToolShell } from '@/components/ToolShell';
 
 export const metadata = {
-  title: 'Herramientas gratis · Sonora',
+  title: 'Herramientas gratis · Steatify',
   description: 'Quizzes y calculadoras de música y gaming — sin registrarte. ¿Qué tipo de oyente eres? ¿Cuánto vale tu tiempo de juego?',
 };
 

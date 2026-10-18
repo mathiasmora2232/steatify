@@ -6,7 +6,7 @@ import useSWR from 'swr';
 import { Search, Mic2, Music2, Gamepad2, Disc3, X, type LucideIcon } from 'lucide-react';
 import { api } from '@/lib/api';
 
-/** Global Sonora search — Cmd/Ctrl+K palette over artists, songs, albums, games. */
+/** Global Steatify search — Cmd/Ctrl+K palette over artists, songs, albums, games. */
 export function GlobalSearch() {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState('');

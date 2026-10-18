@@ -1,4 +1,4 @@
-"""Sonora ML service (FastAPI).
+"""Steatify ML service (FastAPI).
 
 Phase 1: skeleton with health + heuristic placeholders so the backend can wire
 the HTTP contract today. Phase 4 swaps the heuristics for real models/LLMs
@@ -27,7 +27,7 @@ from .schemas import (  # noqa: E402
     ObsessionScore,
 )
 
-app = FastAPI(title="Sonora ML", version="0.1.0")
+app = FastAPI(title="Steatify ML", version="0.1.0")
 
 
 class NarrateRequest(BaseModel):

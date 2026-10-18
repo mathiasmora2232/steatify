@@ -6,7 +6,7 @@ import { MusicEventsService } from '../events/music-events.service';
 import { MlClientService } from '../ml/ml-client.service';
 
 const GAMER_SYSTEM =
-  'Eres el narrador de Sonora describiendo a alguien COMO JUGADOR. Escribe en español, ' +
+  'Eres el narrador de Steatify describiendo a alguien COMO JUGADOR. Escribe en español, ' +
   'segunda persona, con personalidad y un punto de humor cómplice. 2-3 frases que capturen ' +
   'su identidad gamer a partir de los datos (no inventes juegos ni cifras). Sin markdown ni comillas.';
 

@@ -24,7 +24,7 @@ export function Waveform({ active, bars = 40 }: { active: boolean; bars?: number
               opacity: active ? 0.9 : 0.35,
               transformOrigin: 'center',
               ['--wmin' as string]: String(minScale),
-              animation: active ? `sonora-wave ${dur}s ease-in-out ${delay}s infinite alternate` : 'none',
+              animation: active ? `steatify-wave ${dur}s ease-in-out ${delay}s infinite alternate` : 'none',
             }}
           />
         );

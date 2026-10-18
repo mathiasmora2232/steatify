@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import type { DnaArchetype } from '@/lib/api';
-import type { SonoraLevel } from '@/lib/level';
+import type { SteatifyLevel } from '@/lib/level';
 import { archetypeIcon } from '@/lib/icons';
 
 const BAR = ['#1db954', '#7c5cff', '#ff5d8f'];
@@ -14,13 +14,13 @@ export function IdentityCard({
 }: {
   archetypes: DnaArchetype[];
   personality: string | null;
-  level: SonoraLevel;
+  level: SteatifyLevel;
 }) {
   return (
     <div className="relative overflow-hidden rounded-3xl border bg-gradient-to-br from-[var(--color-surface)] to-[var(--color-surface-2)] p-6">
       <div className="mb-4 flex items-center justify-between">
         <p className="text-xs font-semibold uppercase tracking-widest text-[var(--color-muted)]">
-          Sonora DNA
+          Steatify DNA
         </p>
         <span className="rounded-full bg-[var(--color-accent-2)]/15 px-3 py-1 text-xs font-medium text-[var(--color-accent-2)]">
           {level.rarity}
@@ -69,7 +69,7 @@ export function IdentityCard({
       {/* Level + XP */}
       <div className="mt-5 border-t border-[var(--color-border)] pt-4">
         <div className="mb-1 flex items-end justify-between">
-          <span className="text-sm text-[var(--color-muted)]">Sonora</span>
+          <span className="text-sm text-[var(--color-muted)]">Steatify</span>
           <span className="text-lg font-bold">
             Lv. <span className="text-[var(--color-accent)]">{level.level}</span>
           </span>

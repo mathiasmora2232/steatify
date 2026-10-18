@@ -95,7 +95,7 @@ export function ImportHistoryPanel() {
         <p className="mb-6 text-sm text-[var(--color-muted)]">Trae años de datos de Spotify al instante.</p>
         <UpgradeCard
           title="Importa toda tu historia musical"
-          desc="Sube tu Extended Streaming History de Spotify (todos tus años) y revive tu vida musical completa. Disponible en Sonora Plus."
+          desc="Sube tu Extended Streaming History de Spotify (todos tus años) y revive tu vida musical completa. Disponible en Steatify Plus."
         />
       </div>
     );

@@ -32,7 +32,7 @@ export function downloadExcel<T>(filename: string, rows: T[], columns: Col<T>[])
   triggerDownload(new Blob(['﻿' + html], { type: 'application/vnd.ms-excel;charset=utf-8;' }), filename.endsWith('.xls') ? filename : `${filename}.xls`);
 }
 
-/** Abre una ventana imprimible (→ "Guardar como PDF"). Estética dark/Sonora. */
+/** Abre una ventana imprimible (→ "Guardar como PDF"). Estética dark/Steatify. */
 export function printRows<T>(titulo: string, rows: T[], columns: Col<T>[], generadoEn?: string): void {
   const head = `<tr>${columns.map((c) => `<th>${esc(c.header)}</th>`).join('')}</tr>`;
   const body = rows.map((r) => `<tr>${columns.map((c) => `<td>${esc(c.value(r))}</td>`).join('')}</tr>`).join('');
@@ -42,7 +42,7 @@ export function printRows<T>(titulo: string, rows: T[], columns: Col<T>[], gener
   h1{font-size:20px;margin:0 0 4px}.sub{color:#888;font-size:12px;margin-bottom:16px}
   table{width:100%;border-collapse:collapse;font-size:13px}th{background:#1db954;color:#fff;text-align:left;padding:8px}
   td{padding:7px 8px;border-bottom:1px solid #eee}tr:nth-child(even) td{background:#f4faf6}</style></head><body>
-  <h1>${esc(titulo)}</h1><div class="sub">Sonora · generado el ${esc(sello)}</div>
+  <h1>${esc(titulo)}</h1><div class="sub">Steatify · generado el ${esc(sello)}</div>
   <table>${head}${body}</table>
   <script>window.onload=function(){setTimeout(function(){window.print()},250)}</script></body></html>`;
   const w = window.open('', '_blank');

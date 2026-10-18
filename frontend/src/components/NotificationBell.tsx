@@ -18,7 +18,8 @@ const VOICE: Record<MusicEventType, { emoji: string; title: string }> = {
   NEW_ARTIST: { emoji: '🎤', title: 'Alguien nuevo entró' },
 };
 
-const SEEN_KEY = 'sonora-events-seen';
+const SEEN_KEY = 'steatify-events-seen';
+const LEGACY_SEEN_KEY = 'sonora-events-seen';
 
 function ago(iso: string): string {
   const d = Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000);
@@ -35,7 +36,9 @@ export function NotificationBell() {
   const [seen, setSeen] = useState<number>(Number.MAX_SAFE_INTEGER); // until hydrated, show nothing as unread
 
   useEffect(() => {
-    setSeen(Number(localStorage.getItem(SEEN_KEY) ?? 0));
+    const stored = localStorage.getItem(SEEN_KEY) ?? localStorage.getItem(LEGACY_SEEN_KEY);
+    setSeen(Number(stored ?? 0));
+    localStorage.removeItem(LEGACY_SEEN_KEY);
   }, []);
 
   const events = data ?? [];
@@ -77,7 +80,7 @@ export function NotificationBell() {
               transition={{ duration: 0.15 }}
               className="fixed left-1/2 top-16 z-50 max-h-[72vh] w-[92vw] max-w-md -translate-x-1/2 overflow-y-auto rounded-2xl border bg-[var(--color-surface)] p-2 shadow-2xl sm:left-20 sm:translate-x-0 sm:w-96"
             >
-              <p className="px-2 py-2 text-xs font-semibold uppercase tracking-widest text-[var(--color-muted)]">Tu vida en Sonora</p>
+              <p className="px-2 py-2 text-xs font-semibold uppercase tracking-widest text-[var(--color-muted)]">Tu vida en Steatify</p>
               {events.length === 0 ? (
                 <p className="px-2 py-6 text-center text-sm text-[var(--color-muted)]">
                   Nada por aquí todavía. A medida que escuches y juegues, aparecerán regresos, récords y obsesiones.

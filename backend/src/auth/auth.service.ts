@@ -36,7 +36,7 @@ export class AuthService {
     private readonly spotifyTokens: SpotifyTokensService,
   ) {}
 
-  // ── Sonora account auth (email/username + password) ──
+  // ── Steatify account auth (email/username + password) ──
 
   async register(
     input: { email: string; username: string; password: string; displayName?: string },
@@ -92,7 +92,7 @@ export class AuthService {
    */
   /**
    * Handle the OAuth callback. If `currentUserId` is set (the user is already
-   * logged into a Sonora account), Spotify is CONNECTED to that account.
+   * logged into a Steatify account), Spotify is CONNECTED to that account.
    * Otherwise we fall back to sign-in/sign-up by Spotify identity (legacy).
    */
   async handleSpotifyCallback(
@@ -105,7 +105,7 @@ export class AuthService {
 
     let userId: string;
     if (currentUserId) {
-      // Connect Spotify to the existing Sonora account.
+      // Connect Spotify to the existing Steatify account.
       const existing = await this.prisma.user.findUnique({
         where: { spotifyId: profile.id },
         select: { id: true },

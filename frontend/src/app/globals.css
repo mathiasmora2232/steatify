@@ -1,6 +1,6 @@
 @import 'tailwindcss';
 
-/* ───────────── Sonora design tokens (dark, premium) ─────────────
+/* ───────────── Steatify design tokens (dark, premium) ─────────────
    Inspired by Linear/Vercel: near-black surfaces, a single vivid accent,
    generous radius, soft borders. Exposed to Tailwind v4 via @theme. */
 @theme {
@@ -49,28 +49,28 @@ body {
 }
 
 /* Landing: flowing gradient text */
-@keyframes sonora-gradient {
+@keyframes steatify-gradient {
   0%, 100% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
 }
 .animate-gradient {
   background-size: 220% 220%;
-  animation: sonora-gradient 7s ease infinite;
+  animation: steatify-gradient 7s ease infinite;
 }
 
 /* Landing: infinite marquee */
-@keyframes sonora-marquee {
+@keyframes steatify-marquee {
   to { transform: translateX(-50%); }
 }
 .animate-marquee {
-  animation: sonora-marquee var(--marquee-dur, 36s) linear infinite;
+  animation: steatify-marquee var(--marquee-dur, 36s) linear infinite;
 }
 .animate-marquee-rev {
-  animation: sonora-marquee var(--marquee-dur, 36s) linear infinite reverse;
+  animation: steatify-marquee var(--marquee-dur, 36s) linear infinite reverse;
 }
 
 /* Now-playing waveform bars — floor varies per bar via --wmin */
-@keyframes sonora-wave {
+@keyframes steatify-wave {
   from {
     transform: scaleY(var(--wmin, 0.25));
   }

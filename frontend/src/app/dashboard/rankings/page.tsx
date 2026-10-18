@@ -91,7 +91,7 @@ export default function RankingsPage() {
       {/* Header */}
       <div className="mb-6">
         <h1 className="bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-2)] bg-clip-text text-4xl font-black tracking-tight text-transparent">
-          SONORA CHARTS
+          STEATIFY CHARTS
         </h1>
         <p className="mt-1 flex items-center gap-1.5 text-sm text-[var(--color-muted)]">
           <Music2 className="h-4 w-4" /> Los sonidos que dominaron tu vida.

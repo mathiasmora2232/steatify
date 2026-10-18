@@ -34,7 +34,7 @@ export class ImportController {
     // Plan gate: importing your full history is a Plus/Pro feature.
     const u = await this.prisma.user.findUnique({ where: { id: user.id }, select: { plan: true, role: true } });
     if (!u || !entitlements(u.plan, u.role).canImport) {
-      throw new ForbiddenException('El import de tu historial completo está disponible en Sonora Plus.');
+      throw new ForbiddenException('El import de tu historial completo está disponible en Steatify Plus.');
     }
     if (!files || files.length === 0) {
       throw new BadRequestException('No se subió ningún archivo.');

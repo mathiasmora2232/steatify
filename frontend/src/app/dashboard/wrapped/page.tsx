@@ -81,10 +81,10 @@ export default function WrappedPage() {
     try {
       const blob = await toBlob(ref.current, { cacheBust: true, pixelRatio: 2, backgroundColor: '#08090c' });
       if (!blob) throw new Error('no blob');
-      const file = new File([blob], `mi-${cfg.label.toLowerCase()}-en-sonora.png`, { type: 'image/png' });
+      const file = new File([blob], `mi-${cfg.label.toLowerCase()}-en-steatify.png`, { type: 'image/png' });
       const era = w.data?.eraName ?? 'Mi Wrapped';
       if (typeof navigator !== 'undefined' && navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ files: [file], title: `Mi ${cfg.label} en Sonora`, text: `${era} 🎧` });
+        await navigator.share({ files: [file], title: `Mi ${cfg.label} en Steatify`, text: `${era} 🎧` });
       } else {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -104,7 +104,7 @@ export default function WrappedPage() {
     return (
       <div className="mx-auto max-w-md py-20 text-center">
         <h1 className="flex items-center justify-center gap-2 text-2xl font-bold">
-          <Icon icon={Gift} className="h-6 w-6" /> Sonora Wrapped
+          <Icon icon={Gift} className="h-6 w-6" /> Steatify Wrapped
         </h1>
         <p className="mt-2 text-[var(--color-muted)]">
           Aún no hay datos. Sincroniza o importa tu historial y vuelve.
@@ -163,7 +163,7 @@ export default function WrappedPage() {
             style={{ background: 'radial-gradient(600px 200px at 50% 0%, rgba(29,185,84,0.12), var(--color-surface))' }}
           >
             <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-[var(--color-accent)]">
-              <Sparkles className="h-4 w-4" /> Tu historia, según Sonora
+              <Sparkles className="h-4 w-4" /> Tu historia, según Steatify
             </p>
             <p className="text-lg leading-relaxed text-[var(--color-text)]">{w.data.narrative}</p>
           </motion.section>
@@ -259,7 +259,7 @@ function HeroPanel({
       </span>
 
       <p className="text-2xl font-extrabold tracking-tight">
-        <span className="bg-gradient-to-r from-[var(--color-accent)] to-[#5fe39a] bg-clip-text text-transparent">SONORA</span>{' '}
+        <span className="bg-gradient-to-r from-[var(--color-accent)] to-[#5fe39a] bg-clip-text text-transparent">STEATIFY</span>{' '}
         <span className="text-white">WRAPPED</span>
       </p>
       <p className="mt-1 text-xs uppercase tracking-[0.3em] text-[var(--color-muted)]">{period} · 2026</p>
@@ -311,7 +311,7 @@ function DnaPanel({
 
   return (
     <div className="rounded-3xl border bg-[var(--color-surface)] p-6">
-      <p className="mb-1 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-[var(--color-muted)]">Sonora ADN <Icon icon={Sparkles} className="h-3.5 w-3.5" /></p>
+      <p className="mb-1 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-[var(--color-muted)]">Steatify ADN <Icon icon={Sparkles} className="h-3.5 w-3.5" /></p>
       <p className="mb-4 text-[11px] text-[var(--color-muted)]">Tu mezcla de este periodo</p>
       <div className="space-y-3">
         {rows.map((b, i) => (
@@ -533,7 +533,7 @@ function PassportCard({ name, pclass, attrs, level }: { name: string; pclass: Re
     <div className="overflow-hidden rounded-3xl border p-6"
       style={{ background: 'radial-gradient(600px 300px at 100% 0%, rgba(124,92,255,0.18), transparent), linear-gradient(135deg, rgba(29,185,84,0.06), transparent), var(--color-surface)' }}>
       <div className="mb-4 flex items-center justify-between">
-        <p className="text-sm font-bold tracking-widest text-[#d4af37]">SONORA PASSPORT</p>
+        <p className="text-sm font-bold tracking-widest text-[#d4af37]">STEATIFY PASSPORT</p>
         <p className="text-xs text-[var(--color-muted)]">Tu identidad digital este mes</p>
       </div>
       <div className="grid grid-cols-1 items-center gap-6 md:grid-cols-2">

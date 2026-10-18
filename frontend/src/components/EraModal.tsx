@@ -96,7 +96,7 @@ function Body({ era, onClose }: { era: Era; onClose: () => void }) {
             className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest"
             style={{ color: theme.color }}
           >
-            <Sparkles className="h-3.5 w-3.5" /> Sonora cuenta tu {eraMonthLabel(era).toLowerCase()}
+            <Sparkles className="h-3.5 w-3.5" /> Steatify cuenta tu {eraMonthLabel(era).toLowerCase()}
           </p>
           <p className="text-base leading-relaxed text-[var(--color-text)]">{narrative.text}</p>
         </div>

@@ -7,14 +7,14 @@ import type { MusicType } from '@/lib/api';
 import type { GamerType } from '@/lib/steam-derive';
 
 /**
- * "Sonora ADN" balanced — your dominant Musical archetype and Gamer archetype
+ * "Steatify ADN" balanced — your dominant Musical archetype and Gamer archetype
  * side by side, each with the factual reason behind it. The unified identity.
  */
 export function AdnDual({ musical, gamer }: { musical: MusicType | null; gamer: GamerType | null }) {
   return (
     <div>
       <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-[var(--color-muted)]">
-        Sonora ADN
+        Steatify ADN
       </h2>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <Panel

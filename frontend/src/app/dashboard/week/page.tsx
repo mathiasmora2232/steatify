@@ -301,7 +301,7 @@ function WeekHero({
         <p className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-[var(--color-accent)]">
           <CalendarDays className="h-4 w-4" /> Resumen de semana
         </p>
-        <h1 className="text-4xl font-black tracking-tight text-white sm:text-5xl">Tu semana Sonora</h1>
+        <h1 className="text-4xl font-black tracking-tight text-white sm:text-5xl">Tu semana Steatify</h1>
         <p className="mt-3 max-w-2xl text-base leading-relaxed text-[var(--color-muted)]">
           Una vista corta para engancharte: música, gaming, tops e insights primero. El detalle completo vive abajo, sin volver infinito el dashboard.
         </p>
@@ -541,7 +541,7 @@ function buildInsights(
     );
   }
   if (week?.vibe.nightPct != null) {
-    insights.push(`Tu modo nocturno está en ${week.vibe.nightPct}%. Si esto sube, Sonora puede leerte más como soundtrack de cierre del día.`);
+    insights.push(`Tu modo nocturno está en ${week.vibe.nightPct}%. Si esto sube, Steatify puede leerte más como soundtrack de cierre del día.`);
   }
   if (topTrack) insights.push(`La canción que más te jaló fue "${topTrack.name}". Si la abres, puedes seguir por artista, álbum y canciones cercanas.`);
   if (topArtist) insights.push(`${topArtist.name} está marcando el color de la semana. Buen punto de entrada para explorar canciones top de ese artista.`);

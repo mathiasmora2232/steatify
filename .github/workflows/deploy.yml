@@ -156,12 +156,12 @@ jobs:
             tar -xzf "$ARCHIVE" -C "$APP_DIR"
             cd "$APP_DIR"
             test -f docker-compose.prod.yml
-            test -f scripts/vps-init-sonora-db.sh
+            test -f scripts/vps-init-steatify-db.sh
 
-            docker network inspect sonora-infra >/dev/null 2>&1 || docker network create sonora-infra
-            docker network connect sonora-infra shopdb-postgres >/dev/null 2>&1 || true
-            docker network connect sonora-infra shopdb-redis >/dev/null 2>&1 || true
-            bash scripts/vps-init-sonora-db.sh
+            docker network inspect steatify-infra >/dev/null 2>&1 || docker network create steatify-infra
+            docker network connect steatify-infra shopdb-postgres >/dev/null 2>&1 || true
+            docker network connect steatify-infra shopdb-redis >/dev/null 2>&1 || true
+            bash scripts/vps-init-steatify-db.sh
             docker compose -f docker-compose.prod.yml config >/dev/null
             docker compose -f docker-compose.prod.yml up -d --build --remove-orphans
 

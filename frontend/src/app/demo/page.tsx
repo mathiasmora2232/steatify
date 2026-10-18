@@ -5,8 +5,8 @@ import { ProfileBody } from '@/components/ProfileBody';
 import { DEMO_PROFILE } from '@/lib/demo-data';
 
 export const metadata = {
-  title: 'Demo · Así se ve tu Sonora',
-  description: 'Explora una cuenta Sonora de ejemplo con datos ficticios: identidad, ADN musical, vitrinas, insignias, colecciones y línea temporal. Sin registrarte.',
+  title: 'Demo · Así se ve tu Steatify',
+  description: 'Explora una cuenta Steatify de ejemplo con datos ficticios: identidad, ADN musical, vitrinas, insignias, colecciones y línea temporal. Sin registrarte.',
 };
 
 export default function DemoPage() {
@@ -16,7 +16,7 @@ export default function DemoPage() {
         style={{ backgroundImage: 'radial-gradient(800px 420px at 15% -10%, rgba(52,224,161,0.12), transparent), radial-gradient(800px 420px at 90% 8%, rgba(168,85,247,0.12), transparent)' }} />
 
       <nav className="mx-auto flex max-w-3xl items-center justify-between px-6 py-5">
-        <Link href="/" className="flex items-center gap-2"><Logo size={28} /><span className="font-bold tracking-tight">Sonora</span></Link>
+        <Link href="/" className="flex items-center gap-2"><Logo size={28} /><span className="font-bold tracking-tight">Steatify</span></Link>
         <Link href="/register" className="rounded-full bg-[var(--color-accent)] px-4 py-1.5 text-sm font-semibold text-black transition hover:brightness-110">Crear Space</Link>
       </nav>
 

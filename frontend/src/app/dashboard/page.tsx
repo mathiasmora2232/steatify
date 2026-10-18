@@ -14,7 +14,7 @@ import { RecentFeed } from '@/components/RecentFeed';
 import { EventsFeed } from '@/components/EventsFeed';
 import { AdnDual } from '@/components/AdnDual';
 import { EvolutionAdn } from '@/components/EvolutionAdn';
-import { SonoraBrain } from '@/components/SonoraBrain';
+import { SteatifyBrain } from '@/components/SteatifyBrain';
 import { HighlightCard } from '@/components/HighlightCard';
 import { gamerType } from '@/lib/steam-derive';
 import { Clock, Users, Disc3, Gamepad2, Mic2, Flame, GitCompareArrows, ArrowRight, CalendarDays, Trophy } from 'lucide-react';
@@ -252,7 +252,7 @@ export default function DashboardPage() {
         </Link>
       </div>
       <div className="space-y-6">
-        <SonoraBrain />
+        <SteatifyBrain />
         {(dna.data?.type || gType) && <AdnDual musical={dna.data?.type ?? null} gamer={gType} />}
         <EvolutionAdn />
       </div>

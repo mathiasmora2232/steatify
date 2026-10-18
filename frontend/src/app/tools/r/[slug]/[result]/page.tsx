@@ -14,9 +14,9 @@ function lookup(slug: string, result: string) {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string; result: string }> }) {
   const { slug, result } = await params;
   const found = lookup(slug, result);
-  if (!found) return { title: 'Resultado · Sonora' };
-  const title = `Soy ${found.res.emoji} ${found.res.title} · Sonora`;
-  return { title, description: `${found.res.desc} — Haz el quiz y descubre tu arquetipo en Sonora.` };
+  if (!found) return { title: 'Resultado · Steatify' };
+  const title = `Soy ${found.res.emoji} ${found.res.title} · Steatify`;
+  return { title, description: `${found.res.desc} — Haz el quiz y descubre tu arquetipo en Steatify.` };
 }
 
 export default async function QuizResultPage({ params }: { params: Promise<{ slug: string; result: string }> }) {
@@ -38,7 +38,7 @@ export default async function QuizResultPage({ params }: { params: Promise<{ slu
           <Link href="/register" className="inline-flex items-center gap-2 rounded-full bg-[var(--color-accent)] px-6 py-3 text-sm font-semibold text-black transition hover:brightness-110">
             Verlo de verdad con mis datos <ArrowRight className="h-4 w-4" />
           </Link>
-          <ShareButton text={`Soy ${res.emoji} ${res.title} en Sonora. ¿Y tú?`} url={`https://codecanvas3d.com/tools/r/${slug}/${res.key}`} />
+          <ShareButton text={`Soy ${res.emoji} ${res.title} en Steatify. ¿Y tú?`} url={`https://codecanvas3d.com/tools/r/${slug}/${res.key}`} />
         </div>
       </div>
 

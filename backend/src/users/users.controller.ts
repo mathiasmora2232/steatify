@@ -114,7 +114,7 @@ export class UsersController {
     return { ok: true };
   }
 
-  /** Edit the Sonora profile. */
+  /** Edit the Steatify profile. */
   @Patch('me')
   async updateProfile(@CurrentUser() user: AuthUser, @Body() dto: UpdateProfileDto) {
     if (dto.username) {

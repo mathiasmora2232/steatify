@@ -7,11 +7,11 @@ import { Brain, ArrowRight, Music2, Gamepad2, GitCompareArrows } from 'lucide-re
 import { api, type BrainDetection } from '@/lib/api';
 
 /**
- * "Sonora Brain" — the narrator on top of everything. Detects stage changes
+ * "Steatify Brain" — the narrator on top of everything. Detects stage changes
  * (music + gaming) and tells you what's happening with you, with the real
  * metric behind it.
  */
-export function SonoraBrain() {
+export function SteatifyBrain() {
   const { data } = useSWR('brain', api.brain, { revalidateOnFocus: false });
   const detections = data?.detections ?? [];
   if (detections.length === 0) return null;
@@ -20,7 +20,7 @@ export function SonoraBrain() {
     <section className="mb-6 overflow-hidden rounded-3xl border bg-gradient-to-br from-[var(--color-surface)] to-[var(--color-surface-2)]/30">
       <div className="flex items-center justify-between border-b border-[var(--color-border)] px-6 py-3">
         <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-[var(--color-muted)]">
-          <Brain className="h-4 w-4 text-[var(--color-accent)]" /> Hoy Sonora detectó
+          <Brain className="h-4 w-4 text-[var(--color-accent)]" /> Hoy Steatify detectó
         </span>
         <Link href="/dashboard/versus" className="flex items-center gap-1 text-[11px] font-medium text-[var(--color-accent)] transition hover:gap-1.5">
           <GitCompareArrows className="h-3.5 w-3.5" /> Tú vs Tú

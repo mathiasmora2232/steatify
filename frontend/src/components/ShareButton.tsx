@@ -7,7 +7,7 @@ export function ShareButton({ text, url, label = 'Compartir' }: { text: string; 
   const [copied, setCopied] = useState(false);
   async function share() {
     try {
-      if (navigator.share) await navigator.share({ title: 'Sonora', text, url });
+      if (navigator.share) await navigator.share({ title: 'Steatify', text, url });
       else { await navigator.clipboard.writeText(`${text} ${url}`); setCopied(true); setTimeout(() => setCopied(false), 1600); }
     } catch { /* cancelled */ }
   }

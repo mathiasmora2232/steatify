@@ -341,7 +341,7 @@ export interface RevivePick {
 }
 
 /**
- * "Sonora te recomienda" — two data-driven lists: games to START (never opened,
+ * "Steatify te recomienda" — two data-driven lists: games to START (never opened,
  * ranked by pendingScore w/ franchise + saga signal) and games to RETOMAR
  * (abandoned, ranked by reviveScore). The human "why" is produced separately by
  * the Game Insight Engine (genre-aware, de-duplicated per screen).
@@ -378,7 +378,7 @@ export function isHiddenGem(g: SteamGame): boolean {
 // ═══════════════════════════════════════════════════════════════════════════
 //  TWO SEPARATE CONCEPTS
 //  A) Playtime Label — depends ONLY on hours (18 granular tiers)
-//  B) Sonora State   — depends on behaviour/context (what the playtime SAYS)
+//  B) Steatify State   — depends on behaviour/context (what the playtime SAYS)
 //  + dynamic message pools (no fixed single text, nothing assumed about data)
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -427,7 +427,7 @@ export function playtimeLabel(hours: number): PlaytimeTier {
   return { label: PLAYTIME_TIERS[last].label, color: PLAYTIME_TIERS[last].color, tier: last };
 }
 
-export type SonoraStateKey =
+export type SteamGameStateKey =
   | 'backlogPuro'
   | 'promesaPendiente'
   | 'joyita'
@@ -442,14 +442,14 @@ export type SonoraStateKey =
   | 'juegoDeVida'
   | 'maraton';
 
-export interface SonoraStateMeta {
-  key: SonoraStateKey;
+export interface SteamGameStateMeta {
+  key: SteamGameStateKey;
   label: string;
   color: string;
   icon: LucideIcon;
 }
 
-export const SONORA_STATE: Record<SonoraStateKey, SonoraStateMeta> = {
+export const STEAM_GAME_STATE: Record<SteamGameStateKey, SteamGameStateMeta> = {
   maraton: { key: 'maraton', label: 'Maratón infinito', color: '#fbbf24', icon: Medal },
   obsesionActual: { key: 'obsesionActual', label: 'Obsesión actual', color: '#22d3ee', icon: Flame },
   leyendaActiva: { key: 'leyendaActiva', label: 'Leyenda activa', color: '#f59e0b', icon: Crown },
@@ -466,10 +466,10 @@ export const SONORA_STATE: Record<SonoraStateKey, SonoraStateMeta> = {
 };
 
 /**
- * B) Sonora State — behaviour + context, NOT just hours. Order = priority (the
+ * B) Steatify State — behaviour + context, NOT just hours. Order = priority (the
  * loudest signal wins). `isTop` flags the single most-played game in the library.
  */
-export function sonoraState(g: SteamGame, ctx?: { isTop?: boolean }): SonoraStateKey {
+export function steamGameState(g: SteamGame, ctx?: { isTop?: boolean }): SteamGameStateKey {
   const h = g.hoursForever;
   const days = daysSince(g.lastPlayedAt);
 
@@ -588,8 +588,8 @@ const MSG_BACKLOG = [
   'Cero horas y sin prisa aparente. Backlog clásico.',
 ];
 
-/** Contextual message for a Sonora State — picks from a pool, varied per game. */
-export function stateMessage(g: SteamGame, state: SonoraStateKey): string {
+/** Contextual message for a Steatify State — picks from a pool, varied per game. */
+export function stateMessage(g: SteamGame, state: SteamGameStateKey): string {
   switch (state) {
     case 'maraton':
       return pick(MSG_MARATON, g);
@@ -621,7 +621,7 @@ export function stateMessage(g: SteamGame, state: SonoraStateKey): string {
 }
 
 /** Factual one-liner explaining WHY a game landed in its state — the receipts. */
-export function stateReason(g: SteamGame, state: SonoraStateKey): string {
+export function stateReason(g: SteamGame, state: SteamGameStateKey): string {
   const h = Math.round(g.hoursForever * 10) / 10;
   const days = daysSince(g.lastPlayedAt);
   const recencia = days != null ? `hace ${days} días` : 'sin registro de última partida';

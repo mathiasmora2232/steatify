@@ -3,7 +3,7 @@ import { QuizRunner } from '@/components/Quiz';
 import { GAMER_QUIZ } from '@/lib/quizzes';
 
 export const metadata = {
-  title: '¿Qué tipo de jugador eres? · Sonora',
+  title: '¿Qué tipo de jugador eres? · Steatify',
   description: 'Descubre tu clase gamer: Completista, Coleccionista, Competitivo, Explorador o Casual. Quiz gratis, sin registrarte.',
 };
 

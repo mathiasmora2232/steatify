@@ -2,14 +2,14 @@ import type { PublicProfile } from '@/lib/api';
 
 const steam = (id: number) => `https://cdn.cloudflare.steamstatic.com/steam/apps/${id}/header.jpg`;
 
-/** A rich, fictional profile so visitors can see what their Sonora looks like
+/** A rich, fictional profile so visitors can see what their Steatify looks like
  *  without connecting anything. Read by <ProfileBody>. */
 export const DEMO_PROFILE = {
   username: 'echo',
   displayName: 'Echo',
   avatarUrl: 'https://api.dicebear.com/7.x/bottts-neutral/png?seed=Echo&backgroundColor=1db954',
   bannerUrl: null,
-  bio: 'Cuenta de ejemplo. Así se vería tu universo Sonora.',
+  bio: 'Cuenta de ejemplo. Así se vería tu universo Steatify.',
   location: 'En tu pantalla',
   website: null,
   isPublic: true,

@@ -42,7 +42,7 @@ export interface ChartsRecords {
 }
 
 /**
- * "Sonora Charts" extras that the simple top() endpoint can't give: personal
+ * "Steatify Charts" extras that the simple top() endpoint can't give: personal
  * records and a Hall of Fame — both computed from the full listening history.
  */
 @Injectable()

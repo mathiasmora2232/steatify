@@ -16,7 +16,7 @@ services:
       - "127.0.0.1:4000:4000"
     networks:
       - default
-      - sonora-infra
+      - steatify-infra
     depends_on:
       ml-service:
         condition: service_started
@@ -49,6 +49,6 @@ services:
       - backend
 
 networks:
-  sonora-infra:
+  steatify-infra:
     external: true
-    name: sonora-infra
+    name: steatify-infra

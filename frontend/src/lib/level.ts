@@ -1,5 +1,5 @@
 /**
- * Sonora Level — derived purely from real activity (plays, minutes, gaming
+ * Steatify Level — derived purely from real activity (plays, minutes, gaming
  * hours). No backend/state needed; it's a deterministic function of the data
  * the user already has. XP curve is quadratic so early levels come fast and
  * later ones feel earned.
@@ -9,7 +9,7 @@
  * headroom — level 100 needs ~400k XP. Rarity has six tiers so the back half
  * of the ladder isn't a flat "Legendary forever".
  */
-export interface SonoraLevel {
+export interface SteatifyLevel {
   level: number;
   xp: number; // xp within the current level
   nextXp: number; // xp needed to finish the current level
@@ -29,7 +29,7 @@ function rarityFor(level: number): string {
   return 'Novato';
 }
 
-export function computeLevel(plays = 0, minutes = 0, steamHours = 0): SonoraLevel {
+export function computeLevel(plays = 0, minutes = 0, steamHours = 0): SteatifyLevel {
   const totalXp = plays * 2 + Math.round(minutes / 5) + steamHours * 3;
   const level = Math.max(1, Math.min(MAX_LEVEL, Math.floor(Math.sqrt(totalXp / K))));
   const base = level * level * K;

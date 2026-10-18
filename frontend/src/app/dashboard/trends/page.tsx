@@ -168,7 +168,7 @@ export default function TrendsPage() {
               </div>
             )}
 
-            {/* Radar Sonora */}
+            {/* Radar Steatify */}
             <RadarPanel summary={summary} />
 
             {/* Premios de la semana */}
@@ -350,7 +350,7 @@ function RadarPanel({ summary }: { summary: ReturnType<typeof summarize> }) {
       <RadarViz />
       <div className="min-w-0 flex-1">
         <p className="mb-1 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-[var(--color-accent)]">
-          <Radar className="h-4 w-4" /> Radar Sonora
+          <Radar className="h-4 w-4" /> Radar Steatify
         </p>
         <p className="text-base leading-relaxed text-[var(--color-text)]">{summary.radar}</p>
       </div>
@@ -492,7 +492,7 @@ function PremiosBar({ summary, comebackSong }: { summary: ReturnType<typeof summ
   return (
     <section className="rounded-3xl border bg-[var(--color-surface)] p-5">
       <h2 className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-[var(--color-muted)]">
-        <Trophy className="h-4 w-4 text-[var(--color-accent-2)]" /> Esta semana en Sonora
+        <Trophy className="h-4 w-4 text-[var(--color-accent-2)]" /> Esta semana en Steatify
       </h2>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {prizes.map((p, i) => (

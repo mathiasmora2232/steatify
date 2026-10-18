@@ -94,7 +94,7 @@ export default function DnaPage() {
       // (mobile) with the PNG as a file; fall back to a direct download.
       const blob = await toBlob(cardRef.current, { cacheBust: true, pixelRatio: 2, backgroundColor: '#07080b' });
       if (!blob) throw new Error('no blob');
-      const file = new File([blob], `sonora-dna-${name}.png`, { type: 'image/png' });
+      const file = new File([blob], `steatify-dna-${name}.png`, { type: 'image/png' });
 
       const canShareFile =
         typeof navigator !== 'undefined' &&
@@ -102,12 +102,12 @@ export default function DnaPage() {
         navigator.canShare({ files: [file] });
 
       if (canShareFile) {
-        await navigator.share({ files: [file], title: 'Mi Sonora DNA', text: `Soy ${type} en Sonora 🎧` });
+        await navigator.share({ files: [file], title: 'Mi Steatify DNA', text: `Soy ${type} en Steatify 🎧` });
       } else {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `sonora-dna-${name}.png`;
+        a.download = `steatify-dna-${name}.png`;
         a.click();
         URL.revokeObjectURL(url);
       }
@@ -123,7 +123,7 @@ export default function DnaPage() {
       {/* Header */}
       <div className="mb-6 flex items-start justify-between gap-4">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-widest text-[var(--color-muted)]">Sonora ADN</p>
+          <p className="text-xs font-semibold uppercase tracking-widest text-[var(--color-muted)]">Steatify ADN</p>
           <h1 className="flex items-center gap-2 text-3xl font-bold tracking-tight">
             <Icon icon={I.dna} className="h-7 w-7" style={{ color: accent }} /> ADN Musical
           </h1>
@@ -343,7 +343,7 @@ export default function DnaPage() {
             <span className="text-xl font-bold" style={{ color: accent }}>
               {social.betterThan}%
             </span>{' '}
-            de los usuarios de <span className="font-semibold">Sonora</span>
+            de los usuarios de <span className="font-semibold">Steatify</span>
           </p>
           <span
             className="hidden rounded-full px-3 py-1 text-xs font-bold sm:inline"

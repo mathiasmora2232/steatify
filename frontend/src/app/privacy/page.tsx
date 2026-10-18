@@ -2,8 +2,8 @@ import Link from 'next/link';
 import { LegalShell } from '@/components/LegalShell';
 
 export const metadata = {
-  title: 'Política de Privacidad · Sonora',
-  description: 'Cómo Sonora recopila, usa y protege tus datos.',
+  title: 'Política de Privacidad · Steatify',
+  description: 'Cómo Steatify recopila, usa y protege tus datos.',
 };
 
 const EMAIL = 'codecanvas3dstudio@codecanvas3d.com';
@@ -12,9 +12,9 @@ export default function PrivacyPage() {
   return (
     <LegalShell title="Política de Privacidad" updated="Última actualización: 21 de junio de 2026 · Versión 2.0">
         <p className="text-[var(--color-muted)]">
-          Esta Política de Privacidad describe cómo <strong className="text-[var(--color-text)]">Sonora</strong> ("Sonora Space",
+          Esta Política de Privacidad describe cómo <strong className="text-[var(--color-text)]">Steatify</strong> ("Steatify Space",
           "la aplicación", "nosotros") recopila, utiliza, almacena, comparte y protege la información de las personas que
-          usan el servicio ("tú", "el usuario"). Al crear una cuenta o usar Sonora aceptas las prácticas descritas aquí.
+          usan el servicio ("tú", "el usuario"). Al crear una cuenta o usar Steatify aceptas las prácticas descritas aquí.
           Léela junto con nuestros <Link href="/terms" className="text-[var(--color-accent)] hover:underline">Términos de Servicio</Link>.
           <strong className="text-[var(--color-text)]"> No vendemos tus datos personales, no publicamos en tu nombre y no
           modificamos tu cuenta de Spotify ni de Steam.</strong>
@@ -22,7 +22,7 @@ export default function PrivacyPage() {
 
         <Section n="1" title="Responsable del tratamiento">
           <p>
-            El responsable del tratamiento de tus datos es el equipo operador de Sonora (CodeCanvas 3D Studio). Para
+            El responsable del tratamiento de tus datos es el equipo operador de Steatify (CodeCanvas 3D Studio). Para
             cualquier asunto relacionado con privacidad puedes escribirnos a{' '}
             <a href={`mailto:${EMAIL}`} className="text-[var(--color-accent)] hover:underline">{EMAIL}</a>.
           </p>
@@ -30,7 +30,7 @@ export default function PrivacyPage() {
 
         <Section n="2" title="Información que recopilamos">
           <p>Recopilamos únicamente la información necesaria para ofrecerte tus estadísticas:</p>
-          <Sub title="a) Datos de tu cuenta Sonora">
+          <Sub title="a) Datos de tu cuenta Steatify">
             <ul>
               <li>Correo electrónico y nombre de usuario (handle público).</li>
               <li>Contraseña, almacenada siempre como un <em>hash</em> criptográfico (scrypt) — nunca en texto plano.</li>
@@ -72,7 +72,7 @@ export default function PrivacyPage() {
 
         <Section n="4" title="Uso de Inteligencia Artificial (IA)">
           <p>
-            Algunas funciones de Sonora (por ejemplo resúmenes, narrativas de tu Wrapped, "insights" y descripciones
+            Algunas funciones de Steatify (por ejemplo resúmenes, narrativas de tu Wrapped, "insights" y descripciones
             de eras) se generan con modelos de Inteligencia Artificial, que pueden ser operados por proveedores externos.
             En esos casos:
           </p>
@@ -97,7 +97,7 @@ export default function PrivacyPage() {
 
         <Section n="6" title="Transferencias internacionales">
           <p>
-            Nuestros proveedores pueden procesar datos en servidores ubicados fuera de tu país. Al usar Sonora aceptas
+            Nuestros proveedores pueden procesar datos en servidores ubicados fuera de tu país. Al usar Steatify aceptas
             dichas transferencias, que se realizan con las garantías razonables ofrecidas por estos proveedores.
           </p>
         </Section>
@@ -127,7 +127,7 @@ export default function PrivacyPage() {
             <li><strong>Privacidad</strong>: elegir qué se muestra públicamente (música, gaming o nada) en Ajustes → Privacidad.</li>
             <li><strong>Desconexión</strong>: desvincular Spotify/Steam en Ajustes → Conexiones.</li>
             <li><strong>Supresión</strong>: eliminar tu cuenta y todos tus datos en Ajustes → Datos.</li>
-            <li><strong>Revocación</strong>: retirar el acceso de Sonora desde{' '}
+            <li><strong>Revocación</strong>: retirar el acceso de Steatify desde{' '}
               <a href="https://www.spotify.com/account/apps/" target="_blank" rel="noopener noreferrer" className="text-[var(--color-accent)] hover:underline">tu cuenta de Spotify → Apps</a>.</li>
           </ul>
           <p>Para cualquier solicitud escríbenos a <a href={`mailto:${EMAIL}`} className="text-[var(--color-accent)] hover:underline">{EMAIL}</a>.</p>
@@ -135,7 +135,7 @@ export default function PrivacyPage() {
 
         <Section n="10" title="Menores de edad">
           <p>
-            Sonora no está dirigido a menores de 13 años (o la edad mínima que exija tu jurisdicción) y no recopilamos
+            Steatify no está dirigido a menores de 13 años (o la edad mínima que exija tu jurisdicción) y no recopilamos
             conscientemente sus datos. Si crees que un menor nos facilitó datos, contáctanos para eliminarlos.
           </p>
         </Section>

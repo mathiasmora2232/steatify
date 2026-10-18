@@ -2,7 +2,7 @@ import { ToolShell } from '@/components/ToolShell';
 import { CostCalculator } from '@/components/CostCalculator';
 
 export const metadata = {
-  title: 'Calculadora de costo por hora gamer · Sonora',
+  title: 'Calculadora de costo por hora gamer · Steatify',
   description: '¿Cuánto te cuesta cada hora de juego? Calcula el valor real de tu tiempo en videojuegos. Gratis, sin registrarte.',
 };
 

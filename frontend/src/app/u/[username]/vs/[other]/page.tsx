@@ -134,7 +134,7 @@ export default function ComparePage() {
         )}
 
         <p className="mt-10 text-center text-xs text-[var(--color-muted)]">
-          hecho con <span className="bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-2)] bg-clip-text font-bold text-transparent">Sonora</span>
+          hecho con <span className="bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-2)] bg-clip-text font-bold text-transparent">Steatify</span>
         </p>
       </div>
     </main>

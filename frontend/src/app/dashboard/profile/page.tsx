@@ -6,7 +6,7 @@ import { Pencil, ExternalLink, Share2 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { ProfileBody } from '@/components/ProfileBody';
 
-/** Your own identity card, inside the Sonora app layout (sidebar). */
+/** Your own identity card, inside the Steatify app layout (sidebar). */
 export default function MyProfilePage() {
   const me = useSWR('me', api.me);
   const username = me.data?.username;
@@ -29,7 +29,7 @@ export default function MyProfilePage() {
   async function share() {
     const url = `${window.location.origin}/u/${username}`;
     try {
-      if (navigator.share) await navigator.share({ title: 'Mi Sonora', url });
+      if (navigator.share) await navigator.share({ title: 'Mi Steatify', url });
       else await navigator.clipboard.writeText(url);
     } catch {
       /* cancelled */

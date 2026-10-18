@@ -43,7 +43,7 @@ export function CostCalculator() {
         <Link href="/register" className="inline-flex items-center gap-2 rounded-full bg-[var(--color-accent)] px-6 py-3 text-sm font-semibold text-black transition hover:brightness-110">
           Conecta Steam y lo calculo solo <ArrowRight className="h-4 w-4" />
         </Link>
-        <p className="mt-3 text-xs text-[var(--color-muted)]">Sonora saca esto automático con tu biblioteca real — valor, precio/hora, joyas ocultas.</p>
+        <p className="mt-3 text-xs text-[var(--color-muted)]">Steatify saca esto automático con tu biblioteca real — valor, precio/hora, joyas ocultas.</p>
       </div>
     </div>
   );

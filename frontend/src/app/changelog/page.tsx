@@ -3,8 +3,8 @@ import { Logo } from '@/components/Logo';
 import { RELEASES, KIND_META } from '@/lib/changelog';
 
 export const metadata = {
-  title: 'Changelog · Sonora',
-  description: 'Todo lo nuevo en Sonora — novedades, mejoras y arreglos versión por versión.',
+  title: 'Changelog · Steatify',
+  description: 'Todo lo nuevo en Steatify — novedades, mejoras y arreglos versión por versión.',
 };
 
 export default function ChangelogPage() {
@@ -13,13 +13,13 @@ export default function ChangelogPage() {
       <div className="mb-10 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
           <Logo size={28} />
-          <span className="text-lg font-bold tracking-tight">Sonora</span>
+          <span className="text-lg font-bold tracking-tight">Steatify</span>
         </Link>
         <Link href="/login" className="text-sm text-[var(--color-accent)] hover:underline">Entrar</Link>
       </div>
 
       <h1 className="text-4xl font-black tracking-tight">Changelog</h1>
-      <p className="mt-2 text-[var(--color-muted)]">Todo lo que vamos construyendo en Sonora. Sin relleno.</p>
+      <p className="mt-2 text-[var(--color-muted)]">Todo lo que vamos construyendo en Steatify. Sin relleno.</p>
 
       <div className="mt-10 space-y-10">
         {RELEASES.map((r) => (

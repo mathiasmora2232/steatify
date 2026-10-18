@@ -40,7 +40,7 @@ async function bootstrap() {
   // to BACKEND_PORT (default 4000) for local dev.
   const port = process.env.PORT ? Number(process.env.PORT) : config.get('BACKEND_PORT', { infer: true });
   await app.listen(port, '0.0.0.0');
-  Logger.log(`Sonora API listening on :${port}`, 'Bootstrap');
+  Logger.log(`Steatify API listening on :${port}`, 'Bootstrap');
 }
 
 void bootstrap();

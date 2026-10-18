@@ -33,10 +33,10 @@ export function QuizRunner({ quiz }: { quiz: Quiz }) {
     setStep(0);
   }
   async function share() {
-    const text = result ? `Soy ${result.emoji} ${result.title} en Sonora. ¿Y tú?` : 'Sonora';
+    const text = result ? `Soy ${result.emoji} ${result.title} en Steatify. ¿Y tú?` : 'Steatify';
     const url = result && typeof window !== 'undefined' ? `${window.location.origin}/tools/r/${quiz.slug}/${result.key}` : '';
     try {
-      if (navigator.share) await navigator.share({ title: 'Sonora', text, url });
+      if (navigator.share) await navigator.share({ title: 'Steatify', text, url });
       else { await navigator.clipboard.writeText(`${text} ${url}`); setCopied(true); setTimeout(() => setCopied(false), 1600); }
     } catch { /* cancelled */ }
   }
@@ -63,7 +63,7 @@ export function QuizRunner({ quiz }: { quiz: Quiz }) {
             <RotateCcw className="h-4 w-4" /> Repetir
           </button>
         </div>
-        <p className="mt-4 text-xs text-[var(--color-muted)]">Esto es solo un quiz. Sonora calcula tu arquetipo real con tu historial.</p>
+        <p className="mt-4 text-xs text-[var(--color-muted)]">Esto es solo un quiz. Steatify calcula tu arquetipo real con tu historial.</p>
       </motion.div>
     );
   }

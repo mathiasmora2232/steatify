@@ -65,10 +65,10 @@ export const RELEASES: Release[] = [
   },
   {
     version: '1.1',
-    title: 'Sonora en producción',
+    title: 'Steatify en producción',
     date: '2026-06-15',
     changes: [
-      { kind: 'new', text: 'Sonora en vivo en codecanvas3d.com' },
+      { kind: 'new', text: 'Steatify en vivo en codecanvas3d.com' },
       { kind: 'new', text: 'Logo y favicon (la S que fusiona música y gaming)' },
       { kind: 'improved', text: 'App responsive con navegación móvil' },
     ],
