@@ -156,8 +156,7 @@ jobs:
             # Token del túnel de Cloudflare: si el secreto existe, se deja en el .env del servidor (sin imprimirlo)
             if [ -n "${TUNNEL_TOKEN:-}" ]; then
               grep -v '^TUNNEL_TOKEN=' "$APP_DIR/.env" > "$APP_DIR/.env.new" || true
-              printf 'TUNNEL_TOKEN=%s
-' "$TUNNEL_TOKEN" >> "$APP_DIR/.env.new"
+              printf 'TUNNEL_TOKEN=%s\n' "$TUNNEL_TOKEN" >> "$APP_DIR/.env.new"
               chmod 600 "$APP_DIR/.env.new" && mv "$APP_DIR/.env.new" "$APP_DIR/.env"
             fi
             test -s "$ARCHIVE" || { echo "Release archive was not uploaded" >&2; exit 1; }
