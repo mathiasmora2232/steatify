@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 import { HomeHero } from '@/components/HomeHero';
+import { ArtistCarousel } from '@/components/ArtistCarousel';
 import { SmartStat } from '@/components/SmartStat';
 import { UniverseCard } from '@/components/UniverseCard';
 import { RankCard } from '@/components/RankCard';
@@ -182,6 +183,10 @@ export default function DashboardPage() {
         <SmartStat icon={Users} label="Artistas hoy" numericValue={t?.uniqueArtists ?? 0} sub="distintos hoy" color={C.cyan} delay={0.05} />
         <SmartStat icon={Disc3} label="Álbumes hoy" numericValue={t?.uniqueAlbums ?? 0} sub="distintos hoy" color={C.violet} delay={0.1} />
         <SmartStat icon={Gamepad2} label="Gaming hoy" value={`${activity.data?.signals.gamingHours ?? 0} h`} sub="en Steam (24h)" color={C.gaming} delay={0.15} />
+      </section>
+
+      <section className="mb-6">
+        <ArtistCarousel title="Tus artistas · este mes" items={topArtists.data ?? []} loading={topArtists.isLoading} />
       </section>
 
       <section className="mb-6">

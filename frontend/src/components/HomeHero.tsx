@@ -70,7 +70,7 @@ export function HomeHero({
         />
       )}
       {onSync && (
-        <div className="relative flex items-center justify-end gap-3 px-3.5 pt-3 text-xs sm:absolute sm:right-6 sm:top-6 sm:px-0 sm:pt-0">
+        <div className="relative z-10 flex items-center justify-end gap-3 px-3.5 pt-3 text-xs sm:px-8 sm:pt-5">
           {lastSyncedAt && (
             <span className="hidden text-[var(--color-muted)] sm:inline">
               Última sincronización: {new Date(lastSyncedAt).toLocaleString()}
