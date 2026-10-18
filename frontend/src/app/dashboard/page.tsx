@@ -125,7 +125,6 @@ export default function DashboardPage() {
           name={user?.displayName ?? ''}
           eraText={eraText}
           topArtist={m?.topArtist ?? null}
-          recentGame={recentGame}
           lastSyncedAt={user?.lastSyncedAt}
           syncing={syncing}
           onSync={handleSync}

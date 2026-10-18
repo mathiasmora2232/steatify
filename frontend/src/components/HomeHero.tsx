@@ -1,26 +1,16 @@
 'use client';
 
-import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import useSWR from 'swr';
 import { motion } from 'framer-motion';
-import { Gamepad2, Music2 } from 'lucide-react';
+import { Music2 } from 'lucide-react';
 import { api, type TopItem } from '@/lib/api';
 import { Waveform } from './Waveform';
-
-export interface HeroGame {
-  appId: number;
-  name: string;
-  headerUrl: string;
-  hoursForever: number;
-  hours2Weeks: number;
-}
 
 export function HomeHero({
   name,
   eraText,
   topArtist,
-  recentGame,
   lastSyncedAt,
   syncing,
   onSync,
@@ -28,7 +18,6 @@ export function HomeHero({
   name: string;
   eraText: string | null;
   topArtist: TopItem | null;
-  recentGame?: HeroGame | null;
   lastSyncedAt?: string | null;
   syncing?: boolean;
   onSync?: () => void;
@@ -175,28 +164,6 @@ export function HomeHero({
             )}
           </div>
         </motion.div>
-
-        {/* Último juego activo */}
-        {recentGame && (
-          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.22 }}>
-            <Link
-              href={`/dashboard/steam/game/${recentGame.appId}`}
-              className="group flex items-center gap-3 rounded-2xl border border-white/5 bg-black/20 p-2.5 backdrop-blur transition hover:border-[var(--color-accent)]/40"
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={recentGame.headerUrl} alt="" className="h-10 w-[72px] shrink-0 rounded-lg object-cover" />
-              <div className="min-w-0 flex-1">
-                <p className="flex items-center gap-1.5 text-[10px] uppercase tracking-wide text-[#7c5cff]">
-                  <Gamepad2 className="h-3 w-3" /> {recentGame.hours2Weeks > 0 ? 'Jugando últimamente' : 'Último juego'}
-                </p>
-                <p className="truncate text-sm font-semibold text-white">{recentGame.name}</p>
-              </div>
-              <span className="shrink-0 text-xs font-bold tabular-nums text-[#7c5cff]">
-                {recentGame.hours2Weeks > 0 ? `${recentGame.hours2Weeks}h` : `${recentGame.hoursForever}h`}
-              </span>
-            </Link>
-          </motion.div>
-        )}
         </div>
       </div>
     </section>
