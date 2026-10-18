@@ -1,8 +1,8 @@
 {
-  "name": "sonora",
+  "name": "steatify",
   "version": "0.1.0",
   "private": true,
-  "description": "Sonora — permanent Spotify Wrapped + analytics + intelligent music diary",
+  "description": "Steatify — permanent Spotify Wrapped + analytics + intelligent music diary",
   "workspaces": [
     "backend",
     "frontend"

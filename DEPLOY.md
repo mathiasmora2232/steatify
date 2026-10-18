@@ -1,4 +1,8 @@
-# Despliegue — Sonora
+# Despliegue — Steatify
+
+Repositorio activo: `https://github.com/mathiasmora2232/steatify.git`. Dominio del frontend: `https://steatify.lat`; backend previsto: `https://api.steatify.lat`. Ver `.env.production.example` para URLs y callback de Spotify. Registrar ese callback en Spotify y configurar DNS y HTTPS antes de publicar.
+
+El workflow ejecuta tests en cada push a `main`. El despliegue al VPS se inicia manualmente con `workflow_dispatch` y requiere los secretos del entorno `Production` en el nuevo repositorio, con `VPS_APP_DIR=/opt/steatify`. La carpeta debe prepararse en el servidor con su `.env` real; el cambio de repositorio no migra automáticamente el servidor. Los nombres internos de base de datos y red Docker se conservan por compatibilidad.
 
 Dos caminos: **PaaS gestionado** (rápido, recomendado para MVP) o **VPS con Docker Compose** (más control). En ambos, lo crítico es: variables de entorno, migraciones, y que la **Redirect URI de Spotify coincida con tu dominio de producción**.
 
@@ -12,7 +16,7 @@ Dos caminos: **PaaS gestionado** (rápido, recomendado para MVP) o **VPS con Doc
   openssl rand -base64 32   # TOKEN_ENC_KEY
   ```
 - [ ] En el [Spotify dashboard](https://developer.spotify.com/dashboard) añade la Redirect URI de prod:
-  `https://api.TU-DOMINIO.com/api/auth/spotify/callback`
+  `https://api.steatify.lat/api/auth/spotify/callback`
 - [ ] Define estas variables (ver `.env.example` para la lista completa):
   - `DATABASE_URL`, `REDIS_URL/REDIS_HOST/REDIS_PORT`
   - `JWT_SECRET`, `TOKEN_ENC_KEY`
@@ -53,7 +57,7 @@ DATABASE_URL="postgres://...supabase..." npm run prisma:seed   # logros base
 
 ### 4. Frontend (Vercel)
 - Root del proyecto: `frontend/`. Framework: Next.js (autodetectado).
-- Variable de entorno: `NEXT_PUBLIC_API_URL=https://api.TU-DOMINIO.com/api`.
+- Variable de entorno: `NEXT_PUBLIC_API_URL=https://api.steatify.lat/api`.
 - Tras desplegar, pon su dominio en el backend como `FRONTEND_URL` (para CORS + redirect post-login).
 
 ### 5. Cerrar el círculo
@@ -69,9 +73,9 @@ DATABASE_URL="postgres://...supabase..." npm run prisma:seed   # logros base
 En un VPS (Ubuntu + Docker):
 
 ```bash
-git clone <repo> sonora && cd sonora
+git clone https://github.com/mathiasmora2232/steatify.git steatify && cd steatify
 cp .env.example .env        # edita con dominios/secretos de PROD
-# Importante: NEXT_PUBLIC_API_URL=https://TU-DOMINIO.com/api
+# Importante: NEXT_PUBLIC_API_URL=https://api.steatify.lat/api
 
 docker compose --profile app up -d --build
 ```
@@ -80,8 +84,8 @@ Esto levanta **postgres, redis, backend, frontend y ml-service**. Las migracione
 
 ### Reverse proxy + SSL (Nginx)
 Pon Nginx delante enrutando:
-- `TU-DOMINIO.com`        → frontend `:3000`
-- `api.TU-DOMINIO.com`    → backend `:4000`
+- `steatify.lat`        → frontend `:3000`
+- `api.steatify.lat`    → backend `:4000`
 
 Con [Certbot](https://certbot.eff.org/) para SSL. Asegúrate de que `NEXT_PUBLIC_API_URL` se pasó como **build arg** (el compose ya lo hace desde `.env`).
 

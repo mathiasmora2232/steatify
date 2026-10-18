@@ -1,4 +1,4 @@
-name: Sonora CI/CD
+name: Steatify CI/CD
 
 on:
   push:
@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: sonora-production-deploy
+  group: steatify-production-deploy
   cancel-in-progress: false
 
 jobs:
@@ -37,6 +37,7 @@ jobs:
         run: npm test --workspace=backend
 
   deploy:
+    if: github.event_name == 'workflow_dispatch'
     name: Deploy to VPS
     needs: test
     runs-on: ubuntu-latest
@@ -65,8 +66,8 @@ jobs:
             --exclude='*.pfx' --exclude='**/*.pfx' \
             --exclude='.ssh' --exclude='*/.ssh' --exclude='**/.ssh' \
             --exclude='backups' --exclude='*/backups' --exclude='**/backups' \
-            -czf "$RUNNER_TEMP/sonora-deploy.tar.gz" .
-          if tar -tzf "$RUNNER_TEMP/sonora-deploy.tar.gz" | grep -E '(^|/)(\.env[^/]*|node_modules|\.git)(/|$)'; then
+            -czf "$RUNNER_TEMP/steatify-deploy.tar.gz" .
+          if tar -tzf "$RUNNER_TEMP/steatify-deploy.tar.gz" | grep -E '(^|/)(\.env[^/]*|node_modules|\.git)(/|$)'; then
             echo "Deployment package unexpectedly includes secrets or local dependencies" >&2
             exit 1
           fi
@@ -85,9 +86,9 @@ jobs:
           script: |
             set -eu
             APP_DIR="$VPS_APP_DIR"
-            ORIGIN=https://github.com/mathiasmora2232/sonora.git
-            if [ "$APP_DIR" != "/opt/sonora" ]; then
-              echo "VPS_APP_DIR must be /opt/sonora; refusing an unexpected deployment target" >&2
+            ORIGIN=https://github.com/mathiasmora2232/steatify.git
+            if [ "$APP_DIR" != "/opt/steatify" ]; then
+              echo "VPS_APP_DIR must be /opt/steatify; refusing an unexpected deployment target" >&2
               exit 1
             fi
             if [ ! -d "$APP_DIR" ]; then
@@ -98,7 +99,7 @@ jobs:
               TOP="$(git -C "$APP_DIR" rev-parse --show-toplevel 2>/dev/null || true)"
               CURRENT_ORIGIN="$(git -C "$APP_DIR" remote get-url origin 2>/dev/null || true)"
               if [ "$TOP" != "$APP_DIR" ] || [ "$CURRENT_ORIGIN" != "$ORIGIN" ]; then
-                echo "Existing Git metadata does not match the Sonora repository; refusing to alter it" >&2
+                echo "Existing Git metadata does not match the Steatify repository; refusing to alter it" >&2
                 exit 1
               fi
             else
@@ -120,7 +121,7 @@ jobs:
               echo "Git checkout is ready, but $APP_DIR/.env is missing; deploy stopped before Docker changes" >&2
               exit 1
             fi
-            mkdir -p /tmp/sonora-deploy-upload
+            mkdir -p /tmp/steatify-deploy-upload
 
       - name: Upload release package
         uses: appleboy/scp-action@v1
@@ -129,8 +130,8 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           port: ${{ secrets.VPS_PORT || '22022' }}
-          source: ${{ runner.temp }}/sonora-deploy.tar.gz
-          target: /tmp/sonora-deploy-upload
+          source: ${{ runner.temp }}/steatify-deploy.tar.gz
+          target: /tmp/steatify-deploy-upload
           overwrite: true
 
       - name: Extract and deploy
@@ -146,7 +147,7 @@ jobs:
           command_timeout: 30m
           script: |
             set -eu
-            ARCHIVE=/tmp/sonora-deploy-upload/sonora-deploy.tar.gz
+            ARCHIVE=/tmp/steatify-deploy-upload/steatify-deploy.tar.gz
             trap 'rm -f "$ARCHIVE"' EXIT
             APP_DIR="$VPS_APP_DIR"
 
@@ -166,7 +167,7 @@ jobs:
 
             for attempt in $(seq 1 30); do
               if curl --fail --silent http://127.0.0.1:4000/api/health >/dev/null; then
-                echo "Sonora backend is healthy"
+                echo "Steatify backend is healthy"
                 exit 0
               fi
               sleep 5
