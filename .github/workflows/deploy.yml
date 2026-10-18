@@ -165,6 +165,10 @@ jobs:
             }
             upsert TUNNEL_TOKEN "${TUNNEL_TOKEN:-}"
             upsert SPOTIFY_CLIENT_SECRET "${SPOTIFY_CLIENT_SECRET:-}"
+            # docker compose prioriza el entorno del shell sobre el .env: si el secreto de GitHub
+            # no existe, estas variables quedan exportadas vacias y pisan el valor bueno que recien
+            # escribimos en el .env. Las quitamos del entorno para forzar a compose a leer el .env.
+            unset TUNNEL_TOKEN SPOTIFY_CLIENT_SECRET
             test -s "$ARCHIVE" || { echo "Release archive was not uploaded" >&2; exit 1; }
             tar -xzf "$ARCHIVE" -C "$APP_DIR"
             cd "$APP_DIR"
@@ -177,14 +181,6 @@ jobs:
             bash scripts/vps-init-steatify-db.sh
             docker compose -f docker-compose.prod.yml config >/dev/null
             docker compose -f docker-compose.prod.yml up -d --build --remove-orphans
-
-            # cloudflared a veces se crea con TUNNEL_TOKEN vacio en este `up` (carrera de timing
-            # con --build, visto en deploys reales aunque .env ya tiene el valor correcto). No
-            # necesita build (imagen fija), asi que recrearlo aparte es barato y confirma el token.
-            if ! docker inspect steatify-cloudflared-1 --format '{{range .Config.Env}}{{println .}}{{end}}' 2>/dev/null | grep -q '^TUNNEL_TOKEN=.\+'; then
-              echo "cloudflared arranco sin TUNNEL_TOKEN -- recreando"
-              docker compose -f docker-compose.prod.yml up -d --force-recreate --no-deps cloudflared
-            fi
 
             for attempt in $(seq 1 30); do
               if curl --fail --silent http://127.0.0.1:4000/api/health >/dev/null; then
