@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Prepara la VPS para los despliegues de Steatify. Se ejecuta UNA vez, como root, en la VPS:
-#   sudo bash scripts/vps-bootstrap-steatify.sh            (con el repo o solo este archivo + deploy/steatify-deploy.pub al lado)
+#   desde tu PC:  ssh -p 22022 root@104.207.89.48 'bash -s' < scripts/vps-bootstrap-steatify.sh
+#   o en la VPS:  sudo bash scripts/vps-bootstrap-steatify.sh
 # Crea el usuario `steatify` (grupo docker, solo clave SSH), /opt/steatify y un .env inicial con los secretos ya generados.
 # Es idempotente: se puede repetir sin pisar un .env existente. No imprime secretos.
 set -Eeuo pipefail
@@ -9,11 +10,8 @@ getent group docker >/dev/null || { echo "Docker no está instalado (no existe e
 
 USUARIO=steatify
 APP=/opt/steatify
-AQUI="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PUB_FILE="${STEATIFY_DEPLOY_PUB:-$AQUI/../deploy/steatify-deploy.pub}"
-[ -f "$PUB_FILE" ] || PUB_FILE="$AQUI/steatify-deploy.pub"
-[ -f "$PUB_FILE" ] || { echo "No encuentro deploy/steatify-deploy.pub (clave pública del deploy)." >&2; exit 1; }
-PUB="$(head -n1 "$PUB_FILE")"
+# Clave pública del deploy (no es secreta): va incluida para poder ejecutar el script con un solo comando por SSH.
+PUB='ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICgxlW8yCV5QtK4yOHQn4/PPLBKbJTuktAJXQby9gRmY steatify-deploy@github-actions'
 
 id "$USUARIO" >/dev/null 2>&1 || useradd -m -s /bin/bash "$USUARIO"
 usermod -aG docker "$USUARIO"
