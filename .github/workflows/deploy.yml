@@ -178,6 +178,14 @@ jobs:
             docker compose -f docker-compose.prod.yml config >/dev/null
             docker compose -f docker-compose.prod.yml up -d --build --remove-orphans
 
+            # cloudflared a veces se crea con TUNNEL_TOKEN vacio en este `up` (carrera de timing
+            # con --build, visto en deploys reales aunque .env ya tiene el valor correcto). No
+            # necesita build (imagen fija), asi que recrearlo aparte es barato y confirma el token.
+            if ! docker inspect steatify-cloudflared-1 --format '{{range .Config.Env}}{{println .}}{{end}}' 2>/dev/null | grep -q '^TUNNEL_TOKEN=.\+'; then
+              echo "cloudflared arranco sin TUNNEL_TOKEN -- recreando"
+              docker compose -f docker-compose.prod.yml up -d --force-recreate --no-deps cloudflared
+            fi
+
             for attempt in $(seq 1 30); do
               if curl --fail --silent http://127.0.0.1:4000/api/health >/dev/null; then
                 echo "Steatify backend is healthy"
