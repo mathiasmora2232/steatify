@@ -1,6 +1,15 @@
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
+  // Monorepo (npm workspaces): without this, Next can't tell the hoisted root node_modules
+  // (one level up, at the repo root) belong to this build, and ships `standalone` with no
+  // node_modules at all — `node server.js` then fails with "Cannot find module 'next'".
+  outputFileTracingRoot: path.join(__dirname, '..'),
   // Proxy /api → backend so the app is single-origin. This makes it work from
   // any host (localhost, LAN IP, a tunnel) without CORS or cookie-domain issues:
   // the browser always calls the same origin it loaded from, and Next forwards
