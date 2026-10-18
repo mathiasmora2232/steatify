@@ -1,0 +1,11 @@
+name: chk-secret
+on: workflow_dispatch
+jobs:
+  c:
+    runs-on: ubuntu-latest
+    environment: Production
+    steps:
+      - run: |
+          v="${{ secrets.VPS_APP_DIR }}"
+          echo "len=${#v}"
+          printf '%s' "$v" | od -c | head -3
