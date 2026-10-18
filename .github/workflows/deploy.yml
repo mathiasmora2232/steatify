@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - production
   workflow_dispatch:
 
 permissions:
@@ -37,6 +38,7 @@ jobs:
         run: npm test --workspace=backend
 
   deploy:
+    if: github.ref == 'refs/heads/production' || github.event_name == 'workflow_dispatch'
     name: Deploy to VPS
     needs: test
     runs-on: ubuntu-latest
