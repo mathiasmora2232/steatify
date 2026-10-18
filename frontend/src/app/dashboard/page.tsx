@@ -4,9 +4,7 @@ import useSWR from 'swr';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
-import { computeLevel } from '@/lib/level';
 import { HomeHero } from '@/components/HomeHero';
-import { IdentityCard } from '@/components/IdentityCard';
 import { SmartStat } from '@/components/SmartStat';
 import { UniverseCard } from '@/components/UniverseCard';
 import { RankCard } from '@/components/RankCard';
@@ -77,7 +75,6 @@ export default function DashboardPage() {
   const t = today.data;
   const m = month.data;
   const steamHours = steam.data?.totalHours ?? 0;
-  const level = computeLevel(dna.data?.totals.plays ?? 0, dna.data?.totals.minutes ?? 0, steamHours);
 
   const eraTitle = eras.data?.[0]?.title ?? dna.data?.archetypes[0]?.label ?? null;
   const eraText = [eraTitle, steam.data?.gameCount ? 'Gamer' : null].filter(Boolean).join(' · ') || null;
@@ -168,15 +165,6 @@ export default function DashboardPage() {
             ]} delay={0.1}
           />
         )}
-      </section>
-
-      {/* Steatify DNA — compacto, no al tope de la página */}
-      <section className="mb-6 lg:max-w-sm">
-        <IdentityCard
-          archetypes={dna.data?.archetypes ?? []}
-          personality={dna.data?.hasData ? dna.data.personality : null}
-          level={level}
-        />
       </section>
 
       {/* ROW 2 — Smart stats */}
