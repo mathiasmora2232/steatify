@@ -20,8 +20,10 @@ RUN npm run build --workspace=frontend
 
 FROM base AS runtime
 ENV NODE_ENV=production
+# Next traces the standalone output relative to `frontend/` itself (not the monorepo root), so it lands
+# flat at /app/server.js — not nested under /app/frontend/. static and public go alongside it, same way.
 COPY --from=build /app/frontend/.next/standalone ./
-COPY --from=build /app/frontend/.next/static ./frontend/.next/static
-COPY --from=build /app/frontend/public ./frontend/public
+COPY --from=build /app/frontend/.next/static ./.next/static
+COPY --from=build /app/frontend/public ./public
 EXPOSE 3000
-CMD ["node", "frontend/server.js"]
+CMD ["node", "server.js"]
