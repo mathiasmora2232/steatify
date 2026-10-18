@@ -66,8 +66,8 @@ jobs:
             --exclude='*.pfx' --exclude='**/*.pfx' \
             --exclude='.ssh' --exclude='*/.ssh' --exclude='**/.ssh' \
             --exclude='backups' --exclude='*/backups' --exclude='**/backups' \
-            -czf "$RUNNER_TEMP/steatify-deploy.tar.gz" .
-          if tar -tzf "$RUNNER_TEMP/steatify-deploy.tar.gz" | grep -E '(^|/)(\.env[^/]*|node_modules|\.git)(/|$)'; then
+            -czf /tmp/steatify-deploy.tar.gz .
+          if tar -tzf /tmp/steatify-deploy.tar.gz | grep -E '(^|/)(\.env[^/]*|node_modules|\.git)(/|$)'; then
             echo "Deployment package unexpectedly includes secrets or local dependencies" >&2
             exit 1
           fi
@@ -131,8 +131,9 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           port: ${{ secrets.VPS_PORT || '22022' }}
-          source: ${{ runner.temp }}/steatify-deploy.tar.gz
+          source: /tmp/steatify-deploy.tar.gz
           target: /tmp/steatify-deploy-upload
+          strip_components: 1
           overwrite: true
 
       - name: Extract and deploy
