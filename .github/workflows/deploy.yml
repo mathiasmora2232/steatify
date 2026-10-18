@@ -75,17 +75,18 @@ jobs:
       - name: Initialize server Git checkout and verify configuration
         uses: appleboy/ssh-action@v1.1.0
         env:
-          VPS_APP_DIR: ${{ secrets.VPS_APP_DIR }}
           REPO_TOKEN: ${{ github.token }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           port: ${{ secrets.VPS_PORT || '22022' }}
-          envs: VPS_APP_DIR,REPO_TOKEN
+          envs: REPO_TOKEN
           script: |
             set -eu
-            APP_DIR="$VPS_APP_DIR"
+            # Embebido directo (no por `envs:`): esta VPS no acepta SendEnv de variables custom por SSH (AcceptEnv),
+            # así que una variable pasada solo por `envs:` llegaba vacía al script remoto.
+            APP_DIR="${{ secrets.VPS_APP_DIR }}"
             ORIGIN=https://github.com/mathiasmora2232/steatify.git
             if [ "$APP_DIR" != "/opt/steatify" ]; then
               echo "VPS_APP_DIR must be /opt/steatify; refusing an unexpected deployment target" >&2
@@ -137,7 +138,6 @@ jobs:
       - name: Extract and deploy
         uses: appleboy/ssh-action@v1.1.0
         env:
-          VPS_APP_DIR: ${{ secrets.VPS_APP_DIR }}
           TUNNEL_TOKEN: ${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}
           SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
         with:
@@ -145,13 +145,14 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           port: ${{ secrets.VPS_PORT || '22022' }}
-          envs: VPS_APP_DIR,TUNNEL_TOKEN,SPOTIFY_CLIENT_SECRET
+          envs: TUNNEL_TOKEN,SPOTIFY_CLIENT_SECRET
           command_timeout: 30m
           script: |
             set -eu
             ARCHIVE=/tmp/steatify-deploy-upload/steatify-deploy.tar.gz
             trap 'rm -f "$ARCHIVE"' EXIT
-            APP_DIR="$VPS_APP_DIR"
+            # Igual que en el paso anterior: embebido directo, no por `envs:` (esta VPS no acepta SendEnv de variables custom por SSH).
+            APP_DIR="${{ secrets.VPS_APP_DIR }}"
 
             test -f "$APP_DIR/.env" || { echo "Missing production .env; refusing deployment" >&2; exit 1; }
             # Secretos que se guardan como secretos de GitHub: si existen, se dejan en el .env del servidor (sin imprimirlos)
