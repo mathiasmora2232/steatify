@@ -48,6 +48,21 @@ services:
     depends_on:
       - backend
 
+  # Túnel de Cloudflare: publica steatify.lat (y www., app., auth., admin.) hacia el frontend y api.steatify.lat hacia el backend.
+  # Los hostnames y sus destinos (http://frontend:3000, http://backend:4000) se administran en Cloudflare (Zero Trust → Tunnels → steatify);
+  # aquí solo corre el conector con el token del túnel, que va en el .env del servidor (el deploy lo copia del secreto CLOUDFLARE_TUNNEL_TOKEN).
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${TUNNEL_TOKEN:?Define TUNNEL_TOKEN en el .env del servidor (token del túnel steatify de Cloudflare)}
+    networks:
+      - default
+    depends_on:
+      - frontend
+      - backend
+
 networks:
   steatify-infra:
     external: true

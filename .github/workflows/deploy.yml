@@ -138,12 +138,13 @@ jobs:
         uses: appleboy/ssh-action@v1.1.0
         env:
           VPS_APP_DIR: ${{ secrets.VPS_APP_DIR }}
+          TUNNEL_TOKEN: ${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           port: ${{ secrets.VPS_PORT || '22022' }}
-          envs: VPS_APP_DIR
+          envs: VPS_APP_DIR,TUNNEL_TOKEN
           command_timeout: 30m
           script: |
             set -eu
@@ -152,6 +153,13 @@ jobs:
             APP_DIR="$VPS_APP_DIR"
 
             test -f "$APP_DIR/.env" || { echo "Missing production .env; refusing deployment" >&2; exit 1; }
+            # Token del túnel de Cloudflare: si el secreto existe, se deja en el .env del servidor (sin imprimirlo)
+            if [ -n "${TUNNEL_TOKEN:-}" ]; then
+              grep -v '^TUNNEL_TOKEN=' "$APP_DIR/.env" > "$APP_DIR/.env.new" || true
+              printf 'TUNNEL_TOKEN=%s
+' "$TUNNEL_TOKEN" >> "$APP_DIR/.env.new"
+              chmod 600 "$APP_DIR/.env.new" && mv "$APP_DIR/.env.new" "$APP_DIR/.env"
+            fi
             test -s "$ARCHIVE" || { echo "Release archive was not uploaded" >&2; exit 1; }
             tar -xzf "$ARCHIVE" -C "$APP_DIR"
             cd "$APP_DIR"

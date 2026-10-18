@@ -82,7 +82,21 @@ docker compose --profile app up -d --build
 
 Esto levanta **postgres, redis, backend, frontend y ml-service**. Las migraciones corren solas al arrancar el backend.
 
-### Reverse proxy + SSL (Nginx)
+### Túnel de Cloudflare (opción recomendada en el VPS)
+El `docker-compose.prod.yml` incluye el conector `cloudflared`: no hace falta Nginx ni abrir puertos. Se crea una vez en Cloudflare:
+1. Zero Trust → Networks → Tunnels → **Create tunnel** → Cloudflared → nombre `steatify` (administrado desde Cloudflare). Copia el **token** (va a `TUNNEL_TOKEN`).
+2. Public hostnames del túnel:
+
+| Hostname | Servicio |
+|---|---|
+| `steatify.lat`, `www.steatify.lat`, `app.steatify.lat`, `auth.steatify.lat`, `admin.steatify.lat` | `http://frontend:3000` |
+| `api.steatify.lat` | `http://backend:4000` |
+
+   Cloudflare crea los registros DNS (si la raíz tiene un registro A de «parking», bórralo para que entre el CNAME).
+3. Guarda el token como secreto del repositorio `CLOUDFLARE_TUNNEL_TOKEN` (el deploy lo copia al `.env` del servidor) o ponlo a mano en `/opt/steatify/.env` como `TUNNEL_TOKEN=...`.
+4. Deploy normal (`workflow_dispatch`). El contenedor `cloudflared` arranca con el resto del stack.
+
+### Reverse proxy + SSL (Nginx) — alternativa sin túnel
 Pon Nginx delante enrutando:
 - `steatify.lat`        → frontend `:3000`
 - `api.steatify.lat`    → backend `:4000`
