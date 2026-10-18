@@ -21,11 +21,17 @@ export function HomeHero({
   eraText,
   topArtist,
   recentGame,
+  lastSyncedAt,
+  syncing,
+  onSync,
 }: {
   name: string;
   eraText: string | null;
   topArtist: TopItem | null;
   recentGame?: HeroGame | null;
+  lastSyncedAt?: string | null;
+  syncing?: boolean;
+  onSync?: () => void;
 }) {
   const { data: np } = useSWR('now-playing', api.nowPlaying, { refreshInterval: 30_000 });
   const playing = np?.playing && np.name;
@@ -63,26 +69,42 @@ export function HomeHero({
           className="pointer-events-none absolute -right-20 -top-24 h-80 w-80 scale-150 rounded-full opacity-25 blur-3xl"
         />
       )}
-      <div className="relative flex flex-col gap-6 p-6 sm:p-8 md:flex-row md:items-center md:justify-between">
+      {onSync && (
+        <div className="relative flex items-center justify-end gap-3 px-3.5 pt-3 text-xs sm:absolute sm:right-6 sm:top-6 sm:px-0 sm:pt-0">
+          {lastSyncedAt && (
+            <span className="hidden text-[var(--color-muted)] sm:inline">
+              Última sincronización: {new Date(lastSyncedAt).toLocaleString()}
+            </span>
+          )}
+          <button
+            onClick={onSync}
+            disabled={syncing}
+            className="rounded-full border px-3 py-1 text-[var(--color-muted)] transition hover:text-white disabled:opacity-50"
+          >
+            {syncing ? 'Sincronizando…' : '↻ Sincronizar'}
+          </button>
+        </div>
+      )}
+      <div className="relative flex flex-col gap-4 p-3.5 sm:gap-6 sm:p-8 md:flex-row md:items-center md:justify-between">
         {/* Left — identity */}
         <div className="min-w-0">
           <motion.h1
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-3xl font-bold tracking-tight sm:text-4xl"
+            className="text-xl font-bold tracking-tight sm:text-4xl"
           >
             Hola{name ? `, ${name}` : ''}
           </motion.h1>
-          <p className="mt-1 text-sm text-[var(--color-muted)]">Qué bueno verte de nuevo</p>
+          <p className="mt-0.5 text-xs text-[var(--color-muted)] sm:mt-1 sm:text-sm">Qué bueno verte de nuevo</p>
           {eraText && (
             <motion.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="mt-3"
+              className="mt-2 sm:mt-3"
             >
-              <p className="text-xs uppercase tracking-widest text-[var(--color-muted)]">Tu era actual</p>
-              <p className="mt-1 bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-2)] bg-clip-text text-lg font-semibold text-transparent sm:text-xl">
+              <p className="text-[10px] uppercase tracking-widest text-[var(--color-muted)] sm:text-xs">Tu era actual</p>
+              <p className="mt-0.5 bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-2)] bg-clip-text text-sm font-semibold text-transparent sm:mt-1 sm:text-xl">
                 {eraText}
               </p>
             </motion.div>
@@ -90,24 +112,24 @@ export function HomeHero({
         </div>
 
         {/* Right — now playing + último juego activo */}
-        <div className="flex w-full flex-col gap-3 md:w-auto md:min-w-[320px]">
+        <div className="flex w-full flex-col gap-2 md:w-auto md:min-w-[320px] md:gap-3">
         <motion.div
           initial={{ opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.15 }}
-          className="flex w-full items-center gap-4 rounded-2xl border border-white/5 bg-black/20 p-4 backdrop-blur"
+          className="flex w-full items-center gap-2.5 rounded-2xl border border-white/5 bg-black/20 p-2.5 backdrop-blur sm:gap-4 sm:p-4"
         >
           <div className="relative shrink-0">
             {cover ? (
               <>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={cover} alt="" aria-hidden className="absolute inset-0 h-20 w-20 scale-110 rounded-xl opacity-60 blur-xl" />
+                <img src={cover} alt="" aria-hidden className="absolute inset-0 h-12 w-12 scale-110 rounded-xl opacity-60 blur-xl sm:h-20 sm:w-20" />
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={cover} alt="" className="relative h-20 w-20 rounded-xl object-cover shadow-lg" />
+                <img src={cover} alt="" className="relative h-12 w-12 rounded-xl object-cover shadow-lg sm:h-20 sm:w-20" />
               </>
             ) : (
-              <div className="flex h-20 w-20 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--color-surface-2)] to-black/40">
-                <Music2 className="h-8 w-8 text-[var(--color-muted)]/60" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--color-surface-2)] to-black/40 sm:h-20 sm:w-20">
+                <Music2 className="h-6 w-6 text-[var(--color-muted)]/60 sm:h-8 sm:w-8" />
               </div>
             )}
           </div>

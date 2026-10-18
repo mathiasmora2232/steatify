@@ -115,39 +115,23 @@ export default function DashboardPage() {
 
   return (
     <div className="mx-auto max-w-7xl pb-10">
-      {/* Top bar */}
-      <div className="mb-4 flex items-center justify-end gap-3 text-sm">
-        {user?.lastSyncedAt && (
-          <span className="hidden text-xs text-[var(--color-muted)] sm:inline">
-            Última sincronización: {new Date(user.lastSyncedAt).toLocaleString()}
-          </span>
-        )}
-        <button
-          onClick={handleSync}
-          disabled={syncing}
-          className="rounded-full border px-4 py-1.5 text-sm text-[var(--color-muted)] transition hover:text-white disabled:opacity-50"
-        >
-          {syncing ? 'Sincronizando…' : '↻ Sincronizar ahora'}
-        </button>
-      </div>
       {syncMsg && (
         <p className="mb-4 rounded-xl border bg-[var(--color-surface)] px-4 py-2 text-sm text-[var(--color-muted)]">
           {syncMsg}
         </p>
       )}
 
-      {/* ROW 1 — Hero + Identity */}
-      <div className="mb-6 grid grid-cols-1 items-start gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <HomeHero name={user?.displayName ?? ''} eraText={eraText} topArtist={m?.topArtist ?? null} recentGame={recentGame} />
-        </div>
-        <div className="lg:col-span-1">
-          <IdentityCard
-            archetypes={dna.data?.archetypes ?? []}
-            personality={dna.data?.hasData ? dna.data.personality : null}
-            level={level}
-          />
-        </div>
+      {/* ROW 1 — Hero */}
+      <div className="mb-6">
+        <HomeHero
+          name={user?.displayName ?? ''}
+          eraText={eraText}
+          topArtist={m?.topArtist ?? null}
+          recentGame={recentGame}
+          lastSyncedAt={user?.lastSyncedAt}
+          syncing={syncing}
+          onSync={handleSync}
+        />
       </div>
 
       {/* DESTACADOS — datos vivos con imágenes */}
@@ -184,6 +168,15 @@ export default function DashboardPage() {
             ]} delay={0.1}
           />
         )}
+      </section>
+
+      {/* Steatify DNA — compacto, no al tope de la página */}
+      <section className="mb-6 lg:max-w-sm">
+        <IdentityCard
+          archetypes={dna.data?.archetypes ?? []}
+          personality={dna.data?.hasData ? dna.data.personality : null}
+          level={level}
+        />
       </section>
 
       {/* ROW 2 — Smart stats */}
