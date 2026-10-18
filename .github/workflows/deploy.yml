@@ -37,7 +37,6 @@ jobs:
         run: npm test --workspace=backend
 
   deploy:
-    if: github.event_name == 'workflow_dispatch'
     name: Deploy to VPS
     needs: test
     runs-on: ubuntu-latest
