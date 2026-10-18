@@ -2,7 +2,11 @@
 
 Repositorio activo: `https://github.com/mathiasmora2232/steatify.git`. Dominio del frontend: `https://steatify.lat`; backend previsto: `https://api.steatify.lat`. Ver `.env.production.example` para URLs y callback de Spotify. Registrar ese callback en Spotify y configurar DNS y HTTPS antes de publicar.
 
-El workflow ejecuta tests en cada push a `main`. El despliegue al VPS se inicia manualmente con `workflow_dispatch` y requiere los secretos del entorno `Production` en el nuevo repositorio, con `VPS_APP_DIR=/opt/steatify`. La carpeta debe prepararse en el servidor con su `.env` real; el cambio de repositorio no migra automáticamente el servidor. Las instalaciones existentes pueden seguir usando su conexión de base de datos actual; no cambies el nombre de la base ni `DATABASE_URL` hasta completar y respaldar una migración explícita.
+## Ramas
+
+- `main` / `dev` → trabajo y pruebas. Cada push corre los tests (CI), nunca toca la VPS. No hace falta pasar por `dev` antes de tocar `main` a menos que se pida explícitamente — `dev` existe como rama donde probar algo sin afectar nada.
+- `production` → cada push a esta rama **despliega solo** a la VPS (requiere los secretos del entorno `Production`, con `VPS_APP_DIR=/opt/steatify`; la carpeta debe tener su `.env` real en el servidor de antes). También se puede disparar a mano con `workflow_dispatch` desde cualquier rama.
+- Para promover: `git push origin main:production` (o abrir un PR `main → production`), una vez que lo que está en `main` ya se probó. Las instalaciones existentes pueden seguir usando su conexión de base de datos actual; no cambies el nombre de la base ni `DATABASE_URL` hasta completar y respaldar una migración explícita.
 
 Dos caminos: **PaaS gestionado** (rápido, recomendado para MVP) o **VPS con Docker Compose** (más control). En ambos, lo crítico es: variables de entorno, migraciones, y que la **Redirect URI de Spotify coincida con tu dominio de producción**.
 
