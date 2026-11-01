@@ -14,10 +14,6 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: steatify-production-deploy
-  cancel-in-progress: false
-
 jobs:
   test:
     name: Tests
@@ -41,43 +37,25 @@ jobs:
       - name: Backend tests
         run: npm test --workspace=backend
 
+      - name: Build backend
+        run: npm run build --workspace=backend
+
+      - name: Build frontend
+        run: npm run build --workspace=frontend
+
   deploy:
-    if: github.ref == 'refs/heads/production' || github.event_name == 'workflow_dispatch'
+    # Solo production despliega, tambien al lanzarlo a mano (workflow_dispatch desde otra rama no despliega)
+    if: github.ref == 'refs/heads/production' && github.event_name != 'pull_request'
     name: Deploy to VPS
     needs: test
     runs-on: ubuntu-latest
     environment: Production
+    # A nivel de job: asi los tests de main/dev/PR no comparten grupo ni pueden cancelar un deploy en cola
+    concurrency:
+      group: steatify-production-deploy
+      cancel-in-progress: false
     steps:
-      - name: Checkout release source
-        uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-
-      - name: Package source without secrets or caches
-        run: |
-          set -euo pipefail
-          tar \
-            --exclude-vcs \
-            --exclude='node_modules' --exclude='*/node_modules' --exclude='**/node_modules' \
-            --exclude='.next' --exclude='*/.next' --exclude='**/.next' \
-            --exclude='dist' --exclude='*/dist' --exclude='**/dist' \
-            --exclude='coverage' --exclude='*/coverage' --exclude='**/coverage' \
-            --exclude='.env*' --exclude='*/.env*' --exclude='**/.env*' \
-            --exclude='*.pem' --exclude='**/*.pem' \
-            --exclude='*.key' --exclude='**/*.key' \
-            --exclude='id_rsa*' --exclude='**/id_rsa*' \
-            --exclude='id_ed25519*' --exclude='**/id_ed25519*' \
-            --exclude='*.p12' --exclude='**/*.p12' \
-            --exclude='*.pfx' --exclude='**/*.pfx' \
-            --exclude='.ssh' --exclude='*/.ssh' --exclude='**/.ssh' \
-            --exclude='backups' --exclude='*/backups' --exclude='**/backups' \
-            -czf /tmp/steatify-deploy.tar.gz .
-          if tar -tzf /tmp/steatify-deploy.tar.gz | grep -E '(^|/)(\.env[^/]*|node_modules|\.git)(/|$)'; then
-            echo "Deployment package unexpectedly includes secrets or local dependencies" >&2
-            exit 1
-          fi
-
-      - name: Initialize server Git checkout and verify configuration
+      - name: Check out the release commit on the server
         uses: appleboy/ssh-action@v1.1.0
         env:
           REPO_TOKEN: ${{ github.token }}
@@ -121,27 +99,18 @@ jobs:
             ASKPASS="$ASKPASS_DIR/askpass"
             printf '%s\n' '#!/bin/sh' 'case "$1" in *Username*) printf "%s\n" x-access-token ;; *Password*) printf "%s\n" "$GITHUB_REPO_TOKEN" ;; *) exit 1 ;; esac' > "$ASKPASS"
             chmod 700 "$ASKPASS"
-            GITHUB_REPO_TOKEN="$REPO_TOKEN" GIT_ASKPASS="$ASKPASS" GIT_TERMINAL_PROMPT=0 git -C "$APP_DIR" fetch --depth=1 origin main
-            git -C "$APP_DIR" checkout -B main FETCH_HEAD
+            # El commit exacto que disparo el workflow (production), no la punta de main.
+            # checkout -f tambien borra los archivos que el release elimino; .env y demas ignorados se conservan.
+            DEPLOY_SHA="${{ github.sha }}"
+            GITHUB_REPO_TOKEN="$REPO_TOKEN" GIT_ASKPASS="$ASKPASS" GIT_TERMINAL_PROMPT=0 git -C "$APP_DIR" fetch --depth=1 origin "$DEPLOY_SHA"
+            git -C "$APP_DIR" checkout -f -B production FETCH_HEAD
+            test "$(git -C "$APP_DIR" rev-parse HEAD)" = "$DEPLOY_SHA"
             if [ ! -f "$APP_DIR/.env" ]; then
               echo "Git checkout is ready, but $APP_DIR/.env is missing; deploy stopped before Docker changes" >&2
               exit 1
             fi
-            mkdir -p /tmp/steatify-deploy-upload
 
-      - name: Upload release package
-        uses: appleboy/scp-action@v1
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          port: ${{ secrets.VPS_PORT || '22022' }}
-          source: /tmp/steatify-deploy.tar.gz
-          target: /tmp/steatify-deploy-upload
-          strip_components: 1
-          overwrite: true
-
-      - name: Extract and deploy
+      - name: Deploy
         uses: appleboy/ssh-action@v1.1.0
         env:
           TUNNEL_TOKEN: ${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}
@@ -155,8 +124,6 @@ jobs:
           command_timeout: 30m
           script: |
             set -eu
-            ARCHIVE=/tmp/steatify-deploy-upload/steatify-deploy.tar.gz
-            trap 'rm -f "$ARCHIVE"' EXIT
             # Igual que en el paso anterior: embebido directo, no por `envs:` (esta VPS no acepta SendEnv de variables custom por SSH).
             APP_DIR="${{ secrets.VPS_APP_DIR }}"
 
@@ -174,8 +141,6 @@ jobs:
             # no existe, estas variables quedan exportadas vacias y pisan el valor bueno que recien
             # escribimos en el .env. Las quitamos del entorno para forzar a compose a leer el .env.
             unset TUNNEL_TOKEN SPOTIFY_CLIENT_SECRET
-            test -s "$ARCHIVE" || { echo "Release archive was not uploaded" >&2; exit 1; }
-            tar -xzf "$ARCHIVE" -C "$APP_DIR"
             cd "$APP_DIR"
             test -f docker-compose.prod.yml
             test -f scripts/vps-init-steatify-db.sh
